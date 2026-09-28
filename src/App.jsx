@@ -268,8 +268,7 @@ function App() {
               </span>
 
               <h2>
-                O que vai adoçar
-                <span> seu dia?</span>
+                O que vai adoçar seu dia? 
               </h2>
 
             </div>
