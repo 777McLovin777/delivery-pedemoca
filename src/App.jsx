@@ -196,13 +196,7 @@ function App() {
           id="inicio"
         >
 
-          <div className="hero-decoration decoration-one">
-            ✦
-          </div>
 
-          <div className="hero-decoration decoration-two">
-            ✦
-          </div>
 
           <div className="hero-content">
 
