@@ -1517,3 +1517,71 @@ a {
     height: 240px;
   }
 }
+
+/* ================= CARDÁPIO COMPLETO ================= */
+
+.menu-hero {
+  text-align: center;
+}
+
+.menu-category-heading {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 55px 0 45px;
+}
+
+.menu-category-heading h2 {
+  margin: 0;
+  padding: 14px 42px;
+  border-radius: 999px;
+  color: var(--black);
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Centraliza os produtos de cada categoria */
+.menu-category .products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 320px);
+  justify-content: center;
+  gap: 28px;
+}
+
+/* Quando houver apenas 1 produto */
+.menu-category .products-grid .product-card:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+/* Balões das categorias */
+
+.category-brownies .menu-category-heading h2 {
+  background: var(--red);
+  color: var(--white);
+}
+
+.category-tortas .menu-category-heading h2 {
+  background: var(--blue);
+  color: var(--black);
+}
+
+.category-mousses .menu-category-heading h2 {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.category-clássicos .menu-category-heading h2 {
+  background: var(--pink);
+  color: var(--black);
+}
+
+.menu-footer-brand {
+  text-align: center;
+  margin: 80px 0 40px;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--red);
+}

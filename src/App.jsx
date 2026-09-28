@@ -36,6 +36,71 @@ const products = [
     image: tortinha,
   },
 ];
+const menuProducts = [
+  {
+    id: 101,
+    name: "Brownie de Chocolate ao Leite",
+    category: "Brownies",
+    description:
+      "Brownie de chocolate ao leite com opção de castanhas e frutas vermelhas.",
+    price: 12.9,
+    image: tortinha,
+  },
+  {
+    id: 102,
+    name: "Brownie de Chocolate Branco",
+    category: "Brownies",
+    description:
+      "Brownie de chocolate branco com opção de castanhas e frutas vermelhas.",
+    price: 13.9,
+    image: tortinha,
+  },
+  {
+    id: 103,
+    name: "Banoffee",
+    category: "Tortas",
+    description:
+      "Banana, doce de leite e chantilly em uma combinação irresistível.",
+    price: 15.9,
+    image: banoffe,
+  },
+  {
+    id: 104,
+    name: "Torta de Uva",
+    category: "Tortas",
+    description:
+      "Uvas frescas, creme suave e uma combinação delicada e irresistível.",
+    price: 15.9,
+    image: banoffe,
+  },
+  {
+    id: 105,
+    name: "Mousse de Oreo",
+    category: "Mousses",
+    description:
+      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
+    price: 10.9,
+    image: tiramisu,
+  },
+  {
+    id: 106,
+    name: "Mousse de Café",
+    category: "Mousses",
+    description:
+      "Mousse cremoso com sabor marcante de café.",
+    price: 10.9,
+    image: tiramisu,
+  },
+  {
+    id: 107,
+    name: "Tiramisù",
+    category: "Clássicos",
+    description:
+      "Creme suave, café e cacau para quem gosta de um clássico.",
+    price: 16.9,
+    image: tiramisu,
+  },
+];
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -111,6 +176,405 @@ function App() {
 
   function formatPrice(value) {
     return value.toFixed(2).replace(".", ",");
+  }
+
+  const isMenuPage = window.location.pathname === "/cardapio";
+  if (isMenuPage) {
+    const categories = [
+      {
+        name: "Brownies",
+        products: menuProducts.filter(
+          (product) => product.category === "Brownies"
+        ),
+      },
+      {
+        name: "Tortas",
+        products: menuProducts.filter(
+          (product) => product.category === "Tortas"
+        ),
+      },
+      {
+        name: "Mousses",
+        products: menuProducts.filter(
+          (product) => product.category === "Mousses"
+        ),
+      },
+      {
+        name: "Clássicos",
+        products: menuProducts.filter(
+          (product) => product.category === "Clássicos"
+        ),
+      },
+    ];
+
+    return (
+      <div className="app menu-page">
+
+        <header className="header">
+
+          <div className="header-left">
+
+            <a href="/" className="brand">
+              <img
+                src={headerLogo}
+                alt="Pé de Moça"
+              />
+
+              <span className="brand-name">
+                Pé de Moça
+              </span>
+            </a>
+
+          </div>
+
+          <button
+            className="header-cart"
+            onClick={() => setCartOpen(true)}
+          >
+            <span className="cart-icon">
+              🛒
+            </span>
+
+            <span className="cart-text">
+              Carrinho
+            </span>
+
+            {totalItems > 0 && (
+              <span className="cart-badge">
+                {totalItems}
+              </span>
+            )}
+          </button>
+
+        </header>
+
+
+        <main className="full-menu">
+
+          <section className="menu-hero">
+
+            <h1>
+              Nosso cardápio
+            </h1>
+
+          </section>
+
+
+          {categories.map((category) => (
+
+            <section
+              className={`menu-category category-${category.name.toLowerCase()}`}
+              key={category.name}
+            >
+
+              <div className="menu-category-heading">
+                <h2>
+                  {category.name}
+                </h2>
+              </div>
+
+
+              <div className="products-grid">
+
+                {category.products.map((product) => (
+
+                  <article
+                    className="product-card"
+                    key={product.id}
+                  >
+
+                    <div className="product-image">
+
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                      />
+
+                      <span className="product-tag">
+                        {product.category}
+                      </span>
+
+                      <button
+                        className="quick-add"
+                        onClick={() => addToCart(product)}
+                        aria-label={`Adicionar ${product.name}`}
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+
+                    <div className="product-content">
+
+                      <div className="product-title">
+
+                        <h3>
+                          {product.name}
+                        </h3>
+
+                        <strong>
+                          R$ {formatPrice(product.price)}
+                        </strong>
+
+                      </div>
+
+                      <p>
+                        {product.description}
+                      </p>
+
+                      <button
+                        className="add-button"
+                        onClick={() => addToCart(product)}
+                      >
+                        <span translate="no">
+                          Adicionar ao pedido
+                        </span>
+
+                        <span translate="no">
+                          +
+                        </span>
+                      </button>
+
+                    </div>
+
+                  </article>
+
+                ))}
+
+              </div>
+
+            </section>
+
+          ))}
+
+          <div className="menu-footer-brand">
+            <div className="menu-footer-title">
+
+              <strong>PÉ DE MOÇA</strong>
+            </div>
+
+            <div className="menu-footer-since">
+              • DESDE 2026 •
+            </div>
+
+          </div>
+        </main>
+
+
+        <a
+          href="/"
+          className="menu-back-home"
+        >
+          ← Voltar para o início
+        </a>
+
+
+        {cartOpen && (
+
+          <div
+            className="cart-overlay"
+            onClick={() => setCartOpen(false)}
+          >
+
+            <aside
+              className="cart"
+              onClick={(event) => event.stopPropagation()}
+            >
+
+              <div className="cart-header">
+
+                <div>
+
+                  <span>
+                    SEU PEDIDO
+                  </span>
+
+                  <h2>
+                    Carrinho
+                  </h2>
+
+                </div>
+
+                <button
+                  className="close-cart"
+                  onClick={() => setCartOpen(false)}
+                  aria-label="Fechar carrinho"
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              {cart.length === 0 ? (
+
+                <div className="empty-cart">
+
+                  <div className="empty-icon">
+                    🛒
+                  </div>
+
+                  <h3>
+                    Seu carrinho está vazio
+                  </h3>
+
+                  <p>
+                    Escolha um docinho para começar.
+                  </p>
+
+                  <button
+                    onClick={() => setCartOpen(false)}
+                  >
+                    Ver cardápio
+                  </button>
+
+                </div>
+
+              ) : (
+
+                <>
+
+                  <div className="cart-items">
+
+                    {cart.map((item) => (
+
+                      <div
+                        className="cart-item"
+                        key={item.id}
+                      >
+
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                        />
+
+                        <div className="cart-item-info">
+
+                          <div className="cart-item-top">
+
+                            <h3>
+                              {item.name}
+                            </h3>
+
+                            <strong>
+                              R${" "}
+                              {formatPrice(
+                                item.price * item.quantity
+                              )}
+                            </strong>
+
+                          </div>
+
+
+                          <div className="quantity">
+
+                            <button
+                              onClick={() =>
+                                decreaseQuantity(item.id)
+                              }
+                            >
+                              −
+                            </button>
+
+                            <span>
+                              {item.quantity}
+                            </span>
+
+                            <button
+                              onClick={() =>
+                                increaseQuantity(item.id)
+                              }
+                            >
+                              +
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+
+                  <div className="cart-footer">
+
+                    <div className="cart-line">
+
+                      <span>
+                        Subtotal
+                      </span>
+
+                      <strong>
+                        R${" "}
+                        {formatPrice(totalPrice)}
+                      </strong>
+
+                    </div>
+
+
+                    <div className="cart-line delivery-line">
+
+                      <span>
+                        Entrega
+                      </span>
+
+                      <span>
+                        Calculada no próximo passo
+                      </span>
+
+                    </div>
+
+
+                    <div className="cart-total">
+
+                      <span>
+                        Total
+                      </span>
+
+                      <strong>
+                        R${" "}
+                        {formatPrice(totalPrice)}
+                      </strong>
+
+                    </div>
+
+
+                    <button
+                      className="checkout-button"
+                      onClick={() =>
+                        alert(
+                          "Próxima etapa: endereço e pagamento!"
+                        )
+                      }
+                    >
+                      <span>
+                        Continuar pedido
+                      </span>
+
+                      <span>
+                        →
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </>
+
+              )}
+
+            </aside>
+
+          </div>
+
+        )}
+
+      </div>
+    );
   }
 
   return (
@@ -373,9 +837,9 @@ function App() {
 
             </div>
 
-            <button className="view-all">
+            <a href="/cardapio" className="view-all">
               Ver cardápio completo →
-            </button>
+            </a>
 
           </div>
 
