@@ -248,23 +248,7 @@ function App() {
 
             </div>
 
-            <div className="floating-card">
-
-              <span>
-                🍰
-              </span>
-
-              <div>
-                <strong>
-                  Doces artesanais
-                </strong>
-
-                <small>
-                  feitos no capricho
-                </small>
-              </div>
-
-            </div>
+          
 
           </div>
 
