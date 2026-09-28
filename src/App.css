@@ -102,7 +102,7 @@ a {
 .brand-name {
   font-family: "Playfair Display", serif;
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 1000;
   font-style: italic;
   color: var(--red);
   white-space: nowrap;
@@ -290,21 +290,11 @@ a {
 }
 
 .hero h1 {
-  margin-bottom: 28px;
-
-  color: var(--brown);
-
   font-family: "Playfair Display", serif;
-
-  font-size: clamp(48px, 6vw, 82px);
-
-  line-height: 0.98;
-}
-
-.hero h1 span {
-  color: var(--red);
-
-  font-style: italic;
+  color: var(--brown);
+  font-size: clamp(48px, 6vw, 78px);
+  font-weight: 800;
+  line-height: 1.05;
 }
 
 .hero p {
@@ -314,7 +304,7 @@ a {
 
   color: rgba(45, 18, 13, 0.75);
 
-  font-size: 18px;
+  font-size: 20px;
 
   line-height: 1.7;
 }

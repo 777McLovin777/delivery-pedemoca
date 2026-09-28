@@ -211,7 +211,7 @@ function App() {
             <h1>
               Um doce motivo
               <br />
-              <span>para pedir mais um.</span>
+              para pedir mais um.
             </h1>
 
             <p>
