@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 import logo from "./assets/logo.png";
+import headerLogo from "./assets/Pe de Moca.png";
 import banoffe from "./assets/banoffe.jpeg";
 import tiramisu from "./assets/tiramisu.jpeg";
 import tortinha from "./assets/tortinha.jpeg";
@@ -51,9 +52,9 @@ function App() {
         return currentCart.map((item) =>
           item.id === product.id
             ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
+              ...item,
+              quantity: item.quantity + 1,
+            }
             : item
         );
       }
@@ -75,9 +76,9 @@ function App() {
       currentCart.map((item) =>
         item.id === productId
           ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
+            ...item,
+            quantity: item.quantity + 1,
+          }
           : item
       )
     );
@@ -89,9 +90,9 @@ function App() {
         .map((item) =>
           item.id === productId
             ? {
-                ...item,
-                quantity: item.quantity - 1,
-              }
+              ...item,
+              quantity: item.quantity - 1,
+            }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -131,17 +132,20 @@ function App() {
 
           <a href="#inicio" className="brand">
             <img
-              src={logo}
-              alt="Doceria Pé de Moça"
+              src={headerLogo}
+              alt="Pé de Moça"
             />
+
+            <span className="brand-name">
+              Pé de Moça
+            </span>
           </a>
 
         </div>
 
         <nav
-          className={`navigation ${
-            menuOpen ? "navigation-open" : ""
-          }`}
+          className={`navigation ${menuOpen ? "navigation-open" : ""
+            }`}
         >
           <a
             href="#inicio"
@@ -248,7 +252,7 @@ function App() {
 
             </div>
 
-          
+
 
           </div>
 
@@ -268,7 +272,7 @@ function App() {
               </span>
 
               <h2>
-                O que vai adoçar seu dia? 
+                O que vai adoçar seu dia?
               </h2>
 
             </div>
@@ -431,10 +435,10 @@ function App() {
                   >
                     <span translate="no">
                       Adicionar ao pedido
-                   </span>
-                   <span translate="no">
+                    </span>
+                    <span translate="no">
                       +
-                   </span>
+                    </span>
                   </button>
 
                 </div>
@@ -616,7 +620,7 @@ function App() {
                             R${" "}
                             {formatPrice(
                               item.price *
-                                item.quantity
+                              item.quantity
                             )}
                           </strong>
 
