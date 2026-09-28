@@ -1599,3 +1599,22 @@ a {
   font-weight: 700;
   color: var(--red);
 }
+
+@media (max-width: 600px) {
+  .menu-category .product-card {
+    width: 100%;
+    max-width: 330px;
+  }
+
+  .product-title h3 {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 19px;
+    white-space: normal;
+  }
+
+  .product-content p {
+    max-width: 280px;
+    font-size: 14px;
+  }
+}
