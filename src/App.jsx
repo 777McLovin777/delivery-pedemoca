@@ -344,19 +344,7 @@ function App() {
 
           ))}
 
-          <div className="menu-footer-brand">
-            <div className="menu-footer-title">
-
-              <strong>PÉ DE MOÇA</strong>
-            </div>
-
-            <div className="menu-footer-since">
-              • DESDE 2026 •
-            </div>
-
-          </div>
         </main>
-
 
         <a
           href="/"
@@ -365,6 +353,15 @@ function App() {
           ← Voltar para o início
         </a>
 
+        <div className="menu-footer-brand">
+          <div className="menu-footer-title">
+            <strong>PÉ DE MOÇA</strong>
+          </div>
+
+          <div className="menu-footer-since">
+            • DESDE 2026 •
+          </div>
+        </div>
 
         {cartOpen && (
 
