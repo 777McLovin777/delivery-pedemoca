@@ -429,13 +429,12 @@ function App() {
                     className="add-button"
                     onClick={() => addToCart(product)}
                   >
-                    <span>
+                    <span translate="no">
                       Adicionar ao pedido
-                    </span>
-
-                    <span>
+                   </span>
+                   <span translate="no">
                       +
-                    </span>
+                   </span>
                   </button>
 
                 </div>
