@@ -308,15 +308,11 @@ function App() {
                     <div className="product-content">
 
                       <div className="product-title">
-
-                        <h3>
-                          {product.name}
-                        </h3>
+                        <h3>{product.name}</h3>
 
                         <strong>
                           R$ {formatPrice(product.price)}
                         </strong>
-
                       </div>
 
                       <p>

@@ -756,35 +756,42 @@ a {
 
 .product-title {
   display: flex;
-
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-
-  gap: 15px;
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
 }
 
 .product-title h3 {
-  font-family: "Playfair Display", serif;
-
-  font-size: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110%;
+  min-height: 64px;
+  padding: 14px 40px;
+  margin: 0;
+  border-radius: 999px;
+  color: var(--black);
+  text-align: center;
+  white-space: nowrap;
+  font-size: 21px;
+  font-weight: 800;
+  box-sizing: border-box;
 }
 
 .product-title strong {
+  display: block;
+  margin: 0;
+  font-size: 20px;
   color: var(--red);
-
-  font-size: 17px;
-
-  white-space: nowrap;
 }
 
 .product-content p {
-  margin: 12px 0 20px;
-
-  color: var(--text-light);
-
-  font-size: 14px;
-
-  line-height: 1.6;
+  text-align: center;
+  line-height: 1.5;
+  margin: 12px auto 20px;
+  max-width: 300px;
 }
 
 .add-button {
@@ -1520,7 +1527,14 @@ a {
 
 /* ================= CARDÁPIO COMPLETO ================= */
 
-.menu-hero {
+.menu-hero h1 {
+  margin: 0;
+  padding: 16px 48px;
+  background: var(--blue);
+  color: var(--brown);
+  border-radius: 999px;
+  font-size: 50px;
+  font-weight: 800;
   text-align: center;
 }
 
@@ -1544,7 +1558,7 @@ a {
 /* Centraliza os produtos de cada categoria */
 .menu-category .products-grid {
   display: grid;
-  grid-template-columns: repeat(2, 320px);
+  grid-template-columns: repeat(2, 400px);
   justify-content: center;
   gap: 28px;
 }
