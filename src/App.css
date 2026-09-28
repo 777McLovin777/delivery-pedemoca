@@ -1618,3 +1618,31 @@ a {
     font-size: 14px;
   }
 }
+
+@media (max-width: 600px) {
+  .menu-category .products-grid {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 24px;
+    padding: 0 16px;
+  }
+
+  .menu-category .product-card {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .product-title h3 {
+    width: 100%;
+    min-height: 58px;
+    padding: 12px 16px;
+    font-size: 18px;
+    white-space: normal;
+  }
+
+  .product-content p {
+    max-width: 280px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
