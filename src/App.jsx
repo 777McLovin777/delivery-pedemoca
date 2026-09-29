@@ -10,6 +10,11 @@ import escrita from "./assets/Escrita.png";
 import carrinho from "./assets/carrinho.png";
 import insta from "./assets/insta.png";
 import whats from "./assets/whats.png";
+import agua from "./assets/agua.png";
+import aguagas from "./assets/aguagas.png";
+import coca from "./assets/coca.png";
+import cocazero from "./assets/cocazero.png";
+
 
 const products = [
   {
@@ -40,6 +45,56 @@ const products = [
     image: tortinha,
   },
 ];
+
+const newCategoryProducts = {
+  "Doces autorais": [
+    {
+      id: 201,
+      name: "Pé de Moça Gourmet no Pote",
+      category: "Doces autorais",
+      description:
+        "Nosso clássico Pé de Moça em uma versão gourmet para comer de colher.",
+      price: 14.9,
+      image: tortinha,
+    },
+  ],
+
+  Bebidas: [
+    {
+      id: 208,
+      name: "Água sem gás 500 ml",
+      category: "Bebidas",
+      description: "Água mineral sem gás.",
+      price: 4.0,
+      image: agua,
+    },
+    {
+      id: 209,
+      name: "Água com gás 500 ml",
+      category: "Bebidas",
+      description: "Água mineral com gás.",
+      price: 4.5,
+      image: aguagas,
+    },
+    {
+      id: 210,
+      name: "Coca-Cola 350 ml",
+      category: "Bebidas",
+      description: "Coca-Cola lata 350 ml.",
+      price: 6.0,
+      image: coca,
+    },
+    {
+      id: 211,
+      name: "Coca-Cola Zero 350 ml",
+      category: "Bebidas",
+      description: "Coca-Cola Zero lata 350 ml.",
+      price: 6.0,
+      image: cocazero,
+    },
+  ],
+};
+
 const menuProducts = [
   {
     id: 101,
@@ -115,7 +170,7 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const [customizingBrownie, setCustomizingBrownie] = useState(null);
+const [customizingBrownie, setCustomizingBrownie] = useState(null);
   const [selectedComplements, setSelectedComplements] = useState({});
   
   useEffect(() => {
@@ -268,36 +323,190 @@ function App() {
     return value.toFixed(2).replace(".", ",");
   }
 
-  const isMenuPage = window.location.pathname === "/cardapio";
-  if (isMenuPage) {
-    const categories = [
-      {
-        name: "Brownies",
-        products: menuProducts.filter(
-          (product) => product.category === "Brownies"
-        ),
-      },
-      {
-        name: "Tortas",
-        products: menuProducts.filter(
-          (product) => product.category === "Tortas"
-        ),
-      },
-      {
-        name: "Mousses",
-        products: menuProducts.filter(
-          (product) => product.category === "Mousses"
-        ),
-      },
-      {
-        name: "Clássicos",
-        products: menuProducts.filter(
-          (product) => product.category === "Clássicos"
-        ),
-      },
-    ];
+ const currentPath = window.location.pathname;
 
-    return (
+const isMenuPage =
+  currentPath === "/cardapio" ||
+  currentPath.startsWith("/cardapio/");
+
+const categoryPath = currentPath.split("/").filter(Boolean)[1];
+
+const categoryRoutes = {
+  doces: "Doces autorais",
+  brownies: "Brownies",
+  tortas: "Tortas",
+  mousses: "Mousses",
+  bebidas: "Bebidas",
+};
+
+const currentCategory = categoryRoutes[categoryPath];
+  if (isMenuPage) {
+  const categories = [
+    {
+      name: "Brownies",
+      products: menuProducts.filter(
+        (product) => product.category === "Brownies"
+      ),
+    },
+    {
+      name: "Tortas",
+      products: menuProducts.filter(
+        (product) => product.category === "Tortas"
+      ),
+    },
+    {
+      name: "Mousses",
+      products: menuProducts.filter(
+        (product) => product.category === "Mousses"
+      ),
+    },
+    {
+      name: "Clássicos",
+      products: menuProducts.filter(
+        (product) => product.category === "Clássicos"
+      ),
+    },
+  ];
+
+  const categoryOptions = [
+    "Doces autorais",
+    "Brownies",
+    "Tortas",
+    "Mousses",
+    "Bebidas",
+  ];
+  const categoryPageProducts =
+  currentCategory === "Doces autorais"
+    ? newCategoryProducts["Doces autorais"]
+    : currentCategory === "Bebidas"
+    ? newCategoryProducts["Bebidas"]
+    : currentCategory
+    ? menuProducts.filter(
+        (product) => product.category === currentCategory
+      )
+    : [];
+
+    if (currentCategory) {
+  return (
+    <div className="app menu-page">
+      <header className="header">
+        <a href="/" className="brand">
+          <img
+            className="brand-writing"
+            src={escrita}
+            alt="Pé de Moça"
+          />
+        </a>
+
+        <button
+          className={`header-cart ${
+            totalItems > 0 ? "has-items" : ""
+          }`}
+          onClick={() => setCartOpen(true)}
+        >
+          <span className="cart-icon">
+            <img src={carrinho} alt="Carrinho" />
+          </span>
+
+          {totalItems > 0 && (
+            <span className="cart-badge">
+              {totalItems}
+            </span>
+          )}
+        </button>
+      </header>
+
+      <main className="menu-main">
+        <div className="menu-category-options">
+  {categoryOptions.map((category) => (
+    <a
+      key={category}
+      href={`/cardapio/${
+        category === "Doces autorais"
+          ? "doces"
+          : category.toLowerCase()
+      }`}
+      className={`menu-category-option ${
+        currentCategory === category ? "active" : ""
+      }`}
+    >
+      {category}
+    </a>
+  ))}
+</div>
+
+        <section className="menu-category-page">
+          <div className="products-grid">
+            {categoryPageProducts.map((product) => (
+              <article
+                className="product-card"
+                key={product.id}
+              >
+                <div className="product-image">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                  />
+
+                  <span className="product-tag">
+                    {product.category}
+                  </span>
+
+                  <button
+                    className="quick-add"
+                    onClick={() =>
+                      product.category === "Brownies"
+                        ? openBrownieCustomization(product)
+                        : addToCart(product)
+                    }
+                    aria-label={`Adicionar ${product.name}`}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="product-content">
+                  <div className="product-title">
+                    <h3>{product.name}</h3>
+
+                    <strong>
+                      R$ {formatPrice(product.price)}
+                    </strong>
+                  </div>
+
+                  <p>{product.description}</p>
+
+                  <button
+                    className="add-button"
+                    onClick={() =>
+                      product.category === "Brownies"
+                        ? openBrownieCustomization(product)
+                        : addToCart(product)
+                    }
+                  >
+                    <span translate="no">
+                      Adicionar ao pedido
+                    </span>
+
+                    <span translate="no">+</span>
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <div className="menu-back-home">
+          <a href="/cardapio">
+            ← Voltar ao cardápio
+          </a>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+  return (
       <div className="app menu-page">
 
         <header className="header">
@@ -332,12 +541,22 @@ function App() {
         <main className="full-menu">
 
           <section className="menu-hero">
-
-            <h1>
-              Nosso cardápio
-            </h1>
-
-          </section>
+  <div className="menu-category-options">
+    {categoryOptions.map((category) => (
+      <a
+  key={category}
+  href={`/cardapio/${
+    category === "Doces autorais"
+      ? "doces"
+      : category.toLowerCase()
+  }`}
+  className="menu-category-option"
+>
+  {category}
+</a>
+    ))}
+  </div>
+</section>
 
 
           {categories.map((category) => (
@@ -1234,12 +1453,12 @@ function App() {
               de sair do comum.
             </p>
 
-            <button
-              className="about-button"
-              onClick={() => setCartOpen(true)}
-            >
-              Quero um docinho →
-            </button>
+            <a
+  href="/cardapio"
+  className="about-button"
+>
+  Quero um docinho →
+</a>
 
           </div>
 
