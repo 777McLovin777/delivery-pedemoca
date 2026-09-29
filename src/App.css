@@ -2481,3 +2481,12 @@ a {
   z-index: 1001;
 }
 
+.menu-page .menu-main {
+  overflow: visible;
+}
+
+.menu-page .menu-category-options {
+  position: sticky;
+  top: 70px;
+  z-index: 100;
+}
