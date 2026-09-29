@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import logo from "./assets/logo.png";
@@ -7,6 +7,9 @@ import banoffe from "./assets/banoffe.jpeg";
 import tiramisu from "./assets/tiramisu.jpeg";
 import tortinha from "./assets/tortinha.jpeg";
 import escrita from "./assets/Escrita.png";
+import carrinho from "./assets/carrinho.png";
+import insta from "./assets/insta.png";
+import whats from "./assets/whats.png";
 
 const products = [
   {
@@ -104,12 +107,23 @@ const menuProducts = [
 ];
 
 function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("pedemoca-cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [customizingBrownie, setCustomizingBrownie] = useState(null);
   const [selectedComplements, setSelectedComplements] = useState({});
+  
+  useEffect(() => {
+  localStorage.setItem(
+    "pedemoca-cart",
+    JSON.stringify(cart)
+  );
+}, [cart]);
 
   function openBrownieCustomization(product) {
     setCustomizingBrownie(product);
@@ -288,25 +302,22 @@ function App() {
 
         <header className="header">
 
-          <div className="brand">
-            <img src={headerLogo} alt="Pé de Moça" />
-            <img
-              className="brand-writing"
-              src={escrita}
-              alt="Pé de Moça"
-            />
-          </div>
+          <a href="/" className="brand">
+  <img
+    className="brand-writing"
+    src={escrita}
+    alt="Pé de Moça"
+  />
+</a>
           <button
-            className="header-cart"
-            onClick={() => setCartOpen(true)}
-          >
+  className={`header-cart ${
+    totalItems > 0 ? "has-items" : ""
+  }`}
+  onClick={() => setCartOpen(true)}
+>
             <span className="cart-icon">
-              🛒
-            </span>
-
-            <span className="cart-text">
-              Carrinho
-            </span>
+  <img src={carrinho} alt="Carrinho" />
+</span>
 
             {totalItems > 0 && (
               <span className="cart-badge">
@@ -440,6 +451,47 @@ function App() {
           </div>
         </div>
 
+{/* ================= REDES SOCIAIS ================= */}
+
+<section className="social-section">
+
+  <div className="social-contact">
+
+    <a
+      href="https://www.instagram.com/docepedemoca/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="social-item"
+    >
+      <img
+        src={insta}
+        alt="Instagram"
+      />
+
+      <span>
+        @docepedemoca
+      </span>
+    </a>
+
+    <a
+      href="https://wa.me/5511910513097"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="social-item"
+    >
+      <img
+        src={whats}
+        alt="WhatsApp"
+      />
+
+      <span>
+        11 91051-3097
+      </span>
+    </a>
+
+  </div>
+
+</section>
 
         {/* ================= MODAL DO BROWNIE ================= */}
 
@@ -621,9 +673,9 @@ function App() {
 
                 <div className="empty-cart">
 
-                  <div className="empty-icon">
-                    🛒
-                  </div>
+                  <span className="cart-icon">
+  🛒
+</span>
 
                   <h3>
                     Seu carrinho está vazio
@@ -821,17 +873,12 @@ function App() {
           </button>
 
           <a href="#inicio" className="brand">
-            <img
-              src={headerLogo}
-              alt="Pé de Moça"
-            />
-
-            <img
-              className="brand-writing"
-              src={escrita}
-              alt="Pé de Moça"
-            />
-          </a>
+  <img
+    className="brand-writing"
+    src={escrita}
+    alt="Pé de Moça"
+  />
+</a>
 
         </div>
 
@@ -866,8 +913,8 @@ function App() {
           onClick={() => setCartOpen(true)}
         >
           <span className="cart-icon">
-            🛒
-          </span>
+  <img src={carrinho} alt="Carrinho" />
+</span>
 
           <span className="cart-text">
             Carrinho
@@ -1217,6 +1264,45 @@ function App() {
 
       </main>
 
+<section className="social-section">
+
+  <div className="social-contact">
+
+    <a
+      href="https://www.instagram.com/docepedemoca/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="social-item"
+    >
+      <img
+        src={insta}
+        alt="Instagram"
+      />
+
+      <span>
+        @docepedemoca
+      </span>
+    </a>
+
+    <a
+      href="https://wa.me/5511910513097"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="social-item"
+    >
+      <img
+        src={whats}
+        alt="WhatsApp"
+      />
+
+      <span>
+        11 91051-3097
+      </span>
+    </a>
+
+  </div>
+
+</section>
 
       {/* ================= CARRINHO ================= */}
 
@@ -1261,9 +1347,9 @@ function App() {
 
               <div className="empty-cart">
 
-                <div className="empty-icon">
-                  🛒
-                </div>
+                <span className="cart-icon">
+  <img src={carrinho} alt="Carrinho" />
+</span>
 
                 <h3>
                   Seu carrinho está vazio

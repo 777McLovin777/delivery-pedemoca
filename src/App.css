@@ -64,22 +64,23 @@ a {
 .header {
   width: 100%;
   height: 92px;
-
   padding: 0 6%;
-
-  background: var(--white);
-
+  background: var(--red);
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   position: sticky;
   top: 0;
-
   z-index: 100;
-
-  border-bottom: 1px solid rgba(45, 18, 13, 0.08);
+  border-bottom: none;
 }
+.header .brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
 
 .header-left {
   display: flex;
@@ -159,25 +160,30 @@ a {
 
 .header-cart {
   min-height: 46px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
-
   padding: 0 18px;
-
   border-radius: 30px;
-
   background: var(--red);
-
   color: var(--white);
-
   font-size: 14px;
   font-weight: 800;
-
   transition: 0.25s;
+  margin-left: auto;
+}
+.cart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
 }
 
 .header-cart:hover {
@@ -214,7 +220,7 @@ a {
 
   background: transparent;
 
-  color: var(--red);
+   color: #ffffff;
 
   font-size: 25px;
 }
@@ -226,17 +232,13 @@ a {
 
 .hero {
   min-height: 650px;
-
-  padding: 80px 8%;
-
+  margin-top: 0;
+  padding: 172px 8% 80px;
   background: var(--blue);
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   position: relative;
-
   overflow: hidden;
 }
 
@@ -276,9 +278,7 @@ a {
 
 .hero-content {
   max-width: 620px;
-
   position: relative;
-
   z-index: 2;
 }
 
@@ -1300,17 +1300,8 @@ a {
     padding: 0 20px;
   }
 
-  .brand img {
-    width: 90px;
-    height: 90px;
-  }
-
-  .brand-name {
-    font-size: 30px;
-  }
-
   .brand .brand-writing {
-    width: 230px !important;
+    width: 180px !important;
     height: auto !important;
     object-fit: contain;
   }
@@ -1348,79 +1339,24 @@ a {
     min-width: 43px;
     width: auto;
     height: 43px;
-    padding: 0 8px;
+    padding: 0 10px;
     gap: 5px;
+    flex-shrink: 0;
+    border-radius: 14px;
+  }
+
+  .header-cart.has-items .cart-text {
+    display: inline;
   }
 
   .cart-badge {
+    position: static;
     min-width: 21px;
+    height: 21px;
     padding: 0 5px;
     border-radius: 999px;
     white-space: nowrap;
-
-    /* =========================================
-     HOME — AJUSTES FINAIS MOBILE
-  ========================================= */
-
-    .menu-section .products-grid {
-      grid-template-columns: 1fr;
-      gap: 22px;
-    }
-
-    .menu-section .product-card {
-      width: 100%;
-      max-width: 330px;
-      margin: 0 auto;
-    }
-
-    .menu-section .product-image {
-      height: 190px;
-      overflow: hidden;
-    }
-
-    .menu-section .product-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .about-section {
-      margin: 20px;
-      padding: 45px 25px;
-      flex-direction: column;
-      text-align: center;
-      gap: 30px;
-    }
-
-    .about-logo {
-      min-width: 0;
-    }
-
-    .about-logo img {
-      width: 200px;
-      height: 200px;
-    }
-
-    .about-content {
-      width: 100%;
-    }
-
-    .about-content h2 {
-      font-size: 36px;
-      line-height: 1.1;
-    }
-
-    .about-content p {
-      display: block;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .about-content .about-highlight {
-      display: block;
-    }
   }
-
 
   /* =========================================
      HOME — CELULAR
@@ -1428,12 +1364,14 @@ a {
 
   .hero {
     min-height: auto;
-    padding: 70px 20px 100px;
+    margin-top: 0;
+    padding: 145px 20px 100px;
     flex-direction: column;
     text-align: center;
   }
 
   .hero-content {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1444,6 +1382,9 @@ a {
   }
 
   .hero p {
+    max-width: 330px;
+    margin-left: auto;
+    margin-right: auto;
     font-size: 16px;
   }
 
@@ -1480,6 +1421,11 @@ a {
     transform: translateX(-50%);
   }
 
+
+  /* =========================================
+     SEÇÕES DA HOME
+  ========================================= */
+
   .categories-section,
   .menu-section {
     padding: 70px 20px;
@@ -1500,10 +1446,18 @@ a {
     font-size: 39px;
   }
 
+
   /* Cards da HOME */
+
   .products-grid {
     grid-template-columns: 1fr;
     gap: 20px;
+    justify-items: center;
+  }
+
+  .menu-section .products-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
   }
 
   .menu-section .product-card {
@@ -1512,10 +1466,26 @@ a {
     margin: 0 auto;
   }
 
+  .menu-section .product-image {
+    height: 190px;
+    overflow: hidden;
+  }
+
+  .menu-section .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .menu-title {
     align-items: flex-start;
     flex-direction: column;
   }
+
+
+  /* =========================================
+     SOBRE
+  ========================================= */
 
   .about-section {
     margin: 20px;
@@ -1534,12 +1504,25 @@ a {
     height: 220px;
   }
 
+  .about-content {
+    width: 100%;
+  }
+
   .about-content h2 {
     font-size: 40px;
+    line-height: 1.1;
+  }
+
+  .about-content p {
+    display: block;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .about-content .about-highlight {
+    display: block;
   }
 }
-
-
 /* =========================================
    CELULAR PEQUENO
 ========================================= */
@@ -1696,6 +1679,18 @@ a {
   }
 }
 
+.social-contact {
+  width: 100%;
+  padding: 20px;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: 24px;
+}
+
+.social-item {
+  font-size: 16px;
+}
+
 
 @media (max-width: 600px) {
 
@@ -1724,6 +1719,18 @@ a {
     font-size: 14px;
     line-height: 1.5;
   }
+}
+
+.social-contact {
+  width: 100%;
+  padding: 20px;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: 24px;
+}
+
+.social-item {
+  font-size: 16px;
 }
 
 
@@ -1776,6 +1783,18 @@ a {
     padding: 10px 16px;
     font-size: 18px;
   }
+}
+
+.social-contact {
+  width: 100%;
+  padding: 20px;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: 24px;
+}
+
+.social-item {
+  font-size: 16px;
 }
 
 
@@ -2036,4 +2055,43 @@ a {
   .brownie-option .brownie-option-name b {
     font-size: 12px;
   }
+}
+
+.social-section {
+  padding: 0 20px 70px;
+}
+
+.social-contact {
+  width: min(90%, 600px);
+  margin: 0 auto;
+  padding: 24px 30px;
+  background: var(--red);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 35px;
+  box-sizing: border-box;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.social-item:hover {
+  transform: translateY(-2px);
+}
+
+.social-item img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
 }
