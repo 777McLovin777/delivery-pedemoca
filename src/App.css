@@ -89,7 +89,7 @@ a {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 5px;
 }
 
 .brand img {
