@@ -42,7 +42,7 @@ const menuProducts = [
     name: "Brownie de Chocolate ao Leite",
     category: "Brownies",
     description:
-      "Brownie de chocolate ao leite com opção de castanhas e frutas vermelhas.",
+      "Brownie de chocolate ao leite com opção de castanhas ou frutas vermelhas.",
     price: 12.9,
     image: tortinha,
   },
@@ -51,7 +51,7 @@ const menuProducts = [
     name: "Brownie de Chocolate Branco",
     category: "Brownies",
     description:
-      "Brownie de chocolate branco com opção de castanhas e frutas vermelhas.",
+      "Brownie de chocolate branco com opção de castanhas ou frutas vermelhas.",
     price: 13.9,
     image: tortinha,
   },
@@ -107,7 +107,80 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const [customizingBrownie, setCustomizingBrownie] = useState(null);
+  const [selectedComplements, setSelectedComplements] = useState({});
+
+  function openBrownieCustomization(product) {
+    setCustomizingBrownie(product);
+    setSelectedComplements({});
+  }
+
+  function changeComplementQuantity(complement, amount) {
+    setSelectedComplements((current) => {
+      const currentQuantity = current[complement] || 0;
+      const newQuantity = Math.max(0, currentQuantity + amount);
+
+      return {
+        ...current,
+        [complement]: newQuantity,
+      };
+    });
+  }
+
+  function confirmBrownieCustomization() {
+    const castanhas = selectedComplements["Castanhas"] || 0;
+    const frutasVermelhas =
+      selectedComplements["Frutas Vermelhas"] || 0;
+
+    const customizationKey = `${customizingBrownie.id}-${castanhas}-${frutasVermelhas}`;
+
+    const customizedPrice =
+      customizingBrownie.price +
+      castanhas * 2.5 +
+      frutasVermelhas * 2.5;
+
+    const customizations = {
+      Castanhas: castanhas,
+      "Frutas Vermelhas": frutasVermelhas,
+    };
+
+    setCart((currentCart) => {
+      const existingProduct = currentCart.find(
+        (item) => item.customizationKey === customizationKey
+      );
+
+      if (existingProduct) {
+        return currentCart.map((item) =>
+          item.customizationKey === customizationKey
+            ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+            : item
+        );
+      }
+
+      return [
+        ...currentCart,
+        {
+          ...customizingBrownie,
+          id: `${customizingBrownie.id}-${Date.now()}`,
+          baseProductId: customizingBrownie.id,
+          customizationKey,
+          customizations,
+          price: customizedPrice,
+          quantity: 1,
+        },
+      ];
+    });
+
+    setCustomizingBrownie(null);
+    setSelectedComplements({});
+    setCartOpen(true);
+  }
+
   function addToCart(product) {
+
     setCart((currentCart) => {
       const existingProduct = currentCart.find(
         (item) => item.id === product.id
@@ -136,10 +209,11 @@ function App() {
     setCartOpen(true);
   }
 
-  function increaseQuantity(productId) {
+  function increaseQuantity(productId, customizationKey) {
     setCart((currentCart) =>
       currentCart.map((item) =>
-        item.id === productId
+        item.id === productId &&
+          item.customizationKey === customizationKey
           ? {
             ...item,
             quantity: item.quantity + 1,
@@ -149,11 +223,12 @@ function App() {
     );
   }
 
-  function decreaseQuantity(productId) {
+  function decreaseQuantity(productId, customizationKey) {
     setCart((currentCart) =>
       currentCart
         .map((item) =>
-          item.id === productId
+          item.id === productId &&
+            item.customizationKey === customizationKey
             ? {
               ...item,
               quantity: item.quantity - 1,
@@ -296,7 +371,11 @@ function App() {
 
                       <button
                         className="quick-add"
-                        onClick={() => addToCart(product)}
+                        onClick={() =>
+                          product.category === "Brownies"
+                            ? openBrownieCustomization(product)
+                            : addToCart(product)
+                        }
                         aria-label={`Adicionar ${product.name}`}
                       >
                         +
@@ -321,7 +400,11 @@ function App() {
 
                       <button
                         className="add-button"
-                        onClick={() => addToCart(product)}
+                        onClick={() =>
+                          product.category === "Brownies"
+                            ? openBrownieCustomization(product)
+                            : addToCart(product)
+                        }
                       >
                         <span translate="no">
                           Adicionar ao pedido
@@ -362,6 +445,146 @@ function App() {
             • DESDE 2026 •
           </div>
         </div>
+
+
+        {/* ================= MODAL DO BROWNIE ================= */}
+
+        {customizingBrownie && (
+          <div
+            className="brownie-overlay"
+            onClick={() => setCustomizingBrownie(null)}
+          >
+            <div
+              className="brownie-modal"
+              onClick={(event) => event.stopPropagation()}
+            >
+
+              <button
+                className="brownie-close"
+                onClick={() => setCustomizingBrownie(null)}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+
+
+              <span className="brownie-modal-label">
+                PERSONALIZE SEU BROWNIE
+              </span>
+
+
+              <h2>
+                {customizingBrownie.name}
+              </h2>
+
+
+              <p className="brownie-modal-description">
+                Escolha o complemento que você quer adicionar.
+              </p>
+
+
+              <div className="brownie-options">
+
+                <div className="brownie-option">
+                  <div>
+                    <div className="brownie-option-name">
+                      <strong>Castanhas <b>+ R$ 2,50</b> </strong>
+                    </div>
+
+                    <span>Nozes, castanha e frutos secos</span>
+                  </div>
+
+                  <div className="complement-quantity">
+                    <button
+                      type="button"
+                      disabled={!selectedComplements["Castanhas"]}
+                      onClick={() =>
+                        changeComplementQuantity("Castanhas", -1)
+                      }
+                    >
+                      −
+                    </button>
+
+                    <span>
+                      {selectedComplements["Castanhas"] || 0}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        changeComplementQuantity("Castanhas", 1)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="brownie-option">
+                  <div>
+                    <strong>Frutas Vermelhas <b>+ R$ 2,50</b> </strong>
+                    <span>Morango, framboesa e amora</span>
+                  </div>
+
+                  <div className="complement-quantity">
+                    <button
+                      type="button"
+                      disabled={!selectedComplements["Frutas Vermelhas"]}
+                      onClick={() =>
+                        changeComplementQuantity("Frutas Vermelhas", -1)
+                      }
+                    >
+                      −
+                    </button>
+
+                    <span>
+                      {selectedComplements["Frutas Vermelhas"] || 0}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        changeComplementQuantity("Frutas Vermelhas", 1)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+
+              <div className="brownie-modal-total">
+
+                <span>
+                  Total do brownie
+                </span>
+
+                <strong>
+                  R${" "}
+                  {formatPrice(
+                    customizingBrownie.price +
+                    (selectedComplements["Castanhas"] || 0) * 2.5 +
+                    (selectedComplements["Frutas Vermelhas"] || 0) * 2.5
+                  )}
+                </strong>
+
+              </div>
+
+
+              <button
+                className="brownie-confirm"
+                type="button"
+                onClick={confirmBrownieCustomization}
+              >
+                Continuar
+              </button>
+
+            </div>
+          </div>
+        )}
+
 
         {cartOpen && (
 
@@ -449,6 +672,22 @@ function App() {
                             <h3>
                               {item.name}
                             </h3>
+                            {item.customizations && (
+                              <div className="cart-customizations">
+                                {item.customizations["Castanhas"] > 0 && (
+                                  <span>
+                                    Castanhas × {item.customizations["Castanhas"]}
+                                  </span>
+                                )}
+
+                                {item.customizations["Frutas Vermelhas"] > 0 && (
+                                  <span>
+                                    Frutas Vermelhas ×{" "}
+                                    {item.customizations["Frutas Vermelhas"]}
+                                  </span>
+                                )}
+                              </div>
+                            )}
 
                             <strong>
                               R${" "}
@@ -464,7 +703,7 @@ function App() {
 
                             <button
                               onClick={() =>
-                                decreaseQuantity(item.id)
+                                decreaseQuantity(item.id, item.customizationKey)
                               }
                             >
                               −
@@ -476,7 +715,7 @@ function App() {
 
                             <button
                               onClick={() =>
-                                increaseQuantity(item.id)
+                                increaseQuantity(item.id, item.customizationKey)
                               }
                             >
                               +

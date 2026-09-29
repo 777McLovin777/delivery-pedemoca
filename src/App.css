@@ -1693,3 +1693,246 @@ a {
     font-size: 18px;
   }
 }
+
+/* ================= PERSONALIZAÇÃO DO BROWNIE ================= */
+
+.brownie-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(45, 18, 13, 0.45);
+}
+
+.brownie-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 35px;
+  border-radius: 28px;
+  background: var(--white);
+  box-shadow: 0 20px 60px rgba(45, 18, 13, 0.2);
+}
+
+.brownie-close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--black);
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.brownie-modal-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.brownie-modal h2 {
+  margin: 0;
+  color: var(--brown);
+  font-family: "Playfair Display", serif;
+  font-size: 30px;
+  text-align: center;
+}
+
+.brownie-modal-description {
+  margin: 10px auto 25px;
+  max-width: 380px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.brownie-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brownie-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 17px 20px;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  background: var(--cream);
+  color: var(--black);
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.brownie-option:hover {
+  transform: translateY(-1px);
+}
+
+.brownie-option.selected {
+  border-color: var(--red);
+  background: var(--pink);
+}
+
+.brownie-option div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brownie-option strong {
+  font-size: 17px;
+}
+
+.brownie-option span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.brownie-option b {
+  white-space: nowrap;
+  color: var(--red);
+}
+
+.brownie-modal-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(45, 18, 13, 0.1);
+}
+
+.brownie-modal-total span {
+  font-weight: 700;
+}
+
+.brownie-modal-total strong {
+  color: var(--red);
+  font-size: 22px;
+}
+
+.brownie-confirm {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.complement-quantity {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.complement-quantity {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.complement-quantity {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.complement-quantity button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--black);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.complement-quantity button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.complement-quantity span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  color: var(--black);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* ================= COMPLEMENTOS ================= */
+.cart-customizations {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.cart-customizations span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .brownie-modal {
+    max-width: 100%;
+    padding: 28px 20px;
+    border-radius: 24px;
+  }
+
+  .brownie-modal h2 {
+    font-size: 25px;
+    padding: 0 15px;
+  }
+
+  .brownie-option {
+    padding: 15px;
+  }
+
+  .brownie-option strong {
+    font-size: 16px;
+  }
+
+  .brownie-option span {
+    font-size: 12px;
+  }
+}
