@@ -6,6 +6,7 @@ import headerLogo from "./assets/Pe de Moca.png";
 import banoffe from "./assets/banoffe.jpeg";
 import tiramisu from "./assets/tiramisu.jpeg";
 import tortinha from "./assets/tortinha.jpeg";
+import escrita from "./assets/Escrita.png";
 
 const products = [
   {
@@ -287,21 +288,14 @@ function App() {
 
         <header className="header">
 
-          <div className="header-left">
-
-            <a href="/" className="brand">
-              <img
-                src={headerLogo}
-                alt="Pé de Moça"
-              />
-
-              <span className="brand-name">
-                Pé de Moça
-              </span>
-            </a>
-
+          <div className="brand">
+            <img src={headerLogo} alt="Pé de Moça" />
+            <img
+              className="brand-writing"
+              src={escrita}
+              alt="Pé de Moça"
+            />
           </div>
-
           <button
             className="header-cart"
             onClick={() => setCartOpen(true)}
@@ -832,9 +826,11 @@ function App() {
               alt="Pé de Moça"
             />
 
-            <span className="brand-name">
-              Pé de Moça
-            </span>
+            <img
+              className="brand-writing"
+              src={escrita}
+              alt="Pé de Moça"
+            />
           </a>
 
         </div>

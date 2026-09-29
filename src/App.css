@@ -99,6 +99,13 @@ a {
   display: block;
 }
 
+.brand .brand-writing {
+  width: 230px !important;
+  height: auto !important;
+  object-fit: contain;
+  display: block;
+}
+
 .brand-name {
   font-family: "Playfair Display", serif;
   font-size: 28px;
@@ -1302,6 +1309,11 @@ a {
 
   .brand-name {
     font-size: 30px;
+  }
+
+  .brand-writing {
+    width: 135px;
+    height: auto;
   }
 
   .mobile-menu {
