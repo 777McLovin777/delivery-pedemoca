@@ -1344,10 +1344,22 @@ a {
   }
 
   .header-cart {
-    width: 43px;
+    min-width: 43px;
+    width: auto;
     height: 43px;
 
-    padding: 0;
+    padding: 0 8px;
+
+    gap: 5px;
+  }
+
+  .cart-badge {
+    min-width: 21px;
+    padding: 0 5px;
+
+    border-radius: 999px;
+
+    white-space: nowrap;
   }
 
   .hero {
@@ -1839,27 +1851,9 @@ a {
 }
 
 .complement-quantity {
-  display: flex;
+  display: flex !important;
   flex-direction: row !important;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.complement-quantity {
-  display: flex;
-  flex-direction: row !important;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.complement-quantity {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  align-items: center !important;
   justify-content: center;
   gap: 8px;
   flex-shrink: 0;
@@ -1869,16 +1863,22 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 32px;
   height: 32px;
+
   padding: 0;
+
   border: 0;
   border-radius: 50%;
+
   background: var(--blue);
   color: var(--black);
+
   font-size: 19px;
   font-weight: 800;
   line-height: 1;
+
   cursor: pointer;
 }
 
@@ -1891,8 +1891,11 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 20px;
+
   color: var(--black);
+
   font-size: 16px;
   font-weight: 800;
 }
@@ -1933,6 +1936,16 @@ a {
   }
 
   .brownie-option span {
+    font-size: 12px;
+  }
+
+  .brownie-option .brownie-option-name {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
+
+  .brownie-option .brownie-option-name b {
     font-size: 12px;
   }
 }
