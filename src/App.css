@@ -1361,470 +1361,621 @@ a {
 
 
   /* =========================================
+     HOME — CELULAR
+  ========================================= */
+
+  .hero {
+    min-height: auto;
+    padding: 70px 20px 100px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero h1 {
+    font-size: 49px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-visual {
+    width: 340px;
+    height: 340px;
+    margin-top: 60px;
+  }
+
+  .hero-circle {
+    width: 300px;
+    height: 300px;
+  }
+
+  .hero-circle img {
+    width: 265px;
+    height: 265px;
+  }
+
+  .floating-card {
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+  }
+
+  .categories-section,
+  .menu-section {
+    padding: 70px 20px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .section-heading p {
+    text-align: left;
+  }
+
+  .section-heading h2,
+  .menu-title h2 {
+    font-size: 39px;
+  }
+
+  /* Cards da HOME */
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .menu-section .product-card {
+    width: 100%;
+    max-width: 330px;
+    margin: 0 auto;
+  }
+
+  .menu-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .about-section {
+    margin: 20px;
+    padding: 50px 25px;
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .about-logo {
+    min-width: 0;
+  }
+
+  .about-logo img {
+    width: 220px;
+    height: 220px;
+  }
+
+  .about-content h2 {
+    font-size: 40px;
+  }
+}
+
+
+/* =========================================
    CELULAR PEQUENO
 ========================================= */
 
-  @media (max-width: 500px) {
+@media (max-width: 500px) {
 
-    .category-grid {
-      grid-template-columns:
-        repeat(2, 1fr);
-
-      gap: 10px;
-    }
-
-    .category-card {
-      min-height: 160px;
-
-      padding: 18px;
-    }
-
-    .category-icon {
-      font-size: 30px;
-    }
-
-    .category-card strong {
-      font-size: 20px;
-    }
-
-    .category-card small {
-      font-size: 11px;
-    }
-
-    .product-image {
-      height: 260px;
-    }
-
-    .hero h1 {
-      font-size: 42px;
-    }
-
-    .hero-visual {
-      width: 300px;
-      height: 300px;
-    }
-
-    .hero-circle {
-      width: 270px;
-      height: 270px;
-    }
-
-    .hero-circle img {
-      width: 240px;
-      height: 240px;
-    }
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
-  /* ================= CARDÁPIO COMPLETO ================= */
+  .category-card {
+    min-height: 160px;
+    padding: 18px;
+  }
+
+  .category-icon {
+    font-size: 30px;
+  }
+
+  .category-card strong {
+    font-size: 20px;
+  }
+
+  .category-card small {
+    font-size: 11px;
+  }
+
+  .product-image {
+    height: 260px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+  }
+
+  .hero-visual {
+    width: 300px;
+    height: 300px;
+  }
+
+  .hero-circle {
+    width: 270px;
+    height: 270px;
+  }
+
+  .hero-circle img {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+
+/* =========================================
+   CARDÁPIO COMPLETO
+========================================= */
+
+.menu-hero h1 {
+  margin: 0;
+  padding: 16px 48px;
+  background: var(--blue);
+  color: var(--brown);
+  border-radius: 999px;
+  font-size: 50px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.menu-category-heading {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 55px 0 45px;
+}
+
+.menu-category-heading h2 {
+  margin: 0;
+  padding: 14px 42px;
+  border-radius: 999px;
+  color: var(--black);
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+}
+
+
+/* Produtos do cardápio */
+
+.menu-category .products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 400px);
+  justify-content: center;
+  gap: 28px;
+}
+
+.menu-category .products-grid .product-card:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+
+/* Balões das categorias */
+
+.category-brownies .menu-category-heading h2 {
+  background: var(--red);
+  color: var(--white);
+}
+
+.category-tortas .menu-category-heading h2 {
+  background: var(--blue);
+  color: var(--black);
+}
+
+.category-mousses .menu-category-heading h2 {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.category-clássicos .menu-category-heading h2 {
+  background: var(--pink);
+  color: var(--black);
+}
+
+
+/* Rodapé do cardápio */
+
+.menu-footer-brand {
+  text-align: center;
+  margin: 80px 0 40px;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--red);
+}
+
+
+/* =========================================
+   CARDÁPIO — CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+
+  .menu-category .product-card {
+    width: 100%;
+    max-width: 330px;
+  }
+
+  .product-title h3 {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 19px;
+    white-space: normal;
+  }
+
+  .product-content p {
+    max-width: 280px;
+    font-size: 14px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .menu-category .products-grid {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 24px;
+    padding: 0 16px;
+  }
+
+  .menu-category .product-card {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .product-title h3 {
+    width: 100%;
+    min-height: 58px;
+    padding: 12px 16px;
+    font-size: 18px;
+    white-space: normal;
+  }
+
+  .product-content p {
+    max-width: 280px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+
+.menu-back-home {
+  display: block;
+  width: fit-content;
+  margin: 35px auto 0;
+  padding: 12px 26px;
+  background: var(--white);
+  color: var(--black);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(45, 18, 13, 0.08);
+  transition: 0.2s ease;
+}
+
+.menu-back-home:hover {
+  transform: translateY(-2px);
+}
+
+
+@media (max-width: 600px) {
+
+  /* Balão "Nosso cardápio" */
 
   .menu-hero h1 {
-    margin: 0;
-    padding: 16px 48px;
-    background: var(--blue);
-    color: var(--brown);
-    border-radius: 999px;
-    font-size: 50px;
-    font-weight: 800;
-    text-align: center;
-  }
-
-  .menu-category-heading {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin: 55px 0 45px;
-  }
-
-  .menu-category-heading h2 {
-    margin: 0;
-    padding: 14px 42px;
-    border-radius: 999px;
-    color: var(--black);
-    font-size: 30px;
-    font-weight: 800;
-    text-align: center;
-  }
-
-  /* Centraliza os produtos de cada categoria */
-  .menu-category .products-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 400px);
-    justify-content: center;
-    gap: 28px;
-  }
-
-  /* Quando houver apenas 1 produto */
-  .menu-category .products-grid .product-card:only-child {
-    grid-column: 1 / -1;
-    justify-self: center;
+    padding: 12px 28px;
+    font-size: 34px;
   }
 
   /* Balões das categorias */
 
-  .category-brownies .menu-category-heading h2 {
-    background: var(--red);
-    color: var(--white);
+  .menu-category-heading {
+    margin: 40px 0 30px;
   }
 
-  .category-tortas .menu-category-heading h2 {
-    background: var(--blue);
-    color: var(--black);
+  .menu-category-heading h2 {
+    padding: 11px 30px;
+    font-size: 24px;
   }
 
-  .category-mousses .menu-category-heading h2 {
-    background: var(--yellow);
-    color: var(--black);
-  }
+  /* Balões dos nomes dos doces */
 
-  .category-clássicos .menu-category-heading h2 {
-    background: var(--pink);
-    color: var(--black);
-  }
-
-  .menu-footer-brand {
-    text-align: center;
-    margin: 80px 0 40px;
-    font-family: "Playfair Display", serif;
+  .product-title h3 {
+    width: 100%;
+    min-height: 54px;
+    padding: 10px 16px;
     font-size: 18px;
-    font-weight: 700;
-    color: var(--red);
   }
+}
 
-  @media (max-width: 600px) {
-    .menu-category .product-card {
-      width: 100%;
-      max-width: 330px;
-    }
 
-    .product-title h3 {
-      width: 100%;
-      padding: 12px 18px;
-      font-size: 19px;
-      white-space: normal;
-    }
+/* =========================================
+   PERSONALIZAÇÃO DO BROWNIE
+========================================= */
 
-    .product-content p {
-      max-width: 280px;
-      font-size: 14px;
-    }
-  }
+.brownie-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(45, 18, 13, 0.45);
+}
 
-  @media (max-width: 600px) {
-    .menu-category .products-grid {
-      grid-template-columns: minmax(0, 1fr);
-      justify-items: center;
-      gap: 24px;
-      padding: 0 16px;
-    }
+.brownie-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 35px;
+  border-radius: 28px;
+  background: var(--white);
+  box-shadow: 0 20px 60px rgba(45, 18, 13, 0.2);
+}
 
-    .menu-category .product-card {
-      width: 100%;
-      max-width: 320px;
-    }
+.brownie-close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--black);
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
 
-    .product-title h3 {
-      width: 100%;
-      min-height: 58px;
-      padding: 12px 16px;
-      font-size: 18px;
-      white-space: normal;
-    }
+.brownie-modal-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-align: center;
+}
 
-    .product-content p {
-      max-width: 280px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-  }
+.brownie-modal h2 {
+  margin: 0;
+  color: var(--brown);
+  font-family: "Playfair Display", serif;
+  font-size: 30px;
+  text-align: center;
+}
 
-  .menu-back-home {
-    display: block;
-    width: fit-content;
-    margin: 35px auto 0;
-    padding: 12px 26px;
-    background: var(--white);
-    color: var(--black);
-    border-radius: 999px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 700;
-    text-align: center;
-    box-shadow: 0 6px 18px rgba(45, 18, 13, 0.08);
-    transition: 0.2s ease;
-  }
+.brownie-modal-description {
+  margin: 10px auto 25px;
+  max-width: 380px;
+  color: var(--text-light);
+  text-align: center;
+}
 
-  .menu-back-home:hover {
-    transform: translateY(-2px);
-  }
+.brownie-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  @media (max-width: 600px) {
+.brownie-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 17px 20px;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  background: var(--cream);
+  color: var(--black);
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
 
-    /* Balão "Nosso cardápio" */
-    .menu-hero h1 {
-      padding: 12px 28px;
-      font-size: 34px;
-    }
+.brownie-option:hover {
+  transform: translateY(-1px);
+}
 
-    /* Balões das categorias */
-    .menu-category-heading {
-      margin: 40px 0 30px;
-    }
+.brownie-option.selected {
+  border-color: var(--red);
+  background: var(--pink);
+}
 
-    .menu-category-heading h2 {
-      padding: 11px 30px;
-      font-size: 24px;
-    }
+.brownie-option div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-    /* Balões dos nomes dos doces */
-    .product-title h3 {
-      width: 100%;
-      min-height: 54px;
-      padding: 10px 16px;
-      font-size: 18px;
-    }
-  }
+.brownie-option strong {
+  font-size: 17px;
+}
 
-  /* ================= PERSONALIZAÇÃO DO BROWNIE ================= */
+.brownie-option span {
+  color: var(--text-light);
+  font-size: 13px;
+}
 
-  .brownie-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(45, 18, 13, 0.45);
-  }
+.brownie-option b {
+  white-space: nowrap;
+  color: var(--red);
+}
+
+.brownie-modal-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(45, 18, 13, 0.1);
+}
+
+.brownie-modal-total span {
+  font-weight: 700;
+}
+
+.brownie-modal-total strong {
+  color: var(--red);
+  font-size: 22px;
+}
+
+.brownie-confirm {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+
+/* =========================================
+   CONTROLES DOS COMPLEMENTOS
+========================================= */
+
+.complement-quantity {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.complement-quantity button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: var(--blue);
+  color: var(--black);
+
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.complement-quantity button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.complement-quantity span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+
+  color: var(--black);
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+
+/* =========================================
+   COMPLEMENTOS NO CARRINHO
+========================================= */
+
+.cart-customizations {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.cart-customizations span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+
+/* =========================================
+   BROWNIE — CELULAR
+========================================= */
+
+@media (max-width: 600px) {
 
   .brownie-modal {
-    position: relative;
-    width: 100%;
-    max-width: 520px;
-    padding: 35px;
-    border-radius: 28px;
-    background: var(--white);
-    box-shadow: 0 20px 60px rgba(45, 18, 13, 0.2);
-  }
-
-  .brownie-close {
-    position: absolute;
-    top: 15px;
-    right: 18px;
-    width: 36px;
-    height: 36px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--cream);
-    color: var(--black);
-    font-size: 25px;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .brownie-modal-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--red);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-align: center;
+    max-width: 100%;
+    padding: 28px 20px;
+    border-radius: 24px;
   }
 
   .brownie-modal h2 {
-    margin: 0;
-    color: var(--brown);
-    font-family: "Playfair Display", serif;
-    font-size: 30px;
-    text-align: center;
-  }
-
-  .brownie-modal-description {
-    margin: 10px auto 25px;
-    max-width: 380px;
-    color: var(--text-light);
-    text-align: center;
-  }
-
-  .brownie-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    font-size: 25px;
+    padding: 0 15px;
   }
 
   .brownie-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 17px 20px;
-    border: 2px solid transparent;
-    border-radius: 18px;
-    background: var(--cream);
-    color: var(--black);
-    text-align: left;
-    cursor: pointer;
-    transition: 0.2s ease;
-  }
-
-  .brownie-option:hover {
-    transform: translateY(-1px);
-  }
-
-  .brownie-option.selected {
-    border-color: var(--red);
-    background: var(--pink);
-  }
-
-  .brownie-option div {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    padding: 15px;
   }
 
   .brownie-option strong {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .brownie-option span {
-    color: var(--text-light);
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  .brownie-option b {
-    white-space: nowrap;
-    color: var(--red);
-  }
-
-  .brownie-modal-total {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(45, 18, 13, 0.1);
-  }
-
-  .brownie-modal-total span {
-    font-weight: 700;
-  }
-
-  .brownie-modal-total strong {
-    color: var(--red);
-    font-size: 22px;
-  }
-
-  .brownie-confirm {
-    width: 100%;
-    margin-top: 20px;
-    padding: 14px 20px;
-    border: 0;
-    border-radius: 999px;
-    background: var(--red);
-    color: var(--white);
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  .complement-quantity {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .complement-quantity button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 32px;
-    height: 32px;
-
-    padding: 0;
-
-    border: 0;
-    border-radius: 50%;
-
-    background: var(--blue);
-    color: var(--black);
-
-    font-size: 19px;
-    font-weight: 800;
-    line-height: 1;
-
-    cursor: pointer;
-  }
-
-  .complement-quantity button:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-
-  .complement-quantity span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 20px;
-
-    color: var(--black);
-
-    font-size: 16px;
-    font-weight: 800;
-  }
-
-  /* ================= COMPLEMENTOS ================= */
-  .cart-customizations {
-    display: flex;
+  .brownie-option .brownie-option-name {
     flex-direction: column;
-    gap: 3px;
-    margin-top: 6px;
+    align-items: flex-start;
+    gap: 1px;
   }
 
-  .cart-customizations span {
-    color: var(--text-light);
-    font-size: 13px;
-  }
-
-  /* ================= MOBILE ================= */
-
-  @media (max-width: 600px) {
-    .brownie-modal {
-      max-width: 100%;
-      padding: 28px 20px;
-      border-radius: 24px;
-    }
-
-    .brownie-modal h2 {
-      font-size: 25px;
-      padding: 0 15px;
-    }
-
-    .brownie-option {
-      padding: 15px;
-    }
-
-    .brownie-option strong {
-      font-size: 16px;
-    }
-
-    .brownie-option span {
-      font-size: 12px;
-    }
-
-    .brownie-option .brownie-option-name {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1px;
-    }
-
-    .brownie-option .brownie-option-name b {
-      font-size: 12px;
-    }
+  .brownie-option .brownie-option-name b {
+    font-size: 12px;
   }
 }
