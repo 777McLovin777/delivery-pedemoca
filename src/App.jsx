@@ -3,6 +3,8 @@ import "./App.css";
 
 import logo from "./assets/logo.png";
 import escrita from "./assets/Escrita.png";
+import logonova from "./assets/logonova.png";
+import baixo from "./assets/baixo.png";
 
 import banoffe from "./assets/banoffe.jpeg";
 import tiramisu from "./assets/tiramisu.jpeg";

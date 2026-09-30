@@ -70,6 +70,7 @@ a {
   top: 0;
   z-index: 100;
   border-bottom: none;
+  overflow: visible;
 }
 .header .brand {
   position: absolute;
@@ -113,24 +114,56 @@ a {
 }
 
 .navigation {
+  position: absolute;
+  left: 0;
+  top: 92px;
+  width: 100%;
+  padding: 0 25px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 42px;
+  gap: 14px;
+  background: var(--blue);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+
+  max-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    max-height 0.35s ease,
+    padding 0.35s ease,
+    visibility 0.35s ease;
+
+  z-index: 99;
+}
+
+.navigation-open {
+  max-height: 300px;
+  padding: 25px;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .navigation a {
   position: relative;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
   font-size: 14px;
   font-weight: 700;
-
-  color: var(--brown);
-
+  box-shadow: 0 5px 15px rgba(45, 18, 13, 0.1);
   transition: 0.2s;
 }
 
 .navigation a:hover {
-  color: var(--red);
+  color: var(--pink);
 }
 
 .navigation a::after {
@@ -210,13 +243,15 @@ a {
 }
 
 .mobile-menu {
-  display: none;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
-
-  color: #ffffff;
-
-  font-size: 25px;
+  border: none;
+  color: var(--white);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 5px;
 }
 
 /* =========================================
@@ -651,7 +686,7 @@ a {
 
   border-radius: 25px;
 
-  background: var(--white);
+  background: var(--blue);
 
   box-shadow: 0 10px 30px rgba(45, 18, 13, 0.07);
 
@@ -1267,19 +1302,18 @@ a {
     margin-right: 10px;
   }
 
-  .navigation {
-    position: absolute;
-    left: 0;
-    top: 75px;
-    width: 100%;
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    background: var(--white);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-    transform: translateY(-150%);
-    transition: 0.3s;
+  @media (max-width: 800px) {
+    .navigation {
+      top: 75px;
+      padding: 0 16px;
+      gap: 12px;
+      max-height: 0;
+    }
+
+    .navigation-open {
+      max-height: 300px;
+      padding: 20px 16px;
+    }
   }
 
   .navigation-open {
