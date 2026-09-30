@@ -720,6 +720,17 @@ a {
   transition: 0.5s;
 }
 
+/* =========================================
+   ÁGUAS — IMAGEM UM POUCO MENOR
+========================================= */
+
+.water-product .product-image img {
+  width: 90%;
+  height: 90%;
+  margin: 5% auto;
+  object-fit: contain;
+}
+
 .product-card:hover .product-image img {
   transform: scale(1.06);
 }
@@ -2145,29 +2156,43 @@ a {
   justify-self: center;
 }
 
-.menu-back-home {
-  display: flex;
-  justify-content: center;
-  margin: 45px 0 60px;
-}
-
 .menu-back-home a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 26px;
+  padding: 11px 12px;
+  border: 1px solid rgba(45, 18, 13, 0.18);
   border-radius: 999px;
   background: var(--blue);
   color: var(--brown);
-  font-size: 15px;
+  font-family: inherit;
+  font-size: clamp(11px, 1.2vw, 14px);
   font-weight: 800;
   text-decoration: none;
-  transition: 0.2s ease;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.16),
+    0 4px 10px rgba(45, 18, 13, 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .menu-back-home a:hover {
   background: var(--pink);
   transform: translateY(-2px);
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.18),
+    0 6px 12px rgba(45, 18, 13, 0.13);
+}
+
+.menu-back-home {
+  display: flex;
+  justify-content: flex-start;
+  margin: 45px 0 60px;
 }
 
 @media (max-width: 800px) {
@@ -2264,7 +2289,7 @@ a {
   justify-content: center;
 
   gap: 8px;
-  padding: 10px 16px;
+  padding: 14px 16px;
 
   background: var(--red);
 
@@ -2278,37 +2303,22 @@ a {
   display: none;
 }
 
-.menu-category-option {
-  flex: 1 1 auto;
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 11px 12px;
-
-  border: 1px solid rgba(45, 18, 13, 0.18);
+.menu-category-option::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 0;
+  height: 3px;
   border-radius: 999px;
+  background: var(--blue);
+  transform: translateX(-50%);
+  transition: width 0.25s ease;
+}
 
-  background: var(--white);
-  color: var(--brown);
-
-  font-size: clamp(11px, 1.2vw, 14px);
-  font-weight: 800;
-
-  text-decoration: none;
-  white-space: nowrap;
-
-  box-shadow:
-    inset 0 3px 4px rgba(255, 255, 255, 0.9),
-    inset 0 -4px 5px rgba(45, 18, 13, 0.16),
-    0 4px 10px rgba(45, 18, 13, 0.1);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+.menu-category-option:hover::after,
+.menu-category-option.active::after {
+  width: 45%;
 }
 
 .menu-category-option:hover {
@@ -2338,14 +2348,22 @@ a {
   .menu-category-options {
     top: 75px;
     justify-content: space-between;
-    gap: 5px;
-    padding: 8px;
+    gap: 4px;
+    padding: 11px 6px;
+    overflow-x: hidden;
   }
 
   .menu-category-option {
     flex: 1 1 0;
-    padding: 10px 5px;
-    font-size: 10px;
+    min-width: 0;
+    padding: 10px 3px;
+    font-size: clamp(8px, 2.5vw, 10px);
+    white-space: nowrap;
+  }
+
+  .menu-category-option::after {
+    bottom: -6px;
+    height: 2px;
   }
 }
 
@@ -2496,7 +2514,7 @@ a {
 
 .menu-page .full-menu .menu-category-options {
   position: sticky !important;
-  top: 92px !important;
+  top: 74 !important;
   z-index: 90 !important;
 }
 
@@ -2704,4 +2722,66 @@ a {
     margin-left: 0;
     margin-top: 5px;
   }
+}
+
+@media (max-width: 600px) {
+  .menu-page .menu-category-options {
+    gap: 5px;
+    padding: 11px 8px;
+    overflow: hidden;
+  }
+
+  .menu-page .menu-category-options .menu-category-option {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 10px 12px !important;
+    font-size: 10px !important;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================
+   BOTÃO VOLTAR — CARDÁPIO COMPLETO
+========================================= */
+
+.full-menu + .menu-back-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 12px;
+  margin: 45px 20px 60px;
+  border: 1px solid rgba(45, 18, 13, 0.18);
+  border-radius: 999px;
+  background: var(--blue);
+  color: var(--brown);
+  font-family: inherit;
+  font-size: clamp(11px, 1.2vw, 14px);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.16),
+    0 4px 10px rgba(45, 18, 13, 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.full-menu + .menu-back-home:hover {
+  background: var(--pink);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.18),
+    0 6px 12px rgba(45, 18, 13, 0.13);
+}
+.menu-footer-image {
+  display: block;
+  width: 220px;
+  height: auto;
+  margin: 0 auto;
 }

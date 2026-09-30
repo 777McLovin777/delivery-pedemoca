@@ -468,7 +468,12 @@ function App() {
     }
 
     return (
-      <article className="product-card" key={product.id}>
+      <article
+        className={`product-card ${
+          product.id === 208 || product.id === 209 ? "water-product" : ""
+        }`}
+        key={product.id}
+      >
         <div className="product-image">
           <img src={product.image} alt={product.name} />
 
@@ -882,19 +887,19 @@ function App() {
         <MenuHeader />
 
         <main className="full-menu">
-          <section className="menu-hero">
-            <div className="menu-category-options">
-              {categoryOptions.map((category) => (
-                <a
-                  key={category}
-                  href={`/cardapio/${getCategorySlug(category)}`}
-                  className="menu-category-option"
-                >
-                  {category}
-                </a>
-              ))}
-            </div>
-          </section>
+          <div className="menu-category-options">
+            {categoryOptions.map((category) => (
+              <a
+                key={category}
+                href={`/cardapio/${getCategorySlug(category)}`}
+                className="menu-category-option"
+              >
+                {category}
+              </a>
+            ))}
+          </div>
+
+          <section className="menu-hero"></section>
 
           {categories.map((category) => (
             <section
@@ -919,13 +924,8 @@ function App() {
         </a>
 
         <div className="menu-footer-brand">
-          <div className="menu-footer-title">
-            <strong>PÉ DE MOÇA</strong>
-          </div>
-
-          <div className="menu-footer-since">• DESDE 2026 •</div>
+          <img src={baixo} alt="Pé de Moça" className="menu-footer-image" />
         </div>
-
         <SocialSection />
 
         <BrownieModal />
