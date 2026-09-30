@@ -417,21 +417,6 @@ a {
   z-index: 2;
 }
 
-.hero-circle {
-  width: 410px;
-  height: 410px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background: var(--red);
-
-  box-shadow: 0 30px 60px rgba(45, 18, 13, 0.18);
-}
-
 .hero-circle img {
   width: 360px;
   height: 360px;
@@ -630,8 +615,12 @@ a {
 
 .category-card strong {
   font-family: "Playfair Display", serif;
-
+  text-align: center;
   font-size: 27px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .category-card small {
@@ -903,9 +892,8 @@ a {
 }
 
 .about-logo img {
-  width: 300px;
-  height: 300px;
-
+  width: 160px;
+  height: auto;
   object-fit: contain;
 }
 
@@ -1492,13 +1480,11 @@ a {
     gap: 30px;
   }
 
-  .about-logo {
-    min-width: 0;
-  }
-
-  .about-logo img {
-    width: 220px;
-    height: 220px;
+  @media (max-width: 800px) {
+    .about-logonova img {
+      width: 180px;
+      height: auto;
+    }
   }
 
   .about-content {
@@ -2784,4 +2770,17 @@ a {
   width: 220px;
   height: auto;
   margin: 0 auto;
+}
+
+.about-logonova {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-logonova img {
+  width: 220px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
 }

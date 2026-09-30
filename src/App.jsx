@@ -1024,7 +1024,7 @@ function App() {
 
           <div className="hero-visual">
             <div className="hero-circle">
-              <img src={logo} alt="Logo Pé de Moça" />
+              <img src={logonova} alt="Pé de Moça" />
             </div>
           </div>
         </section>
@@ -1049,14 +1049,16 @@ function App() {
           </div>
 
           <div className="category-grid">
-            <a href="/cardapio/brownies" className="category-card category-red">
-              <strong>Chocolates</strong>
+            <a href="/cardapio/doces" className="category-card category-red">
+              <strong>Doces Autorais</strong>
               <small>Ver opções →</small>
             </a>
 
-            <a href="/cardapio/tortas" className="category-card category-blue">
-              <strong>Banoffees</strong>
-
+            <a
+              href="/cardapio/brownies"
+              className="category-card category-blue"
+            >
+              <strong>Brownies</strong>
               <small>Ver opções →</small>
             </a>
 
@@ -1064,14 +1066,12 @@ function App() {
               href="/cardapio/tortas"
               className="category-card category-yellow"
             >
-              <strong>Bolos</strong>
-
+              <strong>Tortas</strong>
               <small>Ver opções →</small>
             </a>
 
-            <a href="/cardapio/tortas" className="category-card category-pink">
-              <strong>Tortinhas</strong>
-
+            <a href="/cardapio/mousses" className="category-card category-pink">
+              <strong>Mousses</strong>
               <small>Ver opções →</small>
             </a>
           </div>
@@ -1106,8 +1106,8 @@ function App() {
         ================================================= */}
 
         <section className="about-section" id="sobre">
-          <div className="about-logo">
-            <img src={logo} alt="Pé de Moça" />
+          <div className="about-logonova">
+            <img src={logonova} alt="Pé de Moça" />
           </div>
 
           <div className="about-content">
