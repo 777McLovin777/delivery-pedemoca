@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap");
 
 /* =========================================
    PÉ DE MOÇA
@@ -19,7 +18,6 @@
   --cream: #fffaf1;
   --text-light: #806d67;
 }
-
 
 /* =========================================
    RESET
@@ -56,7 +54,6 @@ a {
   color: inherit;
 }
 
-
 /* =========================================
    HEADER
 ========================================= */
@@ -79,8 +76,6 @@ a {
   left: 50%;
   transform: translateX(-50%);
 }
-
-
 
 .header-left {
   display: flex;
@@ -189,8 +184,7 @@ a {
 .header-cart:hover {
   transform: translateY(-2px);
 
-  box-shadow:
-    0 10px 25px rgba(136, 22, 23, 0.25);
+  box-shadow: 0 10px 25px rgba(136, 22, 23, 0.25);
 }
 
 .cart-icon {
@@ -220,11 +214,10 @@ a {
 
   background: transparent;
 
-   color: #ffffff;
+  color: #ffffff;
 
   font-size: 25px;
 }
-
 
 /* =========================================
    HERO
@@ -345,8 +338,7 @@ a {
 .primary-button:hover {
   transform: translateY(-3px);
 
-  box-shadow:
-    0 10px 25px rgba(136, 22, 23, 0.25);
+  box-shadow: 0 10px 25px rgba(136, 22, 23, 0.25);
 }
 
 .primary-button span {
@@ -372,7 +364,6 @@ a {
 
   color: var(--white);
 }
-
 
 /* =========================================
    HERO VISUAL
@@ -403,8 +394,7 @@ a {
 
   background: var(--red);
 
-  box-shadow:
-    0 30px 60px rgba(45, 18, 13, 0.18);
+  box-shadow: 0 30px 60px rgba(45, 18, 13, 0.18);
 }
 
 .hero-circle img {
@@ -432,11 +422,10 @@ a {
 
   background: var(--white);
 
-  box-shadow:
-    0 15px 35px rgba(45, 18, 13, 0.15);
+  box-shadow: 0 15px 35px rgba(45, 18, 13, 0.15);
 }
 
-.floating-card>span {
+.floating-card > span {
   width: 42px;
   height: 42px;
 
@@ -487,7 +476,6 @@ a {
   right: 47%;
   bottom: 12%;
 }
-
 
 /* =========================================
    SECTION HEADINGS
@@ -548,7 +536,6 @@ a {
   line-height: 1.6;
 }
 
-
 /* =========================================
    CATEGORIAS
 ========================================= */
@@ -556,8 +543,7 @@ a {
 .category-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 
   gap: 18px;
 }
@@ -621,7 +607,6 @@ a {
   font-weight: 800;
 }
 
-
 /* =========================================
    CARDÁPIO
 ========================================= */
@@ -656,8 +641,7 @@ a {
 .products-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 28px;
 }
@@ -669,8 +653,7 @@ a {
 
   background: var(--white);
 
-  box-shadow:
-    0 10px 30px rgba(45, 18, 13, 0.07);
+  box-shadow: 0 10px 30px rgba(45, 18, 13, 0.07);
 
   transition: 0.3s;
 }
@@ -678,8 +661,7 @@ a {
 .product-card:hover {
   transform: translateY(-7px);
 
-  box-shadow:
-    0 18px 40px rgba(45, 18, 13, 0.12);
+  box-shadow: 0 18px 40px rgba(45, 18, 13, 0.12);
 }
 
 .product-image {
@@ -747,8 +729,7 @@ a {
 
   font-size: 27px;
 
-  box-shadow:
-    0 8px 20px rgba(136, 22, 23, 0.3);
+  box-shadow: 0 8px 20px rgba(136, 22, 23, 0.3);
 
   transition: 0.2s;
 }
@@ -824,7 +805,6 @@ a {
 .add-button:hover {
   background: var(--red);
 }
-
 
 /* =========================================
    SOBRE
@@ -933,7 +913,6 @@ a {
   font-weight: 800;
 }
 
-
 /* =========================================
    FRASE FINAL
 ========================================= */
@@ -968,7 +947,6 @@ a {
   line-height: 1.05;
 }
 
-
 /* =========================================
    CARRINHO
 ========================================= */
@@ -996,18 +974,6 @@ a {
   flex-direction: column;
 
   background: var(--cream);
-
-  animation: cartIn 0.3s ease;
-}
-
-@keyframes cartIn {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
 }
 
 .cart-header {
@@ -1023,7 +989,7 @@ a {
   border-bottom: 1px solid #eee;
 }
 
-.cart-header>div>span {
+.cart-header > div > span {
   color: var(--red);
 
   font-size: 10px;
@@ -1093,12 +1059,6 @@ a {
   justify-content: space-between;
 
   gap: 10px;
-}
-
-.cart-item-top h3 {
-  font-family: "Playfair Display", serif;
-
-  font-size: 19px;
 }
 
 .cart-item-top strong {
@@ -1252,13 +1212,11 @@ a {
   background: var(--brown);
 }
 
-
 /* =========================================
    TABLET
 ========================================= */
 
 @media (max-width: 1000px) {
-
   .hero {
     padding: 70px 5%;
   }
@@ -1279,8 +1237,7 @@ a {
   }
 
   .category-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .about-section {
@@ -1294,7 +1251,6 @@ a {
 ========================================= */
 
 @media (max-width: 800px) {
-
   .header {
     height: 75px;
     padding: 0 20px;
@@ -1321,8 +1277,7 @@ a {
     flex-direction: column;
     gap: 25px;
     background: var(--white);
-    box-shadow:
-      0 10px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     transform: translateY(-150%);
     transition: 0.3s;
   }
@@ -1421,7 +1376,6 @@ a {
     transform: translateX(-50%);
   }
 
-
   /* =========================================
      SEÇÕES DA HOME
   ========================================= */
@@ -1445,7 +1399,6 @@ a {
   .menu-title h2 {
     font-size: 39px;
   }
-
 
   /* Cards da HOME */
 
@@ -1481,7 +1434,6 @@ a {
     align-items: flex-start;
     flex-direction: column;
   }
-
 
   /* =========================================
      SOBRE
@@ -1528,7 +1480,6 @@ a {
 ========================================= */
 
 @media (max-width: 500px) {
-
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -1571,7 +1522,6 @@ a {
   }
 }
 
-
 /* =========================================
    CARDÁPIO COMPLETO
 ========================================= */
@@ -1604,7 +1554,6 @@ a {
   text-align: center;
 }
 
-
 /* Produtos do cardápio */
 
 .menu-category .products-grid {
@@ -1618,7 +1567,6 @@ a {
   grid-column: 1 / -1;
   justify-self: center;
 }
-
 
 /* Balões das categorias */
 
@@ -1642,7 +1590,6 @@ a {
   color: var(--black);
 }
 
-
 /* Rodapé do cardápio */
 
 .menu-footer-brand {
@@ -1654,13 +1601,11 @@ a {
   color: var(--red);
 }
 
-
 /* =========================================
    CARDÁPIO — CELULAR
 ========================================= */
 
 @media (max-width: 600px) {
-
   .menu-category .product-card {
     width: 100%;
     max-width: 330px;
@@ -1691,9 +1636,7 @@ a {
   font-size: 16px;
 }
 
-
 @media (max-width: 600px) {
-
   .menu-category .products-grid {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
@@ -1733,7 +1676,6 @@ a {
   font-size: 16px;
 }
 
-
 .menu-back-home {
   display: block;
   width: fit-content;
@@ -1754,9 +1696,7 @@ a {
   transform: translateY(-2px);
 }
 
-
 @media (max-width: 600px) {
-
   /* Balão "Nosso cardápio" */
 
   .menu-hero h1 {
@@ -1796,7 +1736,6 @@ a {
 .social-item {
   font-size: 16px;
 }
-
 
 /* =========================================
    PERSONALIZAÇÃO DO BROWNIE
@@ -1944,7 +1883,6 @@ a {
   cursor: pointer;
 }
 
-
 /* =========================================
    CONTROLES DOS COMPLEMENTOS
 ========================================= */
@@ -1999,7 +1937,6 @@ a {
   font-weight: 800;
 }
 
-
 /* =========================================
    COMPLEMENTOS NO CARRINHO
 ========================================= */
@@ -2016,13 +1953,11 @@ a {
   font-size: 13px;
 }
 
-
 /* =========================================
    BROWNIE — CELULAR
 ========================================= */
 
 @media (max-width: 600px) {
-
   .brownie-modal {
     max-width: 100%;
     padding: 28px 20px;
@@ -2140,7 +2075,12 @@ a {
 }
 
 .menu-category-option:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.18),
+    0 6px 12px rgba(45, 18, 13, 0.13);
 }
 
 .menu-category-option.active {
@@ -2278,8 +2218,8 @@ a {
 
 .menu-category-options {
   position: sticky;
-  top: 68px;
-  z-index: 100;
+  top: 92px;
+  z-index: 90;
 
   width: 100%;
   box-sizing: border-box;
@@ -2314,6 +2254,7 @@ a {
 
   padding: 11px 12px;
 
+  border: 1px solid rgba(45, 18, 13, 0.18);
   border-radius: 999px;
 
   background: var(--white);
@@ -2325,23 +2266,39 @@ a {
   text-decoration: none;
   white-space: nowrap;
 
-  box-shadow: 0 4px 14px rgba(45, 18, 13, 0.08);
+  /* Profundidade interna */
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.16),
+    0 4px 10px rgba(45, 18, 13, 0.1);
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .menu-category-option:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.18),
+    0 6px 12px rgba(45, 18, 13, 0.13);
 }
 
 .menu-category-option.active {
   background: var(--blue);
   color: var(--brown);
+
+  box-shadow:
+    inset 0 3px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 5px rgba(45, 18, 13, 0.18),
+    0 4px 10px rgba(45, 18, 13, 0.12);
 }
 
 @media (max-width: 600px) {
   .menu-category-options {
-    top: 72px;
+    top: 75px;
     justify-content: space-between;
     gap: 5px;
     padding: 8px;
@@ -2471,8 +2428,30 @@ a {
     height: 32px;
   }
 }
-/* Carrinho sempre acima da navegação fixa */
+/* =========================================
+   POSIÇÃO DA BARRA DE CATEGORIAS
+========================================= */
+
+.menu-page .menu-main {
+  overflow: visible;
+}
+
+.menu-page .menu-category-options {
+  position: sticky !important;
+  top: 92px !important;
+  z-index: 90 !important;
+}
+
+.menu-page .menu-category-options .menu-category-option {
+  position: relative;
+  z-index: 91;
+}
+
+/* Carrinho sempre acima da navegação */
+
 .cart-overlay {
+  position: fixed;
+  inset: 0;
   z-index: 1000;
 }
 
@@ -2481,12 +2460,195 @@ a {
   z-index: 1001;
 }
 
-.menu-page .menu-main {
-  overflow: visible;
+@media (max-width: 800px) {
+  .menu-page .menu-category-options {
+    top: 75px !important;
+  }
+}
+/* =========================
+   AJUSTES DO CARRINHO
+   ========================= */
+
+.cart {
+  height: 100dvh;
+  overflow: hidden;
 }
 
-.menu-page .menu-category-options {
-  position: sticky;
-  top: 70px;
-  z-index: 100;
+.cart-items {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  overflow-anchor: none;
+}
+
+.cart-item {
+  min-width: 0;
+}
+
+.cart-item img {
+  width: 85px;
+  height: 85px;
+  flex-shrink: 0;
+}
+
+.cart-item-info {
+  min-width: 0;
+}
+
+.cart-item-top h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-footer {
+  flex-shrink: 0;
+}
+
+/* Botão limpar carrinho */
+
+.clear-cart-button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 11px 16px;
+  border: 1px solid rgba(136, 22, 23, 0.25);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.clear-cart-button:hover {
+  background: var(--pink);
+  border-color: var(--pink);
+}
+
+.cart-item {
+  min-height: 105px;
+  contain: layout;
+}
+
+.cart-item-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cart-item-top {
+  min-width: 0;
+}
+
+.cart-item-top h3 {
+  min-width: 0;
+}
+
+.quantity {
+  min-height: 34px;
+}
+
+.cart {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  transform: none;
+  backface-visibility: hidden;
+}
+
+@keyframes cartOpening {
+  from {
+    transform: translateX(35px);
+    opacity: 0.85;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.cart.cart-opening {
+  animation: cartOpening 0.28s ease-out;
+}
+
+.cart {
+  position: relative;
+}
+
+.cart::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    4px 0 10px rgba(255, 255, 255, 0.35),
+    10px 0 22px rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.menu-category .product-content {
+  background: var(--blue);
+}
+
+.cart-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.cart-item-top h3 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.cart-item-top strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+.cart-customizations {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.cart-customizations span {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .cart-item-top {
+    flex-wrap: wrap;
+  }
+
+  .cart-item-top h3 {
+    flex: 1 1 100%;
+  }
+
+  .cart-item-top strong {
+    margin-left: 0;
+    margin-top: 5px;
+  }
 }
