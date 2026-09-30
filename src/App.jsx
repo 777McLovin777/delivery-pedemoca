@@ -1050,16 +1050,11 @@ function App() {
 
           <div className="category-grid">
             <a href="/cardapio/brownies" className="category-card category-red">
-              <span className="category-icon">🍫</span>
-
               <strong>Chocolates</strong>
-
               <small>Ver opções →</small>
             </a>
 
             <a href="/cardapio/tortas" className="category-card category-blue">
-              <span className="category-icon">🍌</span>
-
               <strong>Banoffees</strong>
 
               <small>Ver opções →</small>
@@ -1069,16 +1064,12 @@ function App() {
               href="/cardapio/tortas"
               className="category-card category-yellow"
             >
-              <span className="category-icon">🍰</span>
-
               <strong>Bolos</strong>
 
               <small>Ver opções →</small>
             </a>
 
             <a href="/cardapio/tortas" className="category-card category-pink">
-              <span className="category-icon">🥧</span>
-
               <strong>Tortinhas</strong>
 
               <small>Ver opções →</small>
