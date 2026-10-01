@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import logo from "./assets/logo.png";
@@ -20,6 +20,14 @@ import coca from "./assets/coca.png";
 import cocazero from "./assets/cocazero.png";
 
 import seta from "./assets/seta.png";
+
+import foto1 from "./assets/1.jpeg";
+import foto2 from "./assets/2.jpeg";
+import foto3 from "./assets/3.jpeg";
+import foto4 from "./assets/4.jpeg";
+import foto5 from "./assets/5.jpeg";
+import foto6 from "./assets/6.jpeg";
+import foto7 from "./assets/7.jpeg";
 
 /* =========================================================
    PRODUTOS
@@ -235,6 +243,10 @@ function App() {
 
   const [productQuantity, setProductQuantity] = useState(1);
 
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  const carouselTouchStartX = useRef(null);
+
   /* =======================================================
      LOCAL STORAGE
   ======================================================= */
@@ -242,6 +254,27 @@ function App() {
   useEffect(() => {
     localStorage.setItem("pedemoca-cart", JSON.stringify(cart));
   }, [cart]);
+
+  /* =======================================================
+     TRAVA O SCROLL DA PÁGINA COM O MODAL ABERTO
+  ======================================================= */
+
+  useEffect(() => {
+    if (!customizingProduct) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscrollBehavior = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscrollBehavior;
+    };
+  }, [customizingProduct]);
 
   /* =======================================================
      CARRINHO
@@ -334,6 +367,9 @@ function App() {
     setCustomizingProduct(product);
     setSelectedComplements({});
     setProductQuantity(1);
+
+    // Sempre abre o carrossel na primeira foto
+    setCarouselIndex(0);
   }
 
   function closeProductCustomization() {
@@ -711,20 +747,65 @@ function App() {
 ======================================================= */
 
   function ProductModal() {
-    const modalContentRef = useRef(null);
-    const modalScrollRef = useRef(0);
-
-    useLayoutEffect(() => {
-      if (modalContentRef.current) {
-        modalContentRef.current.scrollTop = modalScrollRef.current;
-      }
-    }, [selectedComplements, productQuantity]);
-
     if (!customizingProduct) {
       return null;
     }
 
     const isBrownie = customizingProduct.category === "Brownies";
+
+    /* =======================================================
+   MODAL DE PRODUTO — IMAGENS DO CARROSSEL
+======================================================= */
+
+    const extraPhotos = isBrownie
+      ? [foto6, foto7, foto3]
+      : [foto1, foto2, foto4];
+
+    const productImages = [customizingProduct.image, ...extraPhotos];
+
+    function previousImage() {
+      setCarouselIndex((current) =>
+        current === 0 ? productImages.length - 1 : current - 1,
+      );
+    }
+
+    function nextImage() {
+      setCarouselIndex((current) =>
+        current === productImages.length - 1 ? 0 : current + 1,
+      );
+    }
+
+    function selectImage(index) {
+      setCarouselIndex(index);
+    }
+    function handleCarouselTouchStart(event) {
+      carouselTouchStartX.current = event.touches[0].clientX;
+    }
+
+    function handleCarouselTouchEnd(event) {
+      if (carouselTouchStartX.current === null) {
+        return;
+      }
+
+      const touchEndX = event.changedTouches[0].clientX;
+      const distance = touchEndX - carouselTouchStartX.current;
+
+      carouselTouchStartX.current = null;
+
+      // Ignora movimentos muito pequenos
+      if (Math.abs(distance) < 40) {
+        return;
+      }
+
+      // Arrastou para esquerda → próxima foto
+      if (distance < 0) {
+        nextImage();
+        return;
+      }
+
+      // Arrastou para direita → foto anterior
+      previousImage();
+    }
 
     const castanhas = selectedComplements["Castanhas"] || 0;
 
@@ -737,16 +818,9 @@ function App() {
 
     const totalPrice = unitPrice * productQuantity;
 
-    function saveModalScroll() {
-      if (modalContentRef.current) {
-        modalScrollRef.current = modalContentRef.current.scrollTop;
-      }
-    }
-
     return (
       <div className="brownie-overlay" onClick={closeProductCustomization}>
         <div
-          ref={modalContentRef}
           className="brownie-modal"
           onClick={(event) => event.stopPropagation()}
         >
@@ -758,15 +832,81 @@ function App() {
             ×
           </button>
 
-          <div className="product-modal-image">
-            <img src={customizingProduct.image} alt={customizingProduct.name} />
-          </div>
+          {/* =====================================================
+    MODAL DE PRODUTO — CARROSSEL DE IMAGENS
+===================================================== */}
 
-          <span className="brownie-modal-label">
-            {isBrownie
-              ? "PERSONALIZE SEU BROWNIE"
-              : customizingProduct.category.toUpperCase()}
-          </span>
+          {/* =====================================================
+    MODAL DE PRODUTO — CARROSSEL DE IMAGENS
+===================================================== */}
+
+          <div
+            className="product-modal-carousel"
+            onTouchStart={handleCarouselTouchStart}
+            onTouchEnd={handleCarouselTouchEnd}
+          >
+            {/* FOTOS EMPILHADAS */}
+            <div className="product-modal-carousel-track">
+              {productImages.map((image, index) => (
+                <div
+                  className={`product-modal-slide ${
+                    index === carouselIndex ? "active" : ""
+                  }`}
+                  key={`${customizingProduct.id}-${index}`}
+                >
+                  <img
+                    src={image}
+                    alt={`${customizingProduct.name} - foto ${index + 1}`}
+                    draggable="false"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* SETA ESQUERDA */}
+            <button
+              type="button"
+              className="carousel-arrow carousel-arrow-left"
+              onClick={(event) => {
+                event.stopPropagation();
+                previousImage();
+              }}
+              aria-label="Foto anterior"
+            >
+              ‹
+            </button>
+
+            {/* SETA DIREITA */}
+            <button
+              type="button"
+              className="carousel-arrow carousel-arrow-right"
+              onClick={(event) => {
+                event.stopPropagation();
+                nextImage();
+              }}
+              aria-label="Próxima foto"
+            >
+              ›
+            </button>
+
+            {/* INDICADORES */}
+            <div className="product-modal-dots">
+              {productImages.map((_, index) => (
+                <button
+                  type="button"
+                  key={index}
+                  className={`product-modal-dot ${
+                    index === carouselIndex ? "active" : ""
+                  }`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    selectImage(index);
+                  }}
+                  aria-label={`Ir para foto ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
 
           <h2>{customizingProduct.name}</h2>
 
@@ -791,10 +931,7 @@ function App() {
                   <button
                     type="button"
                     disabled={!castanhas}
-                    onClick={() => {
-                      saveModalScroll();
-                      changeComplementQuantity("Castanhas", -1);
-                    }}
+                    onClick={() => changeComplementQuantity("Castanhas", -1)}
                   >
                     −
                   </button>
@@ -803,10 +940,7 @@ function App() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      saveModalScroll();
-                      changeComplementQuantity("Castanhas", 1);
-                    }}
+                    onClick={() => changeComplementQuantity("Castanhas", 1)}
                   >
                     +
                   </button>
@@ -826,10 +960,9 @@ function App() {
                   <button
                     type="button"
                     disabled={!frutasVermelhas}
-                    onClick={() => {
-                      saveModalScroll();
-                      changeComplementQuantity("Frutas Vermelhas", -1);
-                    }}
+                    onClick={() =>
+                      changeComplementQuantity("Frutas Vermelhas", -1)
+                    }
                   >
                     −
                   </button>
@@ -838,10 +971,9 @@ function App() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      saveModalScroll();
-                      changeComplementQuantity("Frutas Vermelhas", 1);
-                    }}
+                    onClick={() =>
+                      changeComplementQuantity("Frutas Vermelhas", 1)
+                    }
                   >
                     +
                   </button>
@@ -857,23 +989,14 @@ function App() {
               <button
                 type="button"
                 disabled={productQuantity <= 1}
-                onClick={() => {
-                  saveModalScroll();
-                  changeProductQuantity(-1);
-                }}
+                onClick={() => changeProductQuantity(-1)}
               >
                 −
               </button>
 
               <span>{productQuantity}</span>
 
-              <button
-                type="button"
-                onClick={() => {
-                  saveModalScroll();
-                  changeProductQuantity(1);
-                }}
-              >
+              <button type="button" onClick={() => changeProductQuantity(1)}>
                 +
               </button>
             </div>
@@ -1058,7 +1181,7 @@ function App() {
         </main>
 
         <ScrollTopButton />
-        <ProductModal />
+        {ProductModal()}
         <CartDrawer />
       </div>
     );
@@ -1116,7 +1239,7 @@ function App() {
         <SocialSection />
 
         <ScrollTopButton />
-        <ProductModal />
+        {ProductModal()}
         <CartDrawer />
       </div>
     );
@@ -1359,7 +1482,7 @@ function App() {
       =================================================== */}
 
       <ScrollTopButton />
-      <ProductModal />
+      {ProductModal()}
       <CartDrawer />
     </div>
   );
