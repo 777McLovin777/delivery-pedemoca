@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./App.css";
 
 import logo from "./assets/logo.png";
@@ -229,9 +229,11 @@ function App() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const [customizingBrownie, setCustomizingBrownie] = useState(null);
+  const [customizingProduct, setCustomizingProduct] = useState(null);
 
   const [selectedComplements, setSelectedComplements] = useState({});
+
+  const [productQuantity, setProductQuantity] = useState(1);
 
   /* =======================================================
      LOCAL STORAGE
@@ -325,17 +327,19 @@ function App() {
   }
 
   /* =======================================================
-     PERSONALIZAÇÃO DO BROWNIE
-  ======================================================= */
+   PERSONALIZAÇÃO DO PRODUTO
+======================================================= */
 
-  function openBrownieCustomization(product) {
-    setCustomizingBrownie(product);
+  function openProductCustomization(product) {
+    setCustomizingProduct(product);
     setSelectedComplements({});
+    setProductQuantity(1);
   }
 
-  function closeBrownieCustomization() {
-    setCustomizingBrownie(null);
+  function closeProductCustomization() {
+    setCustomizingProduct(null);
     setSelectedComplements({});
+    setProductQuantity(1);
   }
 
   function changeComplementQuantity(complement, amount) {
@@ -351,30 +355,64 @@ function App() {
     });
   }
 
-  function confirmBrownieCustomization() {
-    if (!customizingBrownie) {
+  function changeProductQuantity(amount) {
+    setProductQuantity((current) => Math.max(1, current + amount));
+  }
+
+  function confirmProductCustomization() {
+    if (!customizingProduct) {
       return;
     }
 
-    const castanhas = selectedComplements["Castanhas"] || 0;
+    const isBrownie = customizingProduct.category === "Brownies";
 
+    const castanhas = selectedComplements["Castanhas"] || 0;
     const frutasVermelhas = selectedComplements["Frutas Vermelhas"] || 0;
 
-    const customizationKey = [
-      customizingBrownie.id,
-      castanhas,
-      frutasVermelhas,
-    ].join("-");
+    const complementPrice = castanhas * 2.5 + frutasVermelhas * 2.5;
 
-    const customizedPrice =
-      customizingBrownie.price + castanhas * 2.5 + frutasVermelhas * 2.5;
+    const unitPrice =
+      customizingProduct.price + (isBrownie ? complementPrice : 0);
 
-    const customizations = {
-      Castanhas: castanhas,
-      "Frutas Vermelhas": frutasVermelhas,
-    };
+    const customizations = isBrownie
+      ? {
+          Castanhas: castanhas,
+          "Frutas Vermelhas": frutasVermelhas,
+        }
+      : null;
 
     setCart((currentCart) => {
+      if (!isBrownie) {
+        const existingProduct = currentCart.find(
+          (item) => item.id === customizingProduct.id && !item.customizationKey,
+        );
+
+        if (existingProduct) {
+          return currentCart.map((item) =>
+            item.id === customizingProduct.id && !item.customizationKey
+              ? {
+                  ...item,
+                  quantity: item.quantity + productQuantity,
+                }
+              : item,
+          );
+        }
+
+        return [
+          ...currentCart,
+          {
+            ...customizingProduct,
+            quantity: productQuantity,
+          },
+        ];
+      }
+
+      const customizationKey = [
+        customizingProduct.id,
+        castanhas,
+        frutasVermelhas,
+      ].join("-");
+
       const existingProduct = currentCart.find(
         (item) => item.customizationKey === customizationKey,
       );
@@ -384,7 +422,7 @@ function App() {
           item.customizationKey === customizationKey
             ? {
                 ...item,
-                quantity: item.quantity + 1,
+                quantity: item.quantity + productQuantity,
               }
             : item,
         );
@@ -393,18 +431,18 @@ function App() {
       return [
         ...currentCart,
         {
-          ...customizingBrownie,
-          id: `${customizingBrownie.id}-${Date.now()}`,
-          baseProductId: customizingBrownie.id,
+          ...customizingProduct,
+          id: `${customizingProduct.id}-${Date.now()}`,
+          baseProductId: customizingProduct.id,
           customizationKey,
           customizations,
-          price: customizedPrice,
-          quantity: 1,
+          price: unitPrice,
+          quantity: productQuantity,
         },
       ];
     });
 
-    closeBrownieCustomization();
+    closeProductCustomization();
     openCart();
   }
 
@@ -459,14 +497,15 @@ function App() {
 
   function ProductCard({ product }) {
     const isBrownie = product.category === "Brownies";
+    const isBeverage = product.category === "Bebidas";
 
     function handleAdd() {
-      if (isBrownie) {
-        openBrownieCustomization(product);
+      if (isBeverage) {
+        addToCart(product);
         return;
       }
 
-      addToCart(product);
+      openProductCustomization(product);
     }
 
     return (
@@ -475,7 +514,13 @@ function App() {
           product.id === 208 || product.id === 209 ? "water-product" : ""
         }`}
         key={product.id}
+        onClick={() => {
+          if (!isBeverage) {
+            openProductCustomization(product);
+          }
+        }}
       >
+        {" "}
         <div className="product-image">
           <img src={product.image} alt={product.name} />
 
@@ -483,13 +528,15 @@ function App() {
 
           <button
             className="quick-add"
-            onClick={handleAdd}
+            onClick={(event) => {
+              event.stopPropagation();
+              handleAdd();
+            }}
             aria-label={`Adicionar ${product.name}`}
           >
             +
           </button>
         </div>
-
         <div className="product-content">
           <div className="product-title">
             <h3>{product.name}</h3>
@@ -499,7 +546,13 @@ function App() {
 
           <p>{product.description}</p>
 
-          <button className="add-button" onClick={handleAdd}>
+          <button
+            className="add-button"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleAdd();
+            }}
+          >
             <span translate="no">Adicionar ao pedido</span>
 
             <span translate="no">+</span>
@@ -654,121 +707,190 @@ function App() {
   }
 
   /* =======================================================
-     COMPONENTE: MODAL DO BROWNIE
-  ======================================================= */
+   COMPONENTE: MODAL DO PRODUTO
+======================================================= */
 
-  function BrownieModal() {
-    if (!customizingBrownie) {
+  function ProductModal() {
+    const modalContentRef = useRef(null);
+    const modalScrollRef = useRef(0);
+
+    useLayoutEffect(() => {
+      if (modalContentRef.current) {
+        modalContentRef.current.scrollTop = modalScrollRef.current;
+      }
+    }, [selectedComplements, productQuantity]);
+
+    if (!customizingProduct) {
       return null;
     }
+
+    const isBrownie = customizingProduct.category === "Brownies";
 
     const castanhas = selectedComplements["Castanhas"] || 0;
 
     const frutasVermelhas = selectedComplements["Frutas Vermelhas"] || 0;
 
-    const customizedTotal =
-      customizingBrownie.price + castanhas * 2.5 + frutasVermelhas * 2.5;
+    const complementsTotal = castanhas * 2.5 + frutasVermelhas * 2.5;
+
+    const unitPrice =
+      customizingProduct.price + (isBrownie ? complementsTotal : 0);
+
+    const totalPrice = unitPrice * productQuantity;
+
+    function saveModalScroll() {
+      if (modalContentRef.current) {
+        modalScrollRef.current = modalContentRef.current.scrollTop;
+      }
+    }
 
     return (
-      <div className="brownie-overlay" onClick={closeBrownieCustomization}>
+      <div className="brownie-overlay" onClick={closeProductCustomization}>
         <div
+          ref={modalContentRef}
           className="brownie-modal"
           onClick={(event) => event.stopPropagation()}
         >
           <button
             className="brownie-close"
-            onClick={closeBrownieCustomization}
+            onClick={closeProductCustomization}
             aria-label="Fechar"
           >
             ×
           </button>
 
-          <span className="brownie-modal-label">PERSONALIZE SEU BROWNIE</span>
+          <div className="product-modal-image">
+            <img src={customizingProduct.image} alt={customizingProduct.name} />
+          </div>
 
-          <h2>{customizingBrownie.name}</h2>
+          <span className="brownie-modal-label">
+            {isBrownie
+              ? "PERSONALIZE SEU BROWNIE"
+              : customizingProduct.category.toUpperCase()}
+          </span>
+
+          <h2>{customizingProduct.name}</h2>
 
           <p className="brownie-modal-description">
-            Escolha o complemento que você quer adicionar.
+            {customizingProduct.description}
           </p>
 
-          <div className="brownie-options">
-            <div className="brownie-option">
-              <div>
-                <div className="brownie-option-name">
-                  <strong>
-                    Castanhas <b>+ R$ 2,50</b>
-                  </strong>
+          {isBrownie && (
+            <div className="brownie-options">
+              <div className="brownie-option">
+                <div>
+                  <div className="brownie-option-name">
+                    <strong>
+                      Castanhas <b>+ R$ 2,50</b>
+                    </strong>
+                  </div>
+
+                  <span>Nozes, castanha e frutos secos</span>
                 </div>
 
-                <span>Nozes, castanha e frutos secos</span>
+                <div className="complement-quantity">
+                  <button
+                    type="button"
+                    disabled={!castanhas}
+                    onClick={() => {
+                      saveModalScroll();
+                      changeComplementQuantity("Castanhas", -1);
+                    }}
+                  >
+                    −
+                  </button>
+
+                  <span>{castanhas}</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveModalScroll();
+                      changeComplementQuantity("Castanhas", 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
 
-              <div className="complement-quantity">
-                <button
-                  type="button"
-                  disabled={!castanhas}
-                  onClick={() => changeComplementQuantity("Castanhas", -1)}
-                >
-                  −
-                </button>
+              <div className="brownie-option">
+                <div>
+                  <strong>
+                    Frutas Vermelhas <b>+ R$ 2,50</b>
+                  </strong>
 
-                <span>{castanhas}</span>
+                  <span>Morango, framboesa e amora</span>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => changeComplementQuantity("Castanhas", 1)}
-                >
-                  +
-                </button>
+                <div className="complement-quantity">
+                  <button
+                    type="button"
+                    disabled={!frutasVermelhas}
+                    onClick={() => {
+                      saveModalScroll();
+                      changeComplementQuantity("Frutas Vermelhas", -1);
+                    }}
+                  >
+                    −
+                  </button>
+
+                  <span>{frutasVermelhas}</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveModalScroll();
+                      changeComplementQuantity("Frutas Vermelhas", 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="brownie-option">
-              <div>
-                <strong>
-                  Frutas Vermelhas <b>+ R$ 2,50</b>
-                </strong>
+          <div className="product-modal-quantity">
+            <span>Quantidade</span>
 
-                <span>Morango, framboesa e amora</span>
-              </div>
+            <div className="complement-quantity">
+              <button
+                type="button"
+                disabled={productQuantity <= 1}
+                onClick={() => {
+                  saveModalScroll();
+                  changeProductQuantity(-1);
+                }}
+              >
+                −
+              </button>
 
-              <div className="complement-quantity">
-                <button
-                  type="button"
-                  disabled={!frutasVermelhas}
-                  onClick={() =>
-                    changeComplementQuantity("Frutas Vermelhas", -1)
-                  }
-                >
-                  −
-                </button>
+              <span>{productQuantity}</span>
 
-                <span>{frutasVermelhas}</span>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    changeComplementQuantity("Frutas Vermelhas", 1)
-                  }
-                >
-                  +
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  saveModalScroll();
+                  changeProductQuantity(1);
+                }}
+              >
+                +
+              </button>
             </div>
           </div>
 
           <div className="brownie-modal-total">
-            <span>Total do brownie</span>
+            <span>Total</span>
 
-            <strong>R$ {formatPrice(customizedTotal)}</strong>
+            <strong>R$ {formatPrice(totalPrice)}</strong>
           </div>
 
           <button
             className="brownie-confirm"
             type="button"
-            onClick={confirmBrownieCustomization}
+            onClick={confirmProductCustomization}
           >
-            Continuar
+            Adicionar ao pedido
           </button>
         </div>
       </div>
@@ -936,7 +1058,7 @@ function App() {
         </main>
 
         <ScrollTopButton />
-        <BrownieModal />
+        <ProductModal />
         <CartDrawer />
       </div>
     );
@@ -994,7 +1116,7 @@ function App() {
         <SocialSection />
 
         <ScrollTopButton />
-        <BrownieModal />
+        <ProductModal />
         <CartDrawer />
       </div>
     );
@@ -1237,7 +1359,7 @@ function App() {
       =================================================== */}
 
       <ScrollTopButton />
-      <BrownieModal />
+      <ProductModal />
       <CartDrawer />
     </div>
   );

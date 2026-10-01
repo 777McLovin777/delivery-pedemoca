@@ -11,6 +11,7 @@
   --yellow: #fff8ca;
   --pink: #f6d7e2;
   --brown: #2d120d;
+  --cinza: #f9f2e6;
 
   --white: #ffffff;
   --black: #111111;
@@ -719,28 +720,25 @@ a {
 
 .product-card:hover {
   transform: translateY(-7px);
-
   box-shadow: 0 18px 40px rgba(45, 18, 13, 0.12);
+}
+
+.product-card:not(.water-product) {
+  cursor: pointer;
 }
 
 .product-image {
   height: 300px;
-
   position: relative;
-
   overflow: hidden;
-
   background: var(--blue);
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
-
   display: block;
-
   object-fit: cover;
-
   transition: 0.5s;
 }
 
@@ -2188,7 +2186,7 @@ a {
   padding: 14px 24px;
   border: none;
   border-radius: 999px;
-  background: var(--white);
+  background: var(--cinza);
   color: var(--brown);
   font-family: inherit;
   font-size: 15px;
@@ -2921,4 +2919,450 @@ a {
     width: 46px;
     height: 46px;
   }
+}
+
+/* =======================================================
+   NOVO MODAL DE PRODUTO
+======================================================= */
+
+.brownie-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(17, 17, 17, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.brownie-modal {
+  position: relative;
+
+  width: min(92vw, 520px);
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 32px;
+
+  background: var(--cream);
+  border: 3px solid var(--brown);
+  border-radius: 30px;
+
+  box-shadow: 0 18px 50px rgba(45, 18, 13, 0.25);
+}
+
+.brownie-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--red);
+  color: var(--white);
+
+  font-size: 26px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.brownie-close:hover {
+  background: var(--brown);
+  transform: rotate(5deg) scale(1.05);
+}
+
+/* IMAGEM */
+
+.product-modal-image {
+  width: 100%;
+  height: 230px;
+
+  margin-bottom: 22px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  background: var(--blue);
+}
+
+.product-modal-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+/* CATEGORIA */
+
+.brownie-modal-label {
+  display: inline-block;
+
+  margin-bottom: 10px;
+  padding: 7px 13px;
+
+  border-radius: 999px;
+
+  background: var(--yellow);
+  color: var(--brown);
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+/* TÍTULO */
+
+.brownie-modal h2 {
+  margin: 0 40px 10px 0;
+
+  color: var(--black);
+
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+/* DESCRIÇÃO */
+
+.brownie-modal-description {
+  margin: 0 0 24px;
+
+  color: var(--text-light);
+
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* COMPLEMENTOS */
+
+.brownie-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-bottom: 22px;
+}
+
+.brownie-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 16px;
+
+  border: 2px solid var(--blue);
+  border-radius: 18px;
+
+  background: var(--white);
+}
+
+.brownie-option > div:first-child {
+  min-width: 0;
+}
+
+.brownie-option strong {
+  display: block;
+
+  color: var(--brown);
+
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.brownie-option strong b {
+  color: var(--red);
+  font-size: 13px;
+}
+
+.brownie-option span {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--text-light);
+
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* CONTROLE DE QUANTIDADE */
+
+.complement-quantity {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.complement-quantity button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--red);
+  color: var(--white);
+
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.complement-quantity button:hover:not(:disabled) {
+  background: var(--brown);
+  transform: scale(1.05);
+}
+
+.complement-quantity button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.complement-quantity span {
+  min-width: 20px;
+
+  margin: 0;
+
+  color: var(--black);
+
+  text-align: center;
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* QUANTIDADE DO PRODUTO */
+
+.product-modal-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+  padding: 16px;
+
+  border-radius: 18px;
+
+  background: var(--pink);
+}
+
+.product-modal-quantity > span {
+  color: var(--brown);
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* TOTAL */
+
+.brownie-modal-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+  padding-top: 18px;
+
+  border-top: 2px dashed rgba(45, 18, 13, 0.2);
+}
+
+.brownie-modal-total span {
+  color: var(--text-light);
+
+  font-size: 14px;
+}
+
+.brownie-modal-total strong {
+  color: var(--red);
+
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* BOTÃO */
+
+.brownie-confirm {
+  width: 100%;
+
+  min-height: 54px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: var(--brown);
+  color: var(--white);
+
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.brownie-confirm:hover {
+  background: var(--red);
+  transform: translateY(-2px);
+}
+
+/* =======================================================
+   MODAL — CELULAR
+======================================================= */
+
+@media (max-width: 600px) {
+  .brownie-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .brownie-modal {
+    width: 100%;
+    max-height: 92vh;
+
+    padding: 24px 20px 22px;
+
+    border-radius: 28px 28px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .product-modal-image {
+    height: 190px;
+
+    border-radius: 18px;
+  }
+
+  .brownie-modal h2 {
+    font-size: 24px;
+  }
+
+  .brownie-option {
+    padding: 13px;
+
+    gap: 10px;
+  }
+
+  .brownie-option strong {
+    font-size: 14px;
+  }
+
+  .brownie-option span {
+    font-size: 11px;
+  }
+
+  .complement-quantity {
+    gap: 7px;
+  }
+
+  .complement-quantity button {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.product-card:not(.water-product) {
+  cursor: pointer;
+}
+
+.product-card:not(.water-product) .quick-add,
+.product-card:not(.water-product) .add-button {
+  cursor: pointer;
+}
+
+/* =======================================================
+   SCROLLBAR — MODAL DE PRODUTO
+======================================================= */
+
+.brownie-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(205, 227, 232, 0.85) transparent;
+}
+
+.brownie-modal::-webkit-scrollbar {
+  width: 7px;
+}
+
+.brownie-modal::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 30px 0;
+}
+
+.brownie-modal::-webkit-scrollbar-thumb {
+  background: rgba(205, 227, 232, 0.82);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 250, 241, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.brownie-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(205, 227, 232, 1);
+}
+
+/* =======================================================
+   SCROLLBAR — MODAL DE PRODUTO
+======================================================= */
+
+.brownie-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(205, 227, 232, 0.85) transparent;
+}
+
+.brownie-modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+.brownie-modal::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;
+}
+
+.brownie-modal::-webkit-scrollbar-thumb {
+  background: rgba(205, 227, 232, 0.82);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 250, 241, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.brownie-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(205, 227, 232, 1);
 }
