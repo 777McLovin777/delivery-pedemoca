@@ -19,6 +19,8 @@ import aguagas from "./assets/aguagas.png";
 import coca from "./assets/coca.png";
 import cocazero from "./assets/cocazero.png";
 
+import seta from "./assets/seta.png";
+
 /* =========================================================
    PRODUTOS
 ========================================================= */
@@ -524,9 +526,8 @@ function App() {
         >
           <div className="cart-header">
             <div>
-              <span>SEU PEDIDO</span>
-
               <h2>Carrinho</h2>
+              <span>SEU PEDIDO</span>
             </div>
 
             <button
@@ -548,7 +549,9 @@ function App() {
 
               <p>Escolha um docinho para começar.</p>
 
-              <button onClick={() => setCartOpen(false)}>Ver cardápio</button>
+              <button onClick={() => setCartOpen(false)}>
+                <span>Ver cardápio</span>
+              </button>
             </div>
           ) : (
             <>
@@ -799,7 +802,7 @@ function App() {
           >
             <img src={whats} alt="WhatsApp" />
 
-            <span>11 91051-3097</span>
+            <span> contato </span>
           </a>
         </div>
       </section>
@@ -836,6 +839,67 @@ function App() {
      PÁGINA: CATEGORIA DO CARDÁPIO
   ======================================================= */
 
+  function ScrollTopButton() {
+    const [revealProgress, setRevealProgress] = useState(0);
+
+    useEffect(() => {
+      let ticking = false;
+
+      function handleScroll() {
+        if (ticking) return;
+
+        ticking = true;
+
+        requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY;
+          const pageHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
+
+          const revealDistance = 800;
+          const distanceFromBottom = pageHeight - scrollPosition;
+
+          let progress = (revealDistance - distanceFromBottom) / revealDistance;
+
+          progress = Math.max(0, Math.min(1, progress));
+
+          setRevealProgress(progress);
+          ticking = false;
+        });
+      }
+
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      handleScroll();
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }, []);
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: "auto",
+      });
+    }
+    if (cartOpen) {
+      return null;
+    }
+    return (
+      <button
+        className="scroll-top-button"
+        onClick={scrollToTop}
+        aria-label="Voltar ao topo"
+        style={{
+          opacity: revealProgress,
+          transform: `translateY(${40 - revealProgress * 40}px)`,
+          pointerEvents: revealProgress > 0.05 ? "auto" : "none",
+        }}
+      >
+        <img src={seta} alt="Voltar ao topo" />
+      </button>
+    );
+  }
+
   if (isMenuPage && currentCategory) {
     const categoryPageProducts = getCategoryProducts(currentCategory);
 
@@ -871,6 +935,7 @@ function App() {
           </div>
         </main>
 
+        <ScrollTopButton />
         <BrownieModal />
         <CartDrawer />
       </div>
@@ -928,6 +993,7 @@ function App() {
         </div>
         <SocialSection />
 
+        <ScrollTopButton />
         <BrownieModal />
         <CartDrawer />
       </div>
@@ -1050,7 +1116,9 @@ function App() {
 
           <div className="category-grid">
             <a href="/cardapio/doces" className="category-card category-red">
-              <strong>Doces Autorais</strong>
+              <strong>
+                <span>Doces Autorais</span>
+              </strong>
               <small>Ver opções →</small>
             </a>
 
@@ -1058,7 +1126,9 @@ function App() {
               href="/cardapio/brownies"
               className="category-card category-blue"
             >
-              <strong>Brownies</strong>
+              <strong>
+                <span>Brownies</span>
+              </strong>
               <small>Ver opções →</small>
             </a>
 
@@ -1066,12 +1136,16 @@ function App() {
               href="/cardapio/tortas"
               className="category-card category-yellow"
             >
-              <strong>Tortas</strong>
+              <strong>
+                <span>Tortas</span>
+              </strong>
               <small>Ver opções →</small>
             </a>
 
             <a href="/cardapio/mousses" className="category-card category-pink">
-              <strong>Mousses</strong>
+              <strong>
+                <span>Mousses</span>
+              </strong>
               <small>Ver opções →</small>
             </a>
           </div>
@@ -1133,12 +1207,22 @@ function App() {
           </div>
         </section>
 
+        {/* ===================================================
+          REDES SOCIAIS
+      =================================================== */}
+
+        <SocialSection />
+
         {/* =================================================
             FRASE FINAL
         ================================================= */}
 
         <section className="final-section">
-          <span>PÉ DE MOÇA • DOCERIA ARTESANAL • SINCE 2026</span>
+          <span>
+            PÉ DE MOÇA • DOCERIA ARTESANAL
+            <br />
+            SINCE 2026
+          </span>
 
           <h2>
             A vida fica mais gostosa
@@ -1149,15 +1233,10 @@ function App() {
       </main>
 
       {/* ===================================================
-          REDES SOCIAIS
-      =================================================== */}
-
-      <SocialSection />
-
-      {/* ===================================================
           MODAIS
       =================================================== */}
 
+      <ScrollTopButton />
       <BrownieModal />
       <CartDrawer />
     </div>
