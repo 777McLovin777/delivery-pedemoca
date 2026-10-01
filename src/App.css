@@ -11,7 +11,7 @@
   --yellow: #fff8ca;
   --pink: #f6d7e2;
   --brown: #2d120d;
-  --cinza: #f9f2e6;
+  --cream-light: #f9f2e6;
 
   --white: #ffffff;
   --black: #111111;
@@ -1967,7 +1967,7 @@ body::-webkit-scrollbar {
   padding: 14px 24px;
   border: none;
   border-radius: 999px;
-  background: var(--cinza);
+  background: var(--cream-light);
   color: var(--brown);
   font-family: inherit;
   font-size: 15px;
@@ -2731,17 +2731,18 @@ body::-webkit-scrollbar {
 .brownie-modal {
   position: relative;
 
-  width: min(92vw, 520px);
+  width: min(94vw, 580px);
   max-height: 90dvh;
 
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 
   padding: 32px;
 
   background: var(--cream);
-  border: 3px solid var(--brown);
+  border: 5px solid var(--brown);
   border-radius: 30px;
 
   box-shadow: 0 18px 50px rgba(45, 18, 13, 0.25);
@@ -2784,21 +2785,20 @@ body::-webkit-scrollbar {
   transform: rotate(5deg) scale(1.05);
 }
 
-/* =======================================================
-   MODAL DE PRODUTO — CARROSSEL
-======================================================= */
-
 .product-modal-carousel {
   position: relative;
 
-  width: 100%;
-  height: 230px;
+  width: calc(100% + 64px);
+  height: 330px;
 
+  margin-top: -32px;
+  margin-right: -32px;
   margin-bottom: 22px;
+  margin-left: -32px;
 
   overflow: hidden;
 
-  border-radius: 22px;
+  border-radius: 25px 25px 22px 22px;
   background: var(--blue);
 }
 
@@ -3174,6 +3174,74 @@ body::-webkit-scrollbar {
 }
 
 /* =======================================================
+   MODAL DE PRODUTO — OBSERVAÇÕES
+======================================================= */
+
+.product-observation {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.product-observation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.product-observation-heading label {
+  color: var(--brown);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.product-observation-heading span {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.product-observation textarea {
+  display: block;
+  width: 100%;
+
+  height: 150px;
+  min-height: 150px;
+  max-height: 150px;
+
+  padding: 13px 14px;
+
+  border: 2px solid var(--brown);
+  border-radius: 16px;
+
+  background: var(--cream-light);
+  color: var(--brown);
+
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+
+  resize: none;
+  overflow: hidden;
+
+  outline: none;
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.product-observation textarea::placeholder {
+  color: var(--text-light);
+}
+
+.product-observation textarea:focus {
+  border-color: var(--red);
+}
+
+/* =======================================================
    MODAL DE PRODUTO — TOTAL E CONFIRMAÇÃO
 ======================================================= */
 
@@ -3234,44 +3302,61 @@ body::-webkit-scrollbar {
 }
 
 /* =======================================================
-   MODAL DE PRODUTO — CELULAR
-   Menor que a tela para manter o fundo desfocado visível.
+   MODAL DE PRODUTO — CELULAR FULLSCREEN
 ======================================================= */
 
 @media (max-width: 600px) {
   .brownie-overlay {
-    align-items: center;
-    justify-content: center;
-    padding: 18px 14px;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
   }
 
   .brownie-modal {
-    width: min(92vw, 430px);
-    max-height: 86dvh;
+    width: calc(100% - 10px);
+    max-width: none;
 
-    padding: 20px 18px;
+    height: calc(100dvh - 10px);
+    min-height: calc(100dvh - 10px);
+    max-height: calc(100dvh - 10px);
 
-    border: 3px solid var(--brown);
-    border-radius: 24px;
+    margin: 5px;
+
+    padding-top: 0;
+    padding-right: 18px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: 18px;
+
+    background: var(--cream);
+
+    border: 5px solid var(--brown);
+    border-radius: 26px;
 
     overflow-y: auto;
     overflow-x: hidden;
 
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+
+    box-sizing: border-box;
   }
-
-  /* =======================================================
-   MODAL DE PRODUTO — CARROSSEL NO CELULAR
-======================================================= */
-
   /* =======================================================
    MODAL DE PRODUTO — CARROSSEL NO CELULAR
 ======================================================= */
 
   .product-modal-carousel {
-    height: 150px;
-    border-radius: 18px;
+    width: calc(100% + 36px);
+
+    height: 42dvh;
+    min-height: 300px;
+    max-height: 430px;
+
+    margin-top: 0;
+    margin-right: -18px;
+    margin-bottom: 22px;
+    margin-left: -18px;
+
+    border-radius: 0 0 22px 22px;
   }
 
   .carousel-arrow {
@@ -3399,8 +3484,6 @@ body::-webkit-scrollbar {
 /* CARROSSEL */
 .product-modal-carousel {
   position: relative;
-
-  width: 100%;
 
   overflow: hidden;
 

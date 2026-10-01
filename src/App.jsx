@@ -243,6 +243,8 @@ function App() {
 
   const [productQuantity, setProductQuantity] = useState(1);
 
+  const [productObservation, setProductObservation] = useState("");
+
   const [carouselIndex, setCarouselIndex] = useState(0);
 
   const carouselTouchStartX = useRef(null);
@@ -367,6 +369,7 @@ function App() {
     setCustomizingProduct(product);
     setSelectedComplements({});
     setProductQuantity(1);
+    setProductObservation("");
 
     // Sempre abre o carrossel na primeira foto
     setCarouselIndex(0);
@@ -376,6 +379,7 @@ function App() {
     setCustomizingProduct(null);
     setSelectedComplements({});
     setProductQuantity(1);
+    setProductObservation("");
   }
 
   function changeComplementQuantity(complement, amount) {
@@ -410,6 +414,8 @@ function App() {
     const unitPrice =
       customizingProduct.price + (isBrownie ? complementPrice : 0);
 
+    const observation = productObservation.trim();
+
     const customizations = isBrownie
       ? {
           Castanhas: castanhas,
@@ -420,12 +426,17 @@ function App() {
     setCart((currentCart) => {
       if (!isBrownie) {
         const existingProduct = currentCart.find(
-          (item) => item.id === customizingProduct.id && !item.customizationKey,
+          (item) =>
+            item.id === customizingProduct.id &&
+            !item.customizationKey &&
+            (item.observation || "") === observation,
         );
 
         if (existingProduct) {
           return currentCart.map((item) =>
-            item.id === customizingProduct.id && !item.customizationKey
+            item.id === customizingProduct.id &&
+            !item.customizationKey &&
+            (item.observation || "") === observation
               ? {
                   ...item,
                   quantity: item.quantity + productQuantity,
@@ -438,6 +449,11 @@ function App() {
           ...currentCart,
           {
             ...customizingProduct,
+            id: observation
+              ? `${customizingProduct.id}-${Date.now()}`
+              : customizingProduct.id,
+            baseProductId: customizingProduct.id,
+            observation,
             quantity: productQuantity,
           },
         ];
@@ -450,12 +466,15 @@ function App() {
       ].join("-");
 
       const existingProduct = currentCart.find(
-        (item) => item.customizationKey === customizationKey,
+        (item) =>
+          item.customizationKey === customizationKey &&
+          (item.observation || "") === observation,
       );
 
       if (existingProduct) {
         return currentCart.map((item) =>
-          item.customizationKey === customizationKey
+          item.customizationKey === customizationKey &&
+          (item.observation || "") === observation
             ? {
                 ...item,
                 quantity: item.quantity + productQuantity,
@@ -472,6 +491,7 @@ function App() {
           baseProductId: customizingProduct.id,
           customizationKey,
           customizations,
+          observation,
           price: unitPrice,
           quantity: productQuantity,
         },
@@ -668,6 +688,13 @@ function App() {
                                   {item.customizations["Frutas Vermelhas"]}
                                 </span>
                               )}
+                            </div>
+                          )}
+
+                          {item.observation && (
+                            <div className="cart-observation">
+                              <strong>Observação:</strong>
+                              <span>{item.observation}</span>
                             </div>
                           )}
                         </div>
@@ -1000,6 +1027,25 @@ function App() {
                 +
               </button>
             </div>
+          </div>
+
+          <div className="product-observation">
+            <div className="product-observation-heading">
+              <label htmlFor={`product-observation-${customizingProduct.id}`}>
+                Observações
+              </label>
+
+              <span>Opcional</span>
+            </div>
+
+            <textarea
+              id={`product-observation-${customizingProduct.id}`}
+              value={productObservation}
+              onChange={(event) => setProductObservation(event.target.value)}
+              placeholder="Alguma observação sobre este produto?"
+              maxLength={200}
+              rows={3}
+            />
           </div>
 
           <div className="brownie-modal-total">
