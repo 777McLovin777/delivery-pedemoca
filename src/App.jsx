@@ -29,56 +29,95 @@ import foto5 from "./assets/5.jpeg";
 import foto6 from "./assets/6.jpeg";
 import foto7 from "./assets/7.jpeg";
 
+// Brownie tradicional
+import bsem from "./assets/bsem.png";
+import baoleite from "./assets/baoleite.png";
+import bbranco from "./assets/bbranco.png";
+import bdoce from "./assets/bdoce.png";
+
+// Brownie com frutas vermelhas
+import bfruta from "./assets/bfruta.png";
+import bfaoleite from "./assets/bfaoleite.png";
+import bfbranco from "./assets/bfbranco.png";
+import bfdoce from "./assets/bfdoce.png";
+
+// Brownie com castanhas
+import bnozes from "./assets/bnozes.png";
+import bnaoleite from "./assets/bnaoleite.png";
+import bnbranco from "./assets/bnbranco.png";
+import bndoce from "./assets/bndoce.png";
+
+// Pé de Moça Gourmet
+import dpedemoca from "./assets/dpedemoca.png";
+import dpedemoca2 from "./assets/dpedemoca2.png";
+import dpedemoca3 from "./assets/dpedemoca3.png";
+
+// Mousse de Café
+import mcafe from "./assets/mcafe.png";
+import mcafe2 from "./assets/mcafe2.png";
+import mcafe3 from "./assets/mcafe3.png";
+
+// Mousse de Oreo
+import moreo from "./assets/moreo.png";
+
 /* =========================================================
    PRODUTOS
 ========================================================= */
 
 const products = [
   {
-    id: 1,
-    name: "Banoffee",
+    id: 106,
+    name: "Mousse de Café",
+    category: "Mais pedidos",
+    description: "Mousse cremoso com sabor marcante de café.",
+    price: 10.9,
+    image: mcafe,
+  },
+  {
+    id: 201,
+    name: "Pé de Moça Gourmet no Pote",
     category: "Mais pedidos",
     description:
-      "Banana, doce de leite e chantilly em uma combinação irresistível.",
-    price: 15.9,
-    image: banoffe,
-  },
-  {
-    id: 2,
-    name: "Tiramisù",
-    category: "Mais pedidos",
-    description: "Creme suave, café e cacau para quem gosta de um clássico.",
-    price: 16.9,
-    image: tiramisu,
-  },
-  {
-    id: 3,
-    name: "Tortinha",
-    category: "Tortinhas",
-    description: "Massa delicada, recheio cremoso e uma cobertura especial.",
+      "Nosso clássico Pé de Moça em uma versão gourmet para comer de colher.",
     price: 14.9,
-    image: tortinha,
+    image: dpedemoca,
+  },
+  {
+    id: 105,
+    name: "Mousse de Oreo",
+    category: "Mais pedidos",
+    description:
+      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
+    price: 10.9,
+    image: moreo,
   },
 ];
 
 const menuProducts = [
   {
-    id: 101,
-    name: "Brownie de Chocolate ao Leite",
+    id: 102,
+    name: "Brownie com Frutas Vermelhas",
     category: "Brownies",
-    description:
-      "Brownie de chocolate ao leite com opção de castanhas ou frutas vermelhas.",
-    price: 12.9,
-    image: tortinha,
+    description: "Brownie artesanal de chocolate com frutas vermelhas.",
+    price: 13.9,
+    image: bfruta,
   },
   {
-    id: 102,
-    name: "Brownie de Chocolate Branco",
+    id: 108,
+    name: "Brownie com Castanhas",
+    category: "Brownies",
+    description: "Brownie artesanal de chocolate com castanhas.",
+    price: 13.9,
+    image: bnozes,
+  },
+  {
+    id: 101,
+    name: "Brownie",
     category: "Brownies",
     description:
-      "Brownie de chocolate branco com opção de castanhas ou frutas vermelhas.",
-    price: 13.9,
-    image: tortinha,
+      "Brownie artesanal de chocolate, macio por dentro e com aquela casquinha irresistível.",
+    price: 12.9,
+    image: bsem,
   },
   {
     id: 103,
@@ -105,7 +144,7 @@ const menuProducts = [
     description:
       "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
     price: 10.9,
-    image: tiramisu,
+    image: moreo,
   },
   {
     id: 106,
@@ -113,7 +152,7 @@ const menuProducts = [
     category: "Mousses",
     description: "Mousse cremoso com sabor marcante de café.",
     price: 10.9,
-    image: tiramisu,
+    image: mcafe,
   },
   {
     id: 107,
@@ -134,7 +173,7 @@ const newCategoryProducts = {
       description:
         "Nosso clássico Pé de Moça em uma versão gourmet para comer de colher.",
       price: 14.9,
-      image: tortinha,
+      image: dpedemoca,
     },
   ],
 
@@ -406,10 +445,18 @@ function App() {
 
     const isBrownie = customizingProduct.category === "Brownies";
 
-    const castanhas = selectedComplements["Castanhas"] || 0;
-    const frutasVermelhas = selectedComplements["Frutas Vermelhas"] || 0;
+    const caldaChocolateAoLeite =
+      selectedComplements["Calda de chocolate ao leite"] || 0;
 
-    const complementPrice = castanhas * 2.5 + frutasVermelhas * 2.5;
+    const caldaChocolateBranco =
+      selectedComplements["Calda de chocolate branco"] || 0;
+
+    const caldaDoceDeLeite = selectedComplements["Calda de doce de leite"] || 0;
+
+    const complementPrice =
+      caldaChocolateAoLeite * 2.5 +
+      caldaChocolateBranco * 2.5 +
+      caldaDoceDeLeite * 2.5;
 
     const unitPrice =
       customizingProduct.price + (isBrownie ? complementPrice : 0);
@@ -418,11 +465,11 @@ function App() {
 
     const customizations = isBrownie
       ? {
-          Castanhas: castanhas,
-          "Frutas Vermelhas": frutasVermelhas,
+          "Calda de chocolate ao leite": caldaChocolateAoLeite,
+          "Calda de chocolate branco": caldaChocolateBranco,
+          "Calda de doce de leite": caldaDoceDeLeite,
         }
       : null;
-
     setCart((currentCart) => {
       if (!isBrownie) {
         const existingProduct = currentCart.find(
@@ -461,8 +508,10 @@ function App() {
 
       const customizationKey = [
         customizingProduct.id,
-        castanhas,
-        frutasVermelhas,
+        caldaChocolateAoLeite,
+        caldaChocolateBranco,
+        caldaDoceDeLeite,
+        observation,
       ].join("-");
 
       const existingProduct = currentCart.find(
@@ -676,21 +725,45 @@ function App() {
 
                           {item.customizations && (
                             <div className="cart-customizations">
-                              {item.customizations["Castanhas"] > 0 && (
+                              {item.customizations[
+                                "Calda de chocolate ao leite"
+                              ] > 0 && (
                                 <span>
-                                  Castanhas × {item.customizations["Castanhas"]}
+                                  Calda de chocolate ao leite ×{" "}
+                                  {
+                                    item.customizations[
+                                      "Calda de chocolate ao leite"
+                                    ]
+                                  }
                                 </span>
                               )}
 
-                              {item.customizations["Frutas Vermelhas"] > 0 && (
+                              {item.customizations[
+                                "Calda de chocolate branco"
+                              ] > 0 && (
                                 <span>
-                                  Frutas Vermelhas ×{" "}
-                                  {item.customizations["Frutas Vermelhas"]}
+                                  Calda de chocolate branco ×{" "}
+                                  {
+                                    item.customizations[
+                                      "Calda de chocolate branco"
+                                    ]
+                                  }
+                                </span>
+                              )}
+
+                              {item.customizations["Calda de doce de leite"] >
+                                0 && (
+                                <span>
+                                  Calda de doce de leite ×{" "}
+                                  {
+                                    item.customizations[
+                                      "Calda de doce de leite"
+                                    ]
+                                  }
                                 </span>
                               )}
                             </div>
                           )}
-
                           {item.observation && (
                             <div className="cart-observation">
                               <strong>Observação:</strong>
@@ -780,16 +853,27 @@ function App() {
 
     const isBrownie = customizingProduct.category === "Brownies";
 
-    /* =======================================================
-   MODAL DE PRODUTO — IMAGENS DO CARROSSEL
-======================================================= */
+    let productImages;
 
-    const extraPhotos = isBrownie
-      ? [foto6, foto7, foto3]
-      : [foto1, foto2, foto4];
-
-    const productImages = [customizingProduct.image, ...extraPhotos];
-
+    if (customizingProduct.id === 102) {
+      // Brownie com Frutas Vermelhas
+      productImages = [bfruta, bfaoleite, bfbranco, bfdoce];
+    } else if (customizingProduct.id === 108) {
+      // Brownie com Castanhas
+      productImages = [bnozes, bnaoleite, bnbranco, bndoce];
+    } else if (customizingProduct.id === 101) {
+      // Brownie tradicional
+      productImages = [bsem, baoleite, bbranco, bdoce];
+    } else if (customizingProduct.id === 201) {
+      // Pé de Moça Gourmet no Pote
+      productImages = [dpedemoca, dpedemoca2, dpedemoca3];
+    } else if (customizingProduct.id === 106) {
+      // Mousse de Café
+      productImages = [mcafe, mcafe2, mcafe3];
+    } else {
+      // Demais produtos continuam usando o carrossel atual
+      productImages = [customizingProduct.image, foto1, foto2, foto4];
+    }
     function previousImage() {
       setCarouselIndex((current) =>
         current === 0 ? productImages.length - 1 : current - 1,
@@ -834,11 +918,18 @@ function App() {
       previousImage();
     }
 
-    const castanhas = selectedComplements["Castanhas"] || 0;
+    const caldaChocolateAoLeite =
+      selectedComplements["Calda de chocolate ao leite"] || 0;
 
-    const frutasVermelhas = selectedComplements["Frutas Vermelhas"] || 0;
+    const caldaChocolateBranco =
+      selectedComplements["Calda de chocolate branco"] || 0;
 
-    const complementsTotal = castanhas * 2.5 + frutasVermelhas * 2.5;
+    const caldaDoceDeLeite = selectedComplements["Calda de doce de leite"] || 0;
+
+    const complementsTotal =
+      caldaChocolateAoLeite * 2.5 +
+      caldaChocolateBranco * 2.5 +
+      caldaDoceDeLeite * 2.5;
 
     const unitPrice =
       customizingProduct.price + (isBrownie ? complementsTotal : 0);
@@ -887,6 +978,11 @@ function App() {
                     src={image}
                     alt={`${customizingProduct.name} - foto ${index + 1}`}
                     draggable="false"
+                    className={
+                      customizingProduct.id === 201
+                        ? "pe-de-moca-carousel-image"
+                        : ""
+                    }
                   />
                 </div>
               ))}
@@ -949,27 +1045,34 @@ function App() {
                 <div>
                   <div className="brownie-option-name">
                     <strong>
-                      Castanhas <b>+ R$ 2,50</b>
+                      Calda de chocolate ao leite <b>+ R$ 2,50</b>
                     </strong>
                   </div>
 
-                  <span>Nozes, castanha e frutos secos</span>
+                  <span>Chocolate ao leite cremoso</span>
                 </div>
 
                 <div className="complement-quantity">
                   <button
                     type="button"
-                    disabled={!castanhas}
-                    onClick={() => changeComplementQuantity("Castanhas", -1)}
+                    disabled={!caldaChocolateAoLeite}
+                    onClick={() =>
+                      changeComplementQuantity(
+                        "Calda de chocolate ao leite",
+                        -1,
+                      )
+                    }
                   >
                     −
                   </button>
 
-                  <span>{castanhas}</span>
+                  <span>{caldaChocolateAoLeite}</span>
 
                   <button
                     type="button"
-                    onClick={() => changeComplementQuantity("Castanhas", 1)}
+                    onClick={() =>
+                      changeComplementQuantity("Calda de chocolate ao leite", 1)
+                    }
                   >
                     +
                   </button>
@@ -978,30 +1081,67 @@ function App() {
 
               <div className="brownie-option">
                 <div>
-                  <strong>
-                    Frutas Vermelhas <b>+ R$ 2,50</b>
-                  </strong>
+                  <div className="brownie-option-name">
+                    <strong>
+                      Calda de chocolate branco <b>+ R$ 2,50</b>
+                    </strong>
+                  </div>
 
-                  <span>Morango, framboesa e amora</span>
+                  <span>Chocolate branco cremoso</span>
                 </div>
 
                 <div className="complement-quantity">
                   <button
                     type="button"
-                    disabled={!frutasVermelhas}
+                    disabled={!caldaChocolateBranco}
                     onClick={() =>
-                      changeComplementQuantity("Frutas Vermelhas", -1)
+                      changeComplementQuantity("Calda de chocolate branco", -1)
                     }
                   >
                     −
                   </button>
 
-                  <span>{frutasVermelhas}</span>
+                  <span>{caldaChocolateBranco}</span>
 
                   <button
                     type="button"
                     onClick={() =>
-                      changeComplementQuantity("Frutas Vermelhas", 1)
+                      changeComplementQuantity("Calda de chocolate branco", 1)
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="brownie-option">
+                <div>
+                  <div className="brownie-option-name">
+                    <strong>
+                      Calda de doce de leite <b>+ R$ 2,50</b>
+                    </strong>
+                  </div>
+
+                  <span>Doce de leite cremoso</span>
+                </div>
+
+                <div className="complement-quantity">
+                  <button
+                    type="button"
+                    disabled={!caldaDoceDeLeite}
+                    onClick={() =>
+                      changeComplementQuantity("Calda de doce de leite", -1)
+                    }
+                  >
+                    −
+                  </button>
+
+                  <span>{caldaDoceDeLeite}</span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      changeComplementQuantity("Calda de doce de leite", 1)
                     }
                   >
                     +
