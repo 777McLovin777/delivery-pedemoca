@@ -851,13 +851,15 @@ function App() {
           className="brownie-modal"
           onClick={(event) => event.stopPropagation()}
         >
-          <button
-            className="brownie-close"
-            onClick={closeProductCustomization}
-            aria-label="Fechar"
-          >
-            ×
-          </button>
+          <div className="brownie-close-layer">
+            <button
+              className="brownie-close"
+              onClick={closeProductCustomization}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+          </div>
 
           {/* =====================================================
     MODAL DE PRODUTO — CARROSSEL DE IMAGENS
@@ -1029,8 +1031,8 @@ function App() {
             </div>
           </div>
 
-          <div className="product-observation">
-            <div className="product-observation-heading">
+          <div className="product-observation-heading">
+            <div className="product-observation-title">
               <label htmlFor={`product-observation-${customizingProduct.id}`}>
                 Observações
               </label>
@@ -1038,15 +1040,67 @@ function App() {
               <span>Opcional</span>
             </div>
 
-            <textarea
-              id={`product-observation-${customizingProduct.id}`}
-              value={productObservation}
-              onChange={(event) => setProductObservation(event.target.value)}
-              placeholder="Alguma observação sobre este produto?"
-              maxLength={200}
-              rows={3}
-            />
+            <strong
+              className={`product-observation-counter ${
+                productObservation.length >= 150 ? "limit-reached" : ""
+              }`}
+            >
+              {productObservation.length}/150
+            </strong>
           </div>
+          <textarea
+            id={`product-observation-${customizingProduct.id}`}
+            style={{
+              width: "100%",
+              height: "75px",
+              minHeight: "75px",
+              maxHeight: "75px",
+              padding: "10px 10px",
+              resize: "none",
+              overflow: "hidden",
+              boxSizing: "border-box",
+            }}
+            value={productObservation}
+            onChange={(event) => setProductObservation(event.target.value)}
+            onKeyDown={(event) => {
+              const allowedKeys = [
+                "Backspace",
+                "Delete",
+                "ArrowLeft",
+                "ArrowRight",
+                "ArrowUp",
+                "ArrowDown",
+                "Tab",
+                "Home",
+                "End",
+              ];
+
+              if (
+                productObservation.length >= 150 &&
+                !allowedKeys.includes(event.key) &&
+                !event.ctrlKey &&
+                !event.metaKey
+              ) {
+                const counter = document.querySelector(
+                  ".product-observation-counter",
+                );
+
+                if (counter) {
+                  counter.classList.remove("limit-shake");
+
+                  void counter.offsetWidth;
+
+                  counter.classList.add("limit-shake");
+                }
+              }
+            }}
+            onAnimationEnd={(event) => {
+              event.currentTarget.classList.remove("observation-limit-bump");
+            }}
+            placeholder="Alguma observação sobre este produto?"
+            maxLength={150}
+            rows={3}
+          />
 
           <div className="brownie-modal-total">
             <span>Total</span>

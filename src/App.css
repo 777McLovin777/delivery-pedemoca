@@ -2754,8 +2754,8 @@ body::-webkit-scrollbar {
 
 .brownie-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 0px;
+  right: 0px;
 
   width: 38px;
   height: 38px;
@@ -2781,7 +2781,8 @@ body::-webkit-scrollbar {
 }
 
 .brownie-close:hover {
-  background: var(--brown);
+  background: var(--red);
+  color: var(--white);
   transform: rotate(5deg) scale(1.05);
 }
 
@@ -3202,13 +3203,90 @@ body::-webkit-scrollbar {
   font-weight: 700;
 }
 
+.product-observation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-observation-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.product-observation-counter {
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 800;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.product-observation-counter.limit-reached {
+  color: var(--red);
+}
+
+.product-observation-counter.limit-shake {
+  animation: observation-counter-shake 0.3s ease;
+}
+
+@keyframes observation-counter-shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-3px);
+  }
+
+  40% {
+    transform: translateX(3px);
+  }
+
+  60% {
+    transform: translateX(-2px);
+  }
+
+  80% {
+    transform: translateX(2px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.product-observation textarea.observation-limit-bump {
+  animation: observation-limit-bump 0.28s ease;
+}
+
+@keyframes observation-limit-bump {
+  0% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-4px);
+  }
+
+  60% {
+    transform: translateY(2px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .product-observation textarea {
   display: block;
   width: 100%;
-
-  height: 150px;
-  min-height: 150px;
-  max-height: 150px;
+  height: 80px;
+  min-height: 80px;
+  max-height: 80px;
 
   padding: 13px 14px;
 
@@ -3390,15 +3468,6 @@ body::-webkit-scrollbar {
     transform: translateY(-3px);
   }
 
-  .brownie-close {
-    position: absolute;
-
-    top: 14px;
-    right: 14px;
-
-    z-index: 20;
-  }
-
   .brownie-modal h2 {
     margin-right: 34px;
     font-size: 23px;
@@ -3461,16 +3530,24 @@ body::-webkit-scrollbar {
   position: relative;
 }
 
-/* X SEMPRE ACIMA DO CARROSSEL */
+/* CAMADA FIXA DO BOTÃO FECHAR */
+.brownie-close-layer {
+  position: sticky;
+  top: 0px;
 
+  height: 0px;
+
+  z-index: 9999;
+
+  pointer-events: none;
+}
+
+/* BOTÃO FECHAR */
 .brownie-close {
   position: absolute;
 
-  top: 14px;
-  margin-left: auto;
-  margin-right: 14px;
-
-  z-index: 9999;
+  top: 0px;
+  right: 0px;
 
   width: 40px;
   height: 40px;
@@ -3481,17 +3558,19 @@ body::-webkit-scrollbar {
 
   padding: 0;
 
-  background: var(--red);
-  border: 2px solid var(--cream-light);
+  background: var(--white);
+  border: 2px solid var(--brown);
   border-radius: 50%;
 
-  color: var(--cream-light);
+  color: var(--brown);
 
   font-size: 30px;
   font-weight: 900;
   line-height: 1;
 
   cursor: pointer;
+
+  pointer-events: auto;
 }
 
 /* CARROSSEL */
