@@ -14,10 +14,10 @@ import carrinho from "./assets/carrinho.png";
 import insta from "./assets/insta.png";
 import whats from "./assets/whats.png";
 
-import agua from "./assets/agua.png";
-import aguagas from "./assets/aguagas.png";
-import coca from "./assets/coca.png";
-import cocazero from "./assets/cocazero.png";
+import agua from "./assets/agua.webp";
+import aguagas from "./assets/aguagas.webp";
+import coca from "./assets/coca.webp";
+import cocazero from "./assets/cocazero.webp";
 
 import seta from "./assets/seta.png";
 
