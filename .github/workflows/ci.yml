@@ -33,7 +33,7 @@ jobs:
 
       - name: Biome
         if: github.event_name == 'pull_request'
-        run: npx biome lint --changed --since=${{ github.event.pull_request.base.sha }} .
+        run: npx biome lint --changed --since=${{ github.event.pull_request.base.sha }} --no-errors-on-unmatched .
 
       - name: Knip
         run: npm run knip
