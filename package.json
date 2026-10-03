@@ -13,6 +13,7 @@
     "check": "biome check .",
     "knip": "knip",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "check:secrets": "node scripts/check-secrets.mjs",
     "preview": "vite preview"
   },
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
