@@ -10,9 +10,7 @@ describe("Pé de Moça - produtos", () => {
     window.history.pushState({}, "", "/");
   });
 
-  it("abre o modal do produto ao clicar em Adicionar ao pedido", async () => {
-    const user = userEvent.setup();
-
+  async function openMousseDeCafeModal(user) {
     render(<App />);
 
     const productTitle = screen.getByRole("heading", {
@@ -29,12 +27,18 @@ describe("Pé de Moça - produtos", () => {
 
     await user.click(addButton);
 
-    expect(
-      screen.getByRole("heading", {
-        name: "Mousse de Café",
-        level: 2,
-      }),
-    ).toBeInTheDocument();
+    return screen.getByRole("heading", {
+      name: "Mousse de Café",
+      level: 2,
+    });
+  }
+
+  it("abre o modal do produto ao clicar em Adicionar ao pedido", async () => {
+    const user = userEvent.setup();
+
+    const modalTitle = await openMousseDeCafeModal(user);
+
+    expect(modalTitle).toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
@@ -45,5 +49,78 @@ describe("Pé de Moça - produtos", () => {
     expect(
       screen.getByPlaceholderText("Alguma observação sobre este produto?"),
     ).toBeInTheDocument();
+  });
+
+  it("permite alterar a quantidade e preencher uma observação", async () => {
+    const user = userEvent.setup();
+
+    await openMousseDeCafeModal(user);
+
+    const observation = screen.getByPlaceholderText(
+      "Alguma observação sobre este produto?",
+    );
+
+    await user.type(observation, "Sem açúcar adicional");
+
+    expect(observation).toHaveValue("Sem açúcar adicional");
+
+    const increaseButton = screen.getByRole("button", {
+      name: "+",
+    });
+
+    await user.click(increaseButton);
+
+    const quantityControls = increaseButton.closest(".complement-quantity");
+
+    expect(quantityControls).toBeInTheDocument();
+    expect(within(quantityControls).getByText("2")).toBeInTheDocument();
+  });
+
+  it("limita a observação a 150 caracteres", async () => {
+    const user = userEvent.setup();
+
+    await openMousseDeCafeModal(user);
+
+    const observation = screen.getByPlaceholderText(
+      "Alguma observação sobre este produto?",
+    );
+
+    const longText = "a".repeat(160);
+
+    await user.type(observation, longText);
+
+    expect(observation).toHaveValue("a".repeat(150));
+    expect(screen.getByText("150/150")).toBeInTheDocument();
+  });
+
+  it("adiciona o produto ao carrinho preservando quantidade e observação", async () => {
+    const user = userEvent.setup();
+
+    await openMousseDeCafeModal(user);
+
+    const observation = screen.getByPlaceholderText(
+      "Alguma observação sobre este produto?",
+    );
+
+    await user.type(observation, "Sem açúcar adicional");
+
+    const increaseButton = screen.getByRole("button", {
+      name: "+",
+    });
+
+    await user.click(increaseButton);
+
+    const confirmButton = screen.getByRole("button", {
+      name: "Adicionar ao pedido",
+    });
+
+    await user.click(confirmButton);
+
+    const savedCart = JSON.parse(localStorage.getItem("pedemoca-cart"));
+
+    expect(savedCart).toHaveLength(1);
+    expect(savedCart[0].name).toBe("Mousse de Café");
+    expect(savedCart[0].quantity).toBe(2);
+    expect(savedCart[0].observation).toBe("Sem açúcar adicional");
   });
 });
