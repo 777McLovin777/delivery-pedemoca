@@ -13,6 +13,7 @@
     "check": "biome check .",
     "knip": "knip",
     "test": "vitest run",
+    "check:secrets": "node scripts/check-secrets.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

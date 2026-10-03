@@ -38,6 +38,9 @@ jobs:
       - name: Knip
         run: npm run knip
 
+      - name: Secret scan
+        run: npm run check:secrets
+
       - name: Tests
         run: npm test
 
