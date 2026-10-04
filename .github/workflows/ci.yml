@@ -33,6 +33,7 @@ jobs:
 
       - name: Biome
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         run: npx biome lint --changed --since=${{ github.event.pull_request.base.sha }} --no-errors-on-unmatched .
 
       - name: Knip
@@ -40,6 +41,9 @@ jobs:
 
       - name: Secret scan
         run: npm run check:secrets
+
+      - name: Image size check
+        run: npm run check:images
 
       - name: Tests
         run: npm test

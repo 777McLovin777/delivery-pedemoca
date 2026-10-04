@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import logo from "./assets/logo.png";
-import escrita from "./assets/Escrita.png";
-import logonova from "./assets/logonova.png";
+import escrita from "./assets/Escrita-optimized.webp";
+import logonova from "./assets/logonova-optimized.webp";
 import baixo from "./assets/baixo.png";
 
 import banoffe from "./assets/banoffe.jpeg";
@@ -14,10 +14,10 @@ import carrinho from "./assets/carrinho.png";
 import insta from "./assets/insta.png";
 import whats from "./assets/whats.png";
 
-import agua from "./assets/agua.png";
-import aguagas from "./assets/aguagas.png";
-import coca from "./assets/coca.png";
-import cocazero from "./assets/cocazero.png";
+import agua from "./assets/agua.webp";
+import aguagas from "./assets/aguagas.webp";
+import coca from "./assets/coca.webp";
+import cocazero from "./assets/cocazero.webp";
 
 import seta from "./assets/seta.png";
 
@@ -36,29 +36,29 @@ import bbranco from "./assets/bbranco.png";
 import bdoce from "./assets/bdoce.png";
 
 // Brownie com frutas vermelhas
-import bfruta from "./assets/bfruta.png";
-import bfaoleite from "./assets/bfaoleite.png";
-import bfbranco from "./assets/bfbranco.png";
-import bfdoce from "./assets/bfdoce.png";
+import bfruta from "./assets/bfruta-optimized.webp";
+import bfaoleite from "./assets/bfaoleite-optimized.webp";
+import bfbranco from "./assets/bfbranco-optimized.webp";
+import bfdoce from "./assets/bfdoce-optimized.webp";
 
 // Brownie com castanhas
-import bnozes from "./assets/bnozes.png";
-import bnaoleite from "./assets/bnaoleite.png";
-import bnbranco from "./assets/bnbranco.png";
-import bndoce from "./assets/bndoce.png";
+import bnozes from "./assets/bnozes-optimized.webp";
+import bnaoleite from "./assets/bnaoleite-optimized.webp";
+import bnbranco from "./assets/bnbranco-optimized.webp";
+import bndoce from "./assets/bndoce-optimized.webp";
 
 // Pé de Moça Gourmet
-import dpedemoca from "./assets/dpedemoca.png";
-import dpedemoca2 from "./assets/dpedemoca2.png";
-import dpedemoca3 from "./assets/dpedemoca3.png";
+import dpedemoca from "./assets/dpedemoca-optimized.webp";
+import dpedemoca2 from "./assets/dpedemoca2-optimized.webp";
+import dpedemoca3 from "./assets/dpedemoca3-optimized.webp";
 
 // Mousse de Café
-import mcafe from "./assets/mcafe.png";
-import mcafe2 from "./assets/mcafe2.png";
-import mcafe3 from "./assets/mcafe3.png";
+import mcafe from "./assets/mcafe-optimized.webp";
+import mcafe2 from "./assets/mcafe2-optimized.webp";
+import mcafe3 from "./assets/mcafe3-optimized.webp";
 
 // Mousse de Oreo
-import moreo from "./assets/moreo.png";
+import moreo from "./assets/moreo-optimized.webp";
 
 /* =========================================================
    PRODUTOS
@@ -627,7 +627,14 @@ function App() {
       >
         {" "}
         <div className="product-image">
-          <img src={product.image} alt={product.name} />
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+          />
+
+          <span className="product-tag">{product.category}</span>
 
           <span className="product-tag">{product.category}</span>
 
@@ -716,7 +723,12 @@ function App() {
               <div className="cart-items">
                 {cart.map((item) => (
                   <div className="cart-item" key={item.id}>
-                    <img src={item.image} alt={item.name} />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
 
                     <div className="cart-item-info">
                       <div className="cart-item-top">
@@ -1274,7 +1286,7 @@ function App() {
             rel="noopener noreferrer"
             className="social-item"
           >
-            <img src={insta} alt="Instagram" />
+            <img src={insta} alt="Instagram" loading="lazy" decoding="async" />
 
             <span>@docepedemoca</span>
           </a>
@@ -1285,7 +1297,7 @@ function App() {
             rel="noopener noreferrer"
             className="social-item"
           >
-            <img src={whats} alt="WhatsApp" />
+            <img src={whats} alt="WhatsApp" loading="lazy" decoding="async" />
 
             <span> contato </span>
           </a>
@@ -1474,7 +1486,13 @@ function App() {
         </a>
 
         <div className="menu-footer-brand">
-          <img src={baixo} alt="Pé de Moça" className="menu-footer-image" />
+          <img
+            src={baixo}
+            alt="Pé de Moça"
+            className="menu-footer-image"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         <SocialSection />
 
@@ -1666,7 +1684,12 @@ function App() {
 
         <section className="about-section" id="sobre">
           <div className="about-logonova">
-            <img src={logonova} alt="Pé de Moça" />
+            <img
+              src={logonova}
+              alt="Pé de Moça"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
 
           <div className="about-content">
