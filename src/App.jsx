@@ -286,6 +286,8 @@ function App() {
 
   const [carouselIndex, setCarouselIndex] = useState(0);
 
+  const [loyaltyPanel, setLoyaltyPanel] = useState(null);
+
   const carouselTouchStartX = useRef(null);
 
   /* =======================================================
@@ -1599,6 +1601,178 @@ function App() {
         </section>
 
         {/* =================================================
+            PROGRAMA DE FIDELIDADE
+        ================================================= */}
+
+        <section className="loyalty-section">
+          <div className="loyalty-card">
+            <div className="loyalty-content">
+              <span className="loyalty-eyebrow">PROGRAMA DE FIDELIDADE</span>
+
+              <h2>
+                Seu carinho por doce
+                <br />
+                merece <span>recompensa.</span>
+              </h2>
+
+              <div className="loyalty-progress">
+                <span>Seu cartão</span>
+                <strong>0 de 8 carimbos</strong>
+              </div>
+
+              <div className="loyalty-stamps">
+                {Array.from({ length: 8 }, (_, index) => (
+                  <div
+                    className={`loyalty-stamp ${
+                      index === 7 ? "loyalty-stamp-reward" : ""
+                    }`}
+                    key={`loyalty-stamp-${index + 1}`}
+                  >
+                    <span>{index + 1}</span>
+                    <small>{index === 7 ? "RECOMPENSA" : "CARIMBO"}</small>
+                  </div>
+                ))}
+              </div>
+
+              <div className="loyalty-actions">
+                <button
+                  type="button"
+                  className="loyalty-rules-button"
+                  onClick={() => setLoyaltyPanel("rules")}
+                >
+                  Ver regras
+                </button>
+
+                <button
+                  type="button"
+                  className="loyalty-stamp-button"
+                  onClick={() => setLoyaltyPanel("stamp")}
+                >
+                  Pegar carimbo
+                </button>
+              </div>
+            </div>
+
+            {loyaltyPanel === "rules" && (
+              <div className="loyalty-card-panel">
+                <div className="loyalty-card-panel-content">
+                  <span className="loyalty-eyebrow">
+                    PROGRAMA DE FIDELIDADE
+                  </span>
+
+                  <h2>
+                    Como <span>funciona?</span>
+                  </h2>
+
+                  <p className="loyalty-panel-description">
+                    É simples: pediu, carimbou. Complete seu cartão e
+                    desbloqueie sua recompensa.
+                  </p>
+
+                  <div className="loyalty-rules-list">
+                    <div className="loyalty-rule">
+                      <strong>01</strong>
+                      <p>
+                        Cada pedido concluído vale <b>1 carimbo</b>.
+                      </p>
+                    </div>
+
+                    <div className="loyalty-rule">
+                      <strong>02</strong>
+                      <p>
+                        Os carimbos são por pedido, não pela quantidade de
+                        produtos.
+                      </p>
+                    </div>
+
+                    <div className="loyalty-rule">
+                      <strong>03</strong>
+                      <p>
+                        Complete os <b>8 carimbos</b> para liberar sua
+                        recompensa.
+                      </p>
+                    </div>
+
+                    <div className="loyalty-rule">
+                      <strong>04</strong>
+                      <p>
+                        O carimbo será liberado após a{" "}
+                        <b>confirmação de recebimento</b> do pedido.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="loyalty-back-button"
+                    onClick={() => setLoyaltyPanel(null)}
+                  >
+                    ← Voltar ao cartão fidelidade
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {loyaltyPanel === "stamp" && (
+              <div className="loyalty-card-panel">
+                <div className="loyalty-card-panel-content">
+                  <span className="loyalty-eyebrow">SEU CARIMBO</span>
+
+                  <h2>
+                    Como pegar meu <span>carimbo?</span>
+                  </h2>
+
+                  <p className="loyalty-panel-description">
+                    Seu carimbo está ligado a um pedido válido realizado na Pé
+                    de Moça.
+                  </p>
+
+                  <div className="loyalty-stamp-info">
+                    <strong>1 pedido válido = 1 carimbo</strong>
+
+                    <p>
+                      Após confirmar o recebimento, informe o número do pedido
+                      para validar seu carimbo.
+                    </p>
+
+                    <div className="loyalty-order-validation">
+                      <label htmlFor="loyalty-order-number">
+                        Número do pedido
+                      </label>
+
+                      <div className="loyalty-order-field">
+                        <input
+                          id="loyalty-order-number"
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="Ex.: 1024"
+                          autoComplete="off"
+                        />
+
+                        <button type="button">Validar pedido</button>
+                      </div>
+                    </div>
+
+                    <small>
+                      Cada número de pedido poderá gerar apenas um carimbo.
+                      Pedidos cancelados ou reembolsados não são elegíveis.
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="loyalty-back-button"
+                    onClick={() => setLoyaltyPanel(null)}
+                  >
+                    ← Voltar ao cartão fidelidade
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* =================================================
             CATEGORIAS
         ================================================= */}
 
@@ -1609,12 +1783,6 @@ function App() {
 
               <h2>O que vai adoçar seu dia?</h2>
             </div>
-
-            <p>
-              Tem doce para dividir.
-              <br />
-              Tem doce para não dividir também.
-            </p>
           </div>
 
           <div className="category-grid">
@@ -1622,6 +1790,7 @@ function App() {
               <strong>
                 <span>Doces Autorais</span>
               </strong>
+
               <small>Ver opções →</small>
             </a>
 
@@ -1632,6 +1801,7 @@ function App() {
               <strong>
                 <span>Brownies</span>
               </strong>
+
               <small>Ver opções →</small>
             </a>
 
@@ -1642,6 +1812,7 @@ function App() {
               <strong>
                 <span>Tortas</span>
               </strong>
+
               <small>Ver opções →</small>
             </a>
 
@@ -1649,6 +1820,7 @@ function App() {
               <strong>
                 <span>Mousses</span>
               </strong>
+
               <small>Ver opções →</small>
             </a>
           </div>
