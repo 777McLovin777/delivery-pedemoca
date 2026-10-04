@@ -41,6 +41,9 @@ jobs:
       - name: Secret scan
         run: npm run check:secrets
 
+      - name: Image size check
+        run: npm run check:images
+
       - name: Tests
         run: npm test
 

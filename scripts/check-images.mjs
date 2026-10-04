@@ -1,6 +1,5 @@
-import { execFileSync } from "node:child_process";
-import { statSync } from "node:fs";
-import { extname } from "node:path";
+import { readdirSync, statSync } from "node:fs";
+import { join, extname } from "node:path";
 
 const ASSETS_DIRECTORY = "src/assets";
 const MAX_IMAGE_SIZE_MB = 1;
@@ -14,23 +13,28 @@ const supportedExtensions = new Set([
   ".avif",
 ]);
 
-function getTrackedFiles() {
-  return execFileSync("git", ["ls-files", `${ASSETS_DIRECTORY}/`], {
-    encoding: "utf8",
-  })
-    .split(/\r?\n/)
-    .filter(Boolean);
+function getImageFiles(directory) {
+  const files = [];
+
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const fullPath = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...getImageFiles(fullPath));
+      continue;
+    }
+
+    if (supportedExtensions.has(extname(entry.name).toLowerCase())) {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
 }
 
 const oversizedImages = [];
 
-for (const file of getTrackedFiles()) {
-  const extension = extname(file).toLowerCase();
-
-  if (!supportedExtensions.has(extension)) {
-    continue;
-  }
-
+for (const file of getImageFiles(ASSETS_DIRECTORY)) {
   const sizeBytes = statSync(file).size;
 
   if (sizeBytes > MAX_IMAGE_SIZE_BYTES) {
@@ -57,4 +61,4 @@ if (oversizedImages.length > 0) {
   process.exit(1);
 }
 
-console.log(`All tracked images are within the ${MAX_IMAGE_SIZE_MB} MB limit.`);
+console.log(`All images are within the ${MAX_IMAGE_SIZE_MB} MB limit.`);
