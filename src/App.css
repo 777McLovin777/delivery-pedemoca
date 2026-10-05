@@ -784,6 +784,40 @@ body::-webkit-scrollbar {
   font-size: 14px;
 }
 
+.loyalty-reward-available {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  margin-bottom: 18px;
+  padding: 10px 16px;
+  border: 2px solid var(--red);
+  border-radius: 18px;
+  background: var(--pink);
+  color: var(--brown);
+}
+
+.loyalty-reward-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.loyalty-reward-available div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loyalty-reward-available strong {
+  color: var(--red);
+  font-size: 13px;
+}
+
+.loyalty-reward-available small {
+  color: var(--brown);
+  font-size: 11px;
+}
+
 .loyalty-stamps {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -823,6 +857,17 @@ body::-webkit-scrollbar {
   border-style: solid;
   background: var(--red);
   color: var(--white);
+}
+
+.loyalty-stamp-filled {
+  border-style: solid;
+  background: var(--red);
+  color: var(--white);
+  transform: rotate(-3deg);
+}
+
+.loyalty-stamp-filled span {
+  transform: scale(1.08);
 }
 
 .loyalty-stamp:hover {
