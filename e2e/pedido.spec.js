@@ -4,9 +4,9 @@ test("cliente adiciona produto ao carrinho com quantidade e observação", async
   page,
 }) => {
   await page.goto("/cardapio/mousses");
-
   console.log("E2E URL:", page.url());
   console.log("E2E TITLE:", await page.title());
+  console.log("E2E BODY:", await page.locator("body").innerText());
   console.log(
     "E2E PRODUCT CARDS:",
     await page.locator(".product-card").allTextContents(),
