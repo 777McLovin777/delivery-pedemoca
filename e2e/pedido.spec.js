@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("cliente adiciona produto ao carrinho com quantidade e observação", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/cardapio/mousses");
 
   const productCard = page
     .locator(".product-card")
