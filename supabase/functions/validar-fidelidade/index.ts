@@ -95,7 +95,6 @@ export default {
   fetch: withSupabase(
     {
       auth: ["publishable"],
-      cors: "disabled",
     },
     async (req, ctx) => {
     if (req.method === "OPTIONS") {
