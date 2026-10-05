@@ -5,6 +5,13 @@ test("cliente adiciona produto ao carrinho com quantidade e observação", async
 }) => {
   await page.goto("/cardapio/mousses");
 
+  console.log("E2E URL:", page.url());
+  console.log("E2E TITLE:", await page.title());
+  console.log(
+    "E2E PRODUCT CARDS:",
+    await page.locator(".product-card").allTextContents(),
+  );
+
   const productCard = page
     .locator(".product-card")
     .filter({ hasText: "Mousse de Café" })
