@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+
 import "./App.css";
+import { supabase } from "./lib/supabase";
 
 import logo from "./assets/logo.png";
 import escrita from "./assets/Escrita-optimized.webp";
@@ -288,6 +290,20 @@ function App() {
 
   const [loyaltyPanel, setLoyaltyPanel] = useState(null);
 
+  const [loyaltyOrderNumber, setLoyaltyOrderNumber] = useState("");
+
+  const [loyaltyPhone, setLoyaltyPhone] = useState("");
+
+  const [loyaltyLoading, setLoyaltyLoading] = useState(false);
+
+  const [loyaltyMessage, setLoyaltyMessage] = useState(null);
+
+  const [loyaltyProgress, setLoyaltyProgress] = useState(0);
+
+  const [loyaltyRewardUnlocked, setLoyaltyRewardUnlocked] = useState(false);
+
+  const [loyaltyAvailableRewards, setLoyaltyAvailableRewards] = useState(0);
+
   const carouselTouchStartX = useRef(null);
 
   /* =======================================================
@@ -298,9 +314,63 @@ function App() {
     localStorage.setItem("pedemoca-cart", JSON.stringify(cart));
   }, [cart]);
 
+  useEffect(() => {
+    const savedPhone = localStorage.getItem("pedemoca-loyalty-phone");
+    const savedOrderNumber = localStorage.getItem("pedemoca-loyalty-order");
+
+    if (!savedPhone || !savedOrderNumber) {
+      return;
+    }
+
+    const orderNumber = Number(savedOrderNumber);
+
+    if (!Number.isSafeInteger(orderNumber) || orderNumber <= 0) {
+      localStorage.removeItem("pedemoca-loyalty-order");
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadLoyaltyStatus() {
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "validar-fidelidade",
+          {
+            body: {
+              action: "status",
+              orderNumber,
+              phone: savedPhone,
+            },
+          },
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.success || cancelled) {
+          return;
+        }
+
+        setLoyaltyPhone(savedPhone);
+        setLoyaltyProgress(data.card_progress ?? 0);
+        setLoyaltyAvailableRewards(data.available_rewards ?? 0);
+        setLoyaltyRewardUnlocked(false);
+      } catch (error) {
+        console.error("Erro ao carregar cartão fidelidade:", error);
+      }
+    }
+
+    loadLoyaltyStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   /* =======================================================
-     TRAVA O SCROLL DA PÁGINA COM O MODAL ABERTO
-  ======================================================= */
+   TRAVA O SCROLL DA PÁGINA COM O MODAL ABERTO
+======================================================= */
 
   useEffect(() => {
     if (!customizingProduct) {
@@ -551,6 +621,107 @@ function App() {
 
     closeProductCustomization();
     openCart();
+  }
+
+  /* =======================================================
+     PROGRAMA DE FIDELIDADE
+  ======================================================= */
+
+  async function handleLoyaltyValidation() {
+    const orderNumber = Number(loyaltyOrderNumber);
+    const phone = loyaltyPhone.trim();
+
+    if (!Number.isSafeInteger(orderNumber) || orderNumber <= 0 || !phone) {
+      setLoyaltyMessage({
+        type: "error",
+        text: "Informe o número do pedido e o telefone.",
+      });
+
+      return;
+    }
+
+    setLoyaltyLoading(true);
+    setLoyaltyMessage(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "validar-fidelidade",
+        {
+          body: {
+            orderNumber,
+            phone,
+          },
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.success) {
+        if (data?.code === "STAMP_ALREADY_GRANTED") {
+          const { data: statusData, error: statusError } =
+            await supabase.functions.invoke("validar-fidelidade", {
+              body: {
+                action: "status",
+                orderNumber,
+                phone,
+              },
+            });
+
+          if (!statusError && statusData?.success) {
+            localStorage.setItem("pedemoca-loyalty-phone", phone);
+            localStorage.setItem("pedemoca-loyalty-order", String(orderNumber));
+
+            setLoyaltyProgress(statusData.card_progress ?? 0);
+            setLoyaltyAvailableRewards(statusData.available_rewards ?? 0);
+            setLoyaltyRewardUnlocked(false);
+          }
+        }
+
+        setLoyaltyMessage({
+          type: "error",
+          text: data?.message || "Não foi possível validar este pedido.",
+        });
+
+        return;
+      }
+
+      localStorage.setItem("pedemoca-loyalty-phone", phone);
+      localStorage.setItem("pedemoca-loyalty-order", String(orderNumber));
+
+      const { data: statusData, error: statusError } =
+        await supabase.functions.invoke("validar-fidelidade", {
+          body: {
+            action: "status",
+            orderNumber,
+            phone,
+          },
+        });
+
+      setLoyaltyProgress(data.card_progress ?? 0);
+      setLoyaltyRewardUnlocked(Boolean(data.reward_unlocked));
+
+      if (!statusError && statusData?.success) {
+        setLoyaltyAvailableRewards(statusData.available_rewards ?? 0);
+      }
+
+      setLoyaltyMessage({
+        type: "success",
+        text: data.message || "Carimbo adicionado com sucesso!",
+      });
+
+      setLoyaltyOrderNumber("");
+    } catch (error) {
+      console.error("Erro ao validar fidelidade:", error);
+
+      setLoyaltyMessage({
+        type: "error",
+        text: "Não foi possível validar o pedido agora. Tente novamente.",
+      });
+    } finally {
+      setLoyaltyLoading(false);
+    }
   }
 
   /* =======================================================
@@ -1617,21 +1788,60 @@ function App() {
 
               <div className="loyalty-progress">
                 <span>Seu cartão</span>
-                <strong>0 de 8 carimbos</strong>
+
+                <strong>
+                  {loyaltyRewardUnlocked ? 8 : loyaltyProgress} de 8 carimbos
+                </strong>
               </div>
 
-              <div className="loyalty-stamps">
-                {Array.from({ length: 8 }, (_, index) => (
-                  <div
-                    className={`loyalty-stamp ${
-                      index === 7 ? "loyalty-stamp-reward" : ""
-                    }`}
-                    key={`loyalty-stamp-${index + 1}`}
-                  >
-                    <span>{index + 1}</span>
-                    <small>{index === 7 ? "RECOMPENSA" : "CARIMBO"}</small>
+              {loyaltyAvailableRewards > 0 && (
+                <div className="loyalty-reward-available" role="status">
+                  <span className="loyalty-reward-icon" aria-hidden="true">
+                    🎁
+                  </span>
+
+                  <div>
+                    <strong>
+                      {loyaltyAvailableRewards === 1
+                        ? "Você tem 1 recompensa disponível!"
+                        : `Você tem ${loyaltyAvailableRewards} recompensas disponíveis!`}
+                    </strong>
+
+                    <small>
+                      Sua recompensa conquistada está esperando por você.
+                    </small>
                   </div>
-                ))}
+                </div>
+              )}
+
+              <div className="loyalty-stamps">
+                {Array.from({ length: 8 }, (_, index) => {
+                  const stampNumber = index + 1;
+
+                  const isFilled =
+                    loyaltyRewardUnlocked || stampNumber <= loyaltyProgress;
+
+                  return (
+                    <div
+                      className={`loyalty-stamp ${
+                        index === 7 ? "loyalty-stamp-reward" : ""
+                      } ${isFilled ? "loyalty-stamp-filled" : ""}`}
+                      key={`loyalty-stamp-${stampNumber}`}
+                    >
+                      <span>{stampNumber}</span>
+
+                      <small>
+                        {index === 7
+                          ? loyaltyRewardUnlocked
+                            ? "LIBERADA"
+                            : "RECOMPENSA"
+                          : isFilled
+                            ? "CARIMBADO"
+                            : "CARIMBO"}
+                      </small>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="loyalty-actions">
@@ -1747,10 +1957,51 @@ function App() {
                           inputMode="numeric"
                           placeholder="Ex.: 1024"
                           autoComplete="off"
+                          value={loyaltyOrderNumber}
+                          onChange={(event) => {
+                            setLoyaltyOrderNumber(
+                              event.target.value.replace(/\D/g, ""),
+                            );
+                            setLoyaltyMessage(null);
+                          }}
+                        />
+                      </div>
+
+                      <label htmlFor="loyalty-phone">
+                        Telefone usado no pedido
+                      </label>
+
+                      <div className="loyalty-order-field">
+                        <input
+                          id="loyalty-phone"
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="Ex.: (11) 99999-9999"
+                          autoComplete="tel"
+                          value={loyaltyPhone}
+                          onChange={(event) => {
+                            setLoyaltyPhone(event.target.value);
+                            setLoyaltyMessage(null);
+                          }}
                         />
 
-                        <button type="button">Validar pedido</button>
+                        <button
+                          type="button"
+                          onClick={handleLoyaltyValidation}
+                          disabled={loyaltyLoading}
+                        >
+                          {loyaltyLoading ? "Validando..." : "Validar pedido"}
+                        </button>
                       </div>
+
+                      {loyaltyMessage && (
+                        <p
+                          className={`loyalty-validation-message ${loyaltyMessage.type}`}
+                          role="status"
+                        >
+                          {loyaltyMessage.text}
+                        </p>
+                      )}
                     </div>
 
                     <small>
