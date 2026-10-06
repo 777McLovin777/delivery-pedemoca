@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { supabase } from "./lib/supabase";
 
+import CheckoutModal from "./components/CheckoutModal";
+
 import logo from "./assets/logo.png";
 import escrita from "./assets/Escrita-optimized.webp";
 import logonova from "./assets/logonova-optimized.webp";
@@ -275,6 +277,17 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false);
 
   const [cartAnimating, setCartAnimating] = useState(false);
+
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutCustomer, setCheckoutCustomer] = useState({
+    name: "",
+    whatsapp: "",
+  });
+
+  function openCheckout() {
+    setCartOpen(false);
+    setCheckoutOpen(true);
+  }
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -1007,18 +1020,28 @@ function App() {
 
                 <div className="cart-total">
                   <span>Total</span>
-
                   <strong>R$ {formatPrice(totalPrice)}</strong>
                 </div>
 
-                <button
-                  className="checkout-button"
-                  onClick={() => alert("Próxima etapa: endereço e pagamento!")}
-                >
-                  <span>Continuar pedido</span>
+                <div className="cart-actions">
+                  <button
+                    type="button"
+                    className="add-more-button"
+                    onClick={() => setCartOpen(false)}
+                  >
+                    <span>←</span>
+                    <span>Adicionar mais itens</span>
+                  </button>
 
-                  <span>→</span>
-                </button>
+                  <button
+                    type="button"
+                    className="checkout-button"
+                    onClick={openCheckout}
+                  >
+                    <span>Continuar pedido</span>
+                    <span>→</span>
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -1608,6 +1631,13 @@ function App() {
         <ScrollTopButton />
         {ProductModal()}
         <CartDrawer />
+        <CheckoutModal
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          customer={checkoutCustomer}
+          onCustomerChange={setCheckoutCustomer}
+          subtotal={totalPrice}
+        />
       </div>
     );
   }
@@ -1672,6 +1702,13 @@ function App() {
         <ScrollTopButton />
         {ProductModal()}
         <CartDrawer />
+        <CheckoutModal
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          customer={checkoutCustomer}
+          onCustomerChange={setCheckoutCustomer}
+          subtotal={totalPrice}
+        />
       </div>
     );
   }
@@ -2170,6 +2207,13 @@ function App() {
       <ScrollTopButton />
       {ProductModal()}
       <CartDrawer />
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        customer={checkoutCustomer}
+        onCustomerChange={setCheckoutCustomer}
+        subtotal={totalPrice}
+      />
     </div>
   );
 }
