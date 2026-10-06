@@ -124,7 +124,7 @@ a {
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  background: var(--blue);
+  background: var(--pink);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 
   max-height: 0;
@@ -156,7 +156,7 @@ a {
   padding: 12px 24px;
   border-radius: 999px;
   background: var(--red);
-  color: var(--yellow);
+  color: var(--white);
   font-size: 14px;
   font-weight: 700;
   box-shadow: 0 5px 15px rgba(45, 18, 13, 0.1);
@@ -164,7 +164,7 @@ a {
 }
 
 .navigation a:hover {
-  color: var(--yellow);
+  color: var(--black);
 }
 
 .navigation a::after {
@@ -1650,10 +1650,14 @@ body::-webkit-scrollbar {
 
 .cart-header {
   position: relative;
+  min-height: 92px;
 }
 
 .cart-header > div {
-  flex: 1;
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
 }
 
@@ -1676,18 +1680,32 @@ body::-webkit-scrollbar {
 }
 
 .close-cart {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(calc(-50% + 6px));
+
   width: 42px;
   height: 42px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border-radius: 50%;
   background: var(--red);
   color: var(--white);
+
   font-size: 25px;
+  line-height: 1;
+
   transition: transform 0.2s ease;
   cursor: pointer;
 }
 
 .close-cart:hover {
-  transform: translateY(-2px);
+  transform: translateY(calc(-50% + 4px));
 }
 
 .cart-items {
@@ -4585,17 +4603,18 @@ body::-webkit-scrollbar {
 
 @media (max-width: 600px) {
   .checkout-overlay {
-    align-items: flex-end;
-
-    padding: 0;
+    align-items: center;
+    padding: 38px 16px 20px;
   }
 
   .checkout-modal {
-    max-height: 92vh;
+    width: calc(100% - 12px);
+    max-width: 420px;
+    max-height: calc(100vh - 72px);
 
     padding: 24px 20px 22px;
 
-    border-radius: 28px 28px 0 0;
+    border-radius: 22px;
   }
 
   .checkout-header h2 {
@@ -5299,19 +5318,6 @@ body::-webkit-scrollbar {
 }
 
 /* =========================================================
-   CHECKOUT - RESUMO SEM BARRA DE ROLAGEM
-========================================================= */
-
-.checkout-modal:has(.checkout-summary) {
-  overflow: hidden;
-}
-
-.checkout-modal:has(.checkout-summary) .checkout-summary {
-  overflow: visible;
-  max-height: none;
-}
-
-/* =========================================================
    CHECKOUT - FORMA DE PAGAMENTO
 ========================================================= */
 
@@ -5843,4 +5849,272 @@ body::-webkit-scrollbar {
 .checkout-final-change strong {
   color: var(--red);
   font-weight: 900;
+}
+
+/* =========================================================
+   CHECKOUT — BLOCO DE NOTAS
+   ========================================================= */
+
+.checkout-modal {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Folhas empilhadas atrás da folha principal */
+.checkout-notepad-pages {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+.checkout-notepad-page {
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+  background: var(--cream-light);
+
+  border-right: 1px solid rgba(45, 18, 13, 0.18);
+  border-bottom: 1px solid rgba(45, 18, 13, 0.12);
+}
+
+/* Cada folha aparece um pouco mais à direita e abaixo */
+.checkout-notepad-page-1 {
+  transform: translate(3px, 2px);
+}
+
+.checkout-notepad-page-2 {
+  transform: translate(6px, 4px);
+}
+
+.checkout-notepad-page-3 {
+  transform: translate(9px, 6px);
+}
+
+.checkout-notepad-page-4 {
+  transform: translate(12px, 8px);
+}
+
+.checkout-notepad-page-5 {
+  transform: translate(15px, 10px);
+}
+
+/* Cinco séries de argolas duplas */
+.checkout-notepad-rings {
+  position: absolute;
+  top: -25px;
+  left: 8%;
+  right: 8%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  height: 48px;
+
+  pointer-events: none;
+  z-index: 20;
+}
+
+.checkout-ring-pair {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.checkout-ring {
+  position: relative;
+
+  width: 13px;
+  height: 46px;
+
+  border: 4px solid var(--brown);
+  border-radius: 999px;
+
+  background: transparent;
+
+  box-shadow:
+    2px 1px 0 var(--cream-light),
+    3px 2px 2px rgba(45, 18, 13, 0.14);
+}
+
+/* Pequena sombra do ponto onde a argola entra no papel */
+.checkout-ring::after {
+  content: "";
+
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+
+  width: 15px;
+  height: 12px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+  background: var(--black);
+
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.28),
+    0 1px 0 var(--cream-light);
+
+  opacity: 0.65;
+
+  z-index: -1;
+}
+
+/* =========================================================
+   CHECKOUT — BLOCO DE NOTAS / MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .checkout-notepad-page-1 {
+    transform: translate(2px, 2px);
+  }
+
+  .checkout-notepad-page-2 {
+    transform: translate(4px, 3px);
+  }
+
+  .checkout-notepad-page-3 {
+    transform: translate(6px, 4px);
+  }
+
+  .checkout-notepad-page-4 {
+    transform: translate(8px, 5px);
+  }
+
+  .checkout-notepad-page-5 {
+    transform: translate(10px, 6px);
+  }
+
+  .checkout-notepad-rings {
+    top: -20px;
+    left: 6%;
+    right: 6%;
+    height: 40px;
+  }
+
+  .checkout-ring-pair {
+    gap: 4px;
+  }
+
+  .checkout-ring {
+    width: 10px;
+    height: 37px;
+    border-width: 3px;
+
+    box-shadow:
+      1px 1px 0 var(--cream-light),
+      2px 2px 2px rgba(45, 18, 13, 0.12);
+  }
+}
+
+/* Ajuste do carrinho no celular */
+@media (max-width: 600px) {
+  .cart-header {
+    min-height: 76px;
+  }
+
+  .cart-header > div {
+    top: 20px;
+  }
+
+  .cart-header h2 {
+    font-size: 25px;
+  }
+
+  .close-cart {
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    font-size: 21px;
+  }
+}
+
+/* =========================================================
+   CHECKOUT — CENTRALIZAÇÃO DO CABEÇALHO
+   ========================================================= */
+
+.checkout-header {
+  position: relative;
+  justify-content: center;
+  text-align: center;
+}
+
+.checkout-header > div {
+  width: 100%;
+  text-align: center;
+}
+
+.checkout-eyebrow {
+  display: block;
+  text-align: center;
+}
+
+.checkout-header h2 {
+  text-align: center;
+}
+
+/* X do checkout */
+.checkout-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--red);
+  color: var(--white);
+}
+
+.checkout-section-title,
+.checkout-section-description {
+  text-align: center;
+}
+
+.checkout-modal {
+  width: min(580px, calc(100vw - 40px));
+  height: min(740px, calc(100vh - 50px));
+  max-height: none;
+
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .checkout-modal {
+    width: calc(100vw - 24px);
+    height: min(700px, calc(100dvh - 40px));
+    max-height: none;
+  }
+}
+
+/* =========================================================
+   CHECKOUT — CONTEÚDO INTERNO DO BLOQUINHO
+   ========================================================= */
+
+.checkout-summary,
+.checkout-payment-form,
+.checkout-final-review {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.checkout-summary::-webkit-scrollbar,
+.checkout-payment-form::-webkit-scrollbar,
+.checkout-final-review::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }

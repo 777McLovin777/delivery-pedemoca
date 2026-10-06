@@ -92,6 +92,20 @@ export default function CheckoutModal({
     }
   }, [open]);
 
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      const currentContent = dialog.current?.querySelector(".checkout-content");
+
+      if (currentContent) {
+        currentContent.scrollTop = 0;
+      }
+    });
+  }, [step]);
+
+  function formatPrice(value) {
+    return Number(value).toFixed(2).replace(".", ",");
+  }
+
   function formatPrice(value) {
     return Number(value).toFixed(2).replace(".", ",");
   }
@@ -337,6 +351,23 @@ export default function CheckoutModal({
         }
       }}
     >
+      <div className="checkout-notepad-pages" aria-hidden="true">
+        <span className="checkout-notepad-page checkout-notepad-page-5" />
+        <span className="checkout-notepad-page checkout-notepad-page-4" />
+        <span className="checkout-notepad-page checkout-notepad-page-3" />
+        <span className="checkout-notepad-page checkout-notepad-page-2" />
+        <span className="checkout-notepad-page checkout-notepad-page-1" />
+      </div>
+
+      <div className="checkout-notepad-rings" aria-hidden="true">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div className="checkout-ring-pair" key={index}>
+            <span className="checkout-ring" />
+            <span className="checkout-ring" />
+          </div>
+        ))}
+      </div>
+
       <div className="checkout-header">
         <div>
           <span className="checkout-eyebrow">SEU PEDIDO</span>
@@ -982,8 +1013,6 @@ export default function CheckoutModal({
                     return;
                   }
                 }
-
-                setErrors({});
 
                 setErrors({});
                 setStep(6);

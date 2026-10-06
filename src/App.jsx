@@ -291,6 +291,26 @@ function App() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY) {
+        setMenuOpen(false);
+      }
+
+      lastScrollY = currentScrollY;
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const [customizingProduct, setCustomizingProduct] = useState(null);
 
   const [selectedComplements, setSelectedComplements] = useState({});
@@ -900,7 +920,12 @@ function App() {
 
               <p>Escolha um docinho para começar.</p>
 
-              <button onClick={() => setCartOpen(false)}>
+              <button
+                onClick={() => {
+                  setCartOpen(false);
+                  window.location.href = "/cardapio";
+                }}
+              >
                 <span>Ver cardápio</span>
               </button>
             </div>
