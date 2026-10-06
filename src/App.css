@@ -4935,10 +4935,22 @@ body::-webkit-scrollbar {
 
   .checkout-step-actions {
     grid-template-columns: 1fr 1.6fr;
+    align-items: stretch;
   }
 
-  .checkout-back-button {
-    padding: 0 12px;
+  /* Botões mais finos no celular */
+  .checkout-step-actions .checkout-back-button,
+  .checkout-step-actions .checkout-button {
+    min-height: 42px;
+    height: 42px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* Mantém o Voltar compacto lateralmente */
+  .checkout-step-actions .checkout-back-button {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }
 
@@ -5087,10 +5099,6 @@ body::-webkit-scrollbar {
 .checkout-address-form {
   position: relative;
   z-index: 10;
-}
-
-.checkout-address-form .checkout-step-actions {
-  margin-top: 18px;
 }
 
 .checkout-address-form input {
@@ -5284,12 +5292,6 @@ body::-webkit-scrollbar {
   overflow-wrap: anywhere;
 }
 
-/* Botões */
-
-.checkout-summary .checkout-step-actions {
-  margin-top: 2px;
-}
-
 /* =========================================================
    CHECKOUT - RESUMO RESPONSIVO
 ========================================================= */
@@ -5438,12 +5440,6 @@ body::-webkit-scrollbar {
 .checkout-payment-option.active .checkout-option-check {
   border-color: var(--red);
   background: var(--red);
-}
-
-/* Botões inferiores */
-
-.checkout-payment-form .checkout-step-actions {
-  margin-top: 2px;
 }
 
 /* =========================================================
@@ -5773,10 +5769,6 @@ body::-webkit-scrollbar {
   font-weight: 900;
 }
 
-.checkout-final-review .checkout-step-actions {
-  margin-top: 0;
-}
-
 /* =========================================================
    CHECKOUT - REVISÃO FINAL / CELULAR
 ========================================================= */
@@ -5856,8 +5848,12 @@ body::-webkit-scrollbar {
    ========================================================= */
 
 .checkout-modal {
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
+
+  /* Mesmo arredondamento para a folha principal */
+  border-radius: 28px;
+  border: 1px solid var(--brown);
 }
 
 /* Folhas empilhadas atrás da folha principal */
@@ -5867,102 +5863,143 @@ body::-webkit-scrollbar {
 
   pointer-events: none;
   z-index: -1;
+
+  border-radius: 28px;
+
+  clip-path: inset(0 -30px -30px 0);
 }
 
 .checkout-notepad-page {
   position: absolute;
-  inset: 0;
 
-  border-radius: inherit;
+  /*
+    Começa exatamente na borda superior/esquerda da folha principal,
+    mas termina somente para direita e para baixo.
+  */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  border-radius: 28px;
+
   background: var(--cream-light);
 
-  border-right: 1px solid rgba(45, 18, 13, 0.18);
-  border-bottom: 1px solid rgba(45, 18, 13, 0.12);
+  border: 0;
+  border-right: 1px solid var(--brown);
+  border-bottom: 1px solid var(--brown);
+
+  /*
+    Impede pequenos artefatos de borda nos cantos
+  */
+  box-sizing: border-box;
 }
 
-/* Cada folha aparece um pouco mais à direita e abaixo */
 .checkout-notepad-page-1 {
-  transform: translate(3px, 2px);
+  transform: translate(15px, 10px);
+  z-index: 1;
 }
 
 .checkout-notepad-page-2 {
-  transform: translate(6px, 4px);
+  transform: translate(12px, 8px);
+  z-index: 2;
 }
 
 .checkout-notepad-page-3 {
   transform: translate(9px, 6px);
+  z-index: 3;
 }
 
 .checkout-notepad-page-4 {
-  transform: translate(12px, 8px);
+  transform: translate(6px, 4px);
+  z-index: 4;
 }
 
 .checkout-notepad-page-5 {
-  transform: translate(15px, 10px);
+  transform: translate(3px, 2px);
+  z-index: 5;
 }
 
-/* Cinco séries de argolas duplas */
 .checkout-notepad-rings {
   position: absolute;
-  top: -25px;
-  left: 8%;
-  right: 8%;
 
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  top: 7%;
+  bottom: 7%;
+  left: -27px;
 
-  height: 48px;
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+
+  align-items: center;
+  justify-items: center;
+
+  width: 38px;
 
   pointer-events: none;
   z-index: 20;
 }
 
+/* =========================================================
+   CINCO PARES DE ARGOLAS
+   ========================================================= */
+
 .checkout-ring-pair {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
+
   gap: 6px;
+
+  margin: 0;
+  padding: 0;
+
+  transform: rotate(90deg);
+  transform-origin: center;
+
+  width: 32px;
+  height: 54px;
+
+  flex: 0 0 32px;
+}
+
+.checkout-ring-pair {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  gap: 6px;
+
+  margin: 0;
+  padding: 0;
+
+  transform: rotate(90deg);
+  transform-origin: center;
+
+  /* Todos os cinco pares ocupam exatamente a mesma área */
+  width: 32px;
+  height: 54px;
+
+  flex: 0 0 32px;
 }
 
 .checkout-ring {
   position: relative;
 
   width: 13px;
-  height: 46px;
+  height: 54px;
 
-  border: 4px solid var(--brown);
+  flex: 0 0 13px;
+
+  border: 4px solid var(--black);
   border-radius: 999px;
 
-  background: transparent;
+  background: var(--black);
+
+  box-sizing: border-box;
 
   box-shadow:
     2px 1px 0 var(--cream-light),
     3px 2px 2px rgba(45, 18, 13, 0.14);
-}
-
-/* Pequena sombra do ponto onde a argola entra no papel */
-.checkout-ring::after {
-  content: "";
-
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-
-  width: 15px;
-  height: 12px;
-
-  transform: translateX(-50%);
-
-  border-radius: 50%;
-  background: var(--black);
-
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.28),
-    0 1px 0 var(--cream-light);
-
-  opacity: 0.65;
-
-  z-index: -1;
 }
 
 /* =========================================================
@@ -5970,6 +6007,12 @@ body::-webkit-scrollbar {
    ========================================================= */
 
 @media (max-width: 600px) {
+  .checkout-modal,
+  .checkout-notepad-pages,
+  .checkout-notepad-page {
+    border-radius: 20px;
+  }
+
   .checkout-notepad-page-1 {
     transform: translate(2px, 2px);
   }
@@ -5991,19 +6034,42 @@ body::-webkit-scrollbar {
   }
 
   .checkout-notepad-rings {
-    top: -20px;
-    left: 6%;
-    right: 6%;
-    height: 40px;
+    position: absolute;
+
+    top: 7%;
+    bottom: 7%;
+    left: -27px;
+
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+
+    align-items: center;
+    justify-items: center;
+
+    width: 38px;
+
+    pointer-events: none;
+    z-index: 20;
   }
 
   .checkout-ring-pair {
+    width: 24px;
+    height: 44px;
+
+    flex: 0 0 24px;
+
     gap: 4px;
+
+    transform: rotate(90deg);
+    transform-origin: center;
   }
 
   .checkout-ring {
     width: 10px;
-    height: 37px;
+    height: 44px;
+
+    flex: 0 0 10px;
+
     border-width: 3px;
 
     box-shadow:
@@ -6079,7 +6145,8 @@ body::-webkit-scrollbar {
 
 .checkout-modal {
   width: min(580px, calc(100vw - 40px));
-  height: min(740px, calc(100vh - 50px));
+
+  height: min(780px, calc(100vh - 32px));
   max-height: none;
 
   display: flex;
@@ -6089,7 +6156,8 @@ body::-webkit-scrollbar {
 @media (max-width: 600px) {
   .checkout-modal {
     width: calc(100vw - 24px);
-    height: min(700px, calc(100dvh - 40px));
+
+    height: min(740px, calc(100dvh - 24px));
     max-height: none;
   }
 }
@@ -6117,4 +6185,162 @@ body::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
+}
+
+.checkout-final-change {
+  font-size: inherit;
+  font-weight: 700;
+}
+
+/* =========================================================
+   CHECKOUT - CLIENTE RESPONSIVO NA REVISÃO FINAL
+========================================================= */
+
+.checkout-final-client {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.checkout-final-client-name,
+.checkout-final-client-phone {
+  font-weight: 700;
+}
+
+.checkout-final-client-name {
+  min-width: 0;
+}
+
+.checkout-final-client-phone {
+  flex-shrink: 0;
+}
+
+.checkout-final-client-dot {
+  flex-shrink: 0;
+  color: var(--red);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .checkout-final-client {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 8px;
+  }
+
+  .checkout-final-client-name {
+    grid-column: 1 / -1;
+  }
+
+  .checkout-final-client-dot {
+    display: none;
+  }
+
+  .checkout-final-client-phone {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =========================================================
+   CHECKOUT — BOTÕES COMPACTOS / MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .checkout-actions .checkout-back-button,
+  .checkout-actions .checkout-button,
+  .checkout-step-actions .checkout-back-button,
+  .checkout-step-actions .checkout-button {
+    min-height: 42px;
+    height: 42px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .checkout-actions .checkout-back-button,
+  .checkout-step-actions .checkout-back-button {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* =========================================================
+   CHECKOUT — TRANSIÇÃO DE PÁGINA / LIVRO
+========================================================= */
+
+.checkout-content {
+  will-change: transform, opacity;
+}
+
+.checkout-step-exit-left .checkout-content {
+  animation: checkout-page-exit-left 200ms ease-in forwards;
+}
+
+.checkout-step-enter-right .checkout-content {
+  animation: checkout-page-enter-right 260ms ease-out forwards;
+}
+
+.checkout-step-exit-right .checkout-content {
+  animation: checkout-page-exit-right 200ms ease-in forwards;
+}
+
+.checkout-step-enter-left .checkout-content {
+  animation: checkout-page-enter-left 260ms ease-out forwards;
+}
+
+@keyframes checkout-page-exit-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
+
+@keyframes checkout-page-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(38px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes checkout-page-exit-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+@keyframes checkout-page-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-38px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-step-exit-left .checkout-content,
+  .checkout-step-enter-right .checkout-content,
+  .checkout-step-exit-right .checkout-content,
+  .checkout-step-enter-left .checkout-content {
+    animation-duration: 1ms;
+  }
 }
