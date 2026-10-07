@@ -5951,45 +5951,20 @@ body::-webkit-scrollbar {
   box-sizing: border-box;
 }
 
-.checkout-notepad-page-1 {
-  transform: translate(15px, 10px);
-  z-index: 1;
-}
-
-.checkout-notepad-page-2 {
-  transform: translate(12px, 8px);
-  z-index: 2;
-}
-
-.checkout-notepad-page-3 {
-  transform: translate(9px, 6px);
-  z-index: 3;
-}
-
-.checkout-notepad-page-4 {
-  transform: translate(6px, 4px);
-  z-index: 4;
-}
-
-.checkout-notepad-page-5 {
-  transform: translate(3px, 2px);
-  z-index: 5;
-}
-
 .checkout-notepad-rings {
   position: absolute;
 
-  top: 7%;
-  bottom: 7%;
-  left: -27px;
+  top: -27px;
+  left: 7%;
+  right: 7%;
 
   display: grid;
-  grid-template-rows: repeat(6, 1fr);
+  grid-template-columns: repeat(6, 1fr);
 
   align-items: center;
   justify-items: center;
 
-  width: 38px;
+  height: 38px;
 
   pointer-events: none;
   z-index: 20;
@@ -6004,12 +5979,12 @@ body::-webkit-scrollbar {
   align-items: flex-start;
   justify-content: center;
 
-  gap: 6px;
+  gap: 4px;
 
   margin: 0;
   padding: 0;
 
-  transform: rotate(90deg);
+  transform: rotate(none);
   transform-origin: center;
 
   width: 32px;
@@ -6023,12 +5998,12 @@ body::-webkit-scrollbar {
   align-items: flex-start;
   justify-content: center;
 
-  gap: 6px;
+  gap: 4px;
 
   margin: 0;
   padding: 0;
 
-  transform: rotate(90deg);
+  transform: rotate(none);
   transform-origin: center;
 
   /* Todos os cinco pares ocupam exatamente a mesma área */
@@ -6041,12 +6016,12 @@ body::-webkit-scrollbar {
 .checkout-ring {
   position: relative;
 
-  width: 13px;
-  height: 54px;
+  width: 10px;
+  height: 44px;
 
-  flex: 0 0 13px;
+  flex: 0 0 10px;
 
-  border: 4px solid var(--black);
+  border: 3px solid var(--black);
   border-radius: 999px;
 
   background: var(--black);
@@ -6054,8 +6029,8 @@ body::-webkit-scrollbar {
   box-sizing: border-box;
 
   box-shadow:
-    2px 1px 0 var(--cream-light),
-    3px 2px 2px rgba(45, 18, 13, 0.14);
+    1px 1px 0 var(--cream-light),
+    2px 2px 2px rgba(45, 18, 13, 0.12);
 }
 
 /* =========================================================
@@ -6074,35 +6049,35 @@ body::-webkit-scrollbar {
   }
 
   .checkout-notepad-page-2 {
-    transform: translate(4px, 3px);
+    transform: translate(3px, 3px);
   }
 
   .checkout-notepad-page-3 {
-    transform: translate(6px, 4px);
+    transform: translate(4px, 4px);
   }
 
   .checkout-notepad-page-4 {
-    transform: translate(8px, 5px);
+    transform: translate(5px, 5px);
   }
 
   .checkout-notepad-page-5 {
-    transform: translate(10px, 6px);
+    transform: translate(6px, 6px);
   }
 
   .checkout-notepad-rings {
     position: absolute;
 
-    top: 7%;
-    bottom: 7%;
-    left: -27px;
+    top: -22px;
+    left: 8%;
+    right: 8%;
 
     display: grid;
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: repeat(6, 1fr);
 
     align-items: center;
     justify-items: center;
 
-    width: 38px;
+    height: 32px;
 
     pointer-events: none;
     z-index: 20;
@@ -6114,23 +6089,23 @@ body::-webkit-scrollbar {
 
     flex: 0 0 24px;
 
-    gap: 4px;
+    gap: 3px;
 
-    transform: rotate(90deg);
+    transform: rotate(none);
     transform-origin: center;
   }
 
   .checkout-ring {
-    width: 10px;
-    height: 44px;
+    width: 8px;
+    height: 38px;
 
-    flex: 0 0 10px;
+    flex: 0 0 8px;
 
     border-width: 3px;
 
     box-shadow:
       1px 1px 0 var(--cream-light),
-      2px 2px 2px rgba(45, 18, 13, 0.12);
+      2px 2px 2px rgba(45, 18, 13, 0.1);
   }
 }
 
@@ -6356,74 +6331,199 @@ body::-webkit-scrollbar {
 }
 
 /* =========================================================
-   CHECKOUT — TRANSIÇÃO DE PÁGINA / LIVRO
+   CHECKOUT — VIRADA DE FOLHA / BLOCO DE NOTAS
 ========================================================= */
 
-.checkout-content {
-  will-change: transform, opacity;
+.checkout-page {
+  perspective: 1400px;
 }
 
-.checkout-step-exit-left .checkout-content {
-  animation: checkout-page-exit-left 200ms ease-in forwards;
+.checkout-page {
+  position: relative;
+  z-index: 10;
+
+  background: var(--white);
+  border-radius: inherit;
+
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+
+  will-change: transform, opacity, filter;
 }
 
-.checkout-step-enter-right .checkout-content {
-  animation: checkout-page-enter-right 260ms ease-out forwards;
+/* CONTINUAR — agora movimenta a FOLHA INTEIRA */
+.checkout-step-exit-left .checkout-page {
+  transform-origin: top left;
+
+  animation: checkout-sheet-forward-out 650ms
+    cubic-bezier(0.55, 0.08, 0.68, 0.53) forwards;
 }
 
-.checkout-step-exit-right .checkout-content {
-  animation: checkout-page-exit-right 200ms ease-in forwards;
+/* Próxima folha aparece */
+.checkout-step-enter-right .checkout-page {
+  animation: checkout-sheet-forward-in 500ms ease-out forwards;
 }
 
-.checkout-step-enter-left .checkout-content {
-  animation: checkout-page-enter-left 260ms ease-out forwards;
+/* VOLTAR */
+.checkout-step-exit-right .checkout-page {
+  animation: checkout-sheet-back-out 500ms ease-in forwards;
 }
 
-@keyframes checkout-page-exit-left {
-  from {
+/* Folha anterior retorna */
+.checkout-step-enter-left .checkout-page {
+  transform-origin: top left;
+
+  animation: checkout-sheet-back-in 650ms cubic-bezier(0.22, 0.61, 0.36, 1)
+    forwards;
+}
+
+/* =========================================================
+   CONTINUAR — VIRADA REAL DE FOLHA DO BLOQUINHO
+========================================================= */
+
+@keyframes checkout-sheet-forward-out {
+  0% {
     opacity: 1;
-    transform: translateX(0);
+
+    transform: translate3d(0, 0, 0) rotateX(0deg);
+
+    filter: drop-shadow(0 0 0 rgba(45, 18, 13, 0));
   }
 
-  to {
+  /* A parte de baixo começa a levantar */
+  20% {
+    opacity: 1;
+
+    transform: translate3d(0, -5px, 25px) rotateX(12deg);
+
+    filter: drop-shadow(0 10px 8px rgba(45, 18, 13, 0.1));
+  }
+
+  /* Folha claramente levantando */
+  45% {
+    opacity: 1;
+
+    transform: translate3d(0, -18px, 70px) rotateX(38deg);
+
+    filter: drop-shadow(0 18px 14px rgba(45, 18, 13, 0.16));
+  }
+
+  /* Quase vertical */
+  70% {
+    opacity: 1;
+
+    transform: translate3d(0, -45px, 110px) rotateX(72deg);
+
+    filter: drop-shadow(0 25px 18px rgba(45, 18, 13, 0.2));
+  }
+
+  /* Passando por cima */
+  88% {
+    opacity: 0.75;
+
+    transform: translate3d(0, -85px, 75px) rotateX(105deg);
+
+    filter: drop-shadow(0 18px 14px rgba(45, 18, 13, 0.14));
+  }
+
+  /* Folha vai para trás do bloco */
+  100% {
     opacity: 0;
-    transform: translateX(-28px);
+
+    transform: translate3d(0, -125px, 20px) rotateX(125deg);
+
+    filter: drop-shadow(0 8px 8px rgba(45, 18, 13, 0.06));
   }
 }
 
-@keyframes checkout-page-enter-right {
-  from {
+/* =========================================================
+   PRÓXIMA FOLHA — JÁ ESTAVA POR BAIXO
+========================================================= */
+
+@keyframes checkout-sheet-forward-in {
+  0% {
     opacity: 0;
-    transform: translateX(38px);
+    transform: scale(0.992);
   }
 
-  to {
+  35% {
+    opacity: 0.45;
+    transform: scale(0.995);
+  }
+
+  100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: scale(1);
   }
 }
 
-@keyframes checkout-page-exit-right {
-  from {
+/* =========================================================
+   VOLTAR — FOLHA ATUAL CEDE ESPAÇO
+========================================================= */
+
+@keyframes checkout-sheet-back-out {
+  0% {
     opacity: 1;
-    transform: translateX(0);
+    transform: scale(1);
   }
 
-  to {
+  100% {
     opacity: 0;
-    transform: translateX(28px);
+    transform: scale(0.992);
   }
 }
 
-@keyframes checkout-page-enter-left {
-  from {
+/* =========================================================
+   VOLTAR — FOLHA ANTERIOR DESCE DE VOLTA
+========================================================= */
+
+@keyframes checkout-sheet-back-in {
+  0% {
     opacity: 0;
-    transform: translateX(-38px);
+
+    transform: translate3d(0, -125px, 20px) rotateX(125deg);
+
+    filter: drop-shadow(0 8px 8px rgba(45, 18, 13, 0.06));
   }
 
-  to {
+  18% {
+    opacity: 0.75;
+
+    transform: translate3d(0, -85px, 75px) rotateX(105deg);
+
+    filter: drop-shadow(0 18px 14px rgba(45, 18, 13, 0.14));
+  }
+
+  40% {
     opacity: 1;
-    transform: translateX(0);
+
+    transform: translate3d(0, -45px, 110px) rotateX(72deg);
+
+    filter: drop-shadow(0 25px 18px rgba(45, 18, 13, 0.2));
+  }
+
+  65% {
+    opacity: 1;
+
+    transform: translate3d(0, -18px, 70px) rotateX(38deg);
+
+    filter: drop-shadow(0 18px 14px rgba(45, 18, 13, 0.16));
+  }
+
+  85% {
+    opacity: 1;
+
+    transform: translate3d(0, -5px, 25px) rotateX(12deg);
+
+    filter: drop-shadow(0 10px 8px rgba(45, 18, 13, 0.1));
+  }
+
+  100% {
+    opacity: 1;
+
+    transform: translate3d(0, 0, 0) rotateX(0deg);
+
+    filter: drop-shadow(0 0 0 rgba(45, 18, 13, 0));
   }
 }
 

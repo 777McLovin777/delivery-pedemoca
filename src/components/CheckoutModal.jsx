@@ -400,8 +400,8 @@ export default function CheckoutModal({
 
       pageTimer.current = setTimeout(() => {
         setPageAnimation("");
-      }, 260);
-    }, 200);
+      }, 500);
+    }, 650);
   }
 
   function handleCustomerSubmit(event) {
