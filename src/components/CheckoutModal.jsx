@@ -7,6 +7,8 @@ export default function CheckoutModal({
   customer,
   onCustomerChange,
   subtotal,
+  cart,
+  onOrderSuccess,
 }) {
   const dialog = useRef(null);
   const pageTimer = useRef(null);
@@ -20,6 +22,7 @@ export default function CheckoutModal({
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
 
   const [deliveryFee, setDeliveryFee] = useState(null);
+  const [deliveryNeighborhoodId, setDeliveryNeighborhoodId] = useState(null);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -38,20 +41,22 @@ export default function CheckoutModal({
     reference: "",
   });
 
-  const pickupLocations = [
-    {
-      name: "Vila Nova",
-      street: "Avenida Jundiaí",
-      number: "348",
-      neighborhood: "Vila Nova",
-    },
-    {
-      name: "Morro Branco",
-      street: "Estrada do Morro Branco",
-      number: "994",
-      neighborhood: "Jardim Morro Branco",
-    },
-  ];
+  const [pickupLocations, setPickupLocations] = useState([]);
+  const [pickupLocationsLoading, setPickupLocationsLoading] = useState(false);
+  const [checkoutToken, setCheckoutToken] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [createdOrder, setCreatedOrder] = useState(null);
+  const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    if (open && !checkoutToken) {
+      setCheckoutToken(crypto.randomUUID());
+    }
+
+    if (!open) {
+      setCheckoutToken(null);
+    }
+  }, [open, checkoutToken]);
 
   const neighborhoods = [
     "Bandeirantes",
@@ -107,7 +112,90 @@ export default function CheckoutModal({
       setStep(1);
       setErrors({});
       setDeliveryMethod("");
+
+      setPickupLocation(null);
+
+      setDeliveryFee(null);
+      setDeliveryNeighborhoodId(null);
+      setDeliveryLoading(false);
+
+      setPaymentMethod("");
+      setNeedsChange(null);
+      setCashGiven("");
+
+      setAddress({
+        neighborhood: "",
+        street: "",
+        number: "",
+        noNumber: false,
+        complement: "",
+        reference: "",
+      });
+
+      setNeighborhoodOpen(false);
+
+      setCreatedOrder(null);
+      setSubmitting(false);
+      setSubmitError("");
     }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadPickupLocations() {
+      setPickupLocationsLoading(true);
+
+      try {
+        const { data, error } = await supabase
+          .from("pickup_locations")
+          .select("id, name, address, number, neighborhood")
+          .eq("is_active", true)
+          .order("id", { ascending: true });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!cancelled) {
+          setPickupLocations(
+            (data ?? [])
+              .sort((a, b) => {
+                const order = {
+                  "Morro Branco": 1,
+                  "Vila Nova": 2,
+                };
+
+                return (order[a.name] ?? 99) - (order[b.name] ?? 99);
+              })
+              .map((location, index) => ({
+                ...location,
+                displayName: `Ponto ${index + 1} • ${location.name}`,
+              })),
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao carregar pontos de retirada:", error);
+
+        if (!cancelled) {
+          setPickupLocations([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setPickupLocationsLoading(false);
+        }
+      }
+    }
+
+    loadPickupLocations();
+
+    return () => {
+      cancelled = true;
+    };
   }, [open]);
 
   useEffect(() => {
@@ -120,14 +208,91 @@ export default function CheckoutModal({
     });
   }, [step]);
 
-  function formatPrice(value) {
-    return Number(value).toFixed(2).replace(".", ",");
+  function buildOrderItems() {
+    return cart.map((item) => ({
+      id: item.id,
+      baseProductId: item.baseProductId ?? null,
+      quantity: item.quantity,
+      customizations: item.customizations ?? null,
+      observation: item.observation ?? "",
+    }));
+  }
+
+  async function handleConfirmOrder() {
+    const orderItems = buildOrderItems();
+
+    const orderPayload = {
+      checkoutToken,
+
+      customerName: customer.name,
+      customerPhone: customer.whatsapp,
+
+      fulfillmentType: deliveryMethod,
+
+      deliveryNeighborhoodId:
+        deliveryMethod === "delivery" ? deliveryNeighborhoodId : null,
+
+      deliveryAddress: deliveryMethod === "delivery" ? address.street : null,
+
+      deliveryNumber:
+        deliveryMethod === "delivery"
+          ? address.noNumber
+            ? "S/N"
+            : address.number
+          : null,
+
+      deliveryComplement:
+        deliveryMethod === "delivery" ? address.complement : null,
+
+      deliveryReference:
+        deliveryMethod === "delivery" ? address.reference : null,
+
+      pickupLocationId:
+        deliveryMethod === "pickup" ? (pickupLocation?.id ?? null) : null,
+
+      paymentMethod,
+
+      cashGiven:
+        paymentMethod === "cash" && needsChange === true
+          ? currencyInputToNumber(cashGiven)
+          : null,
+
+      items: orderItems,
+    };
+
+    if (submitting) {
+      return;
+    }
+
+    setSubmitError("");
+    setSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("criar-pedido", {
+        body: orderPayload,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("PEDIDO CRIADO:", data);
+      setCreatedOrder(data);
+      onOrderSuccess?.();
+    } catch (error) {
+      console.error("ERRO AO CRIAR PEDIDO:", error);
+
+      setSubmitError(
+        "Não foi possível confirmar seu pedido agora. Tente novamente.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function formatPrice(value) {
     return Number(value).toFixed(2).replace(".", ",");
   }
-
   function formatCurrencyInput(value) {
     const numbers = value.replace(/\D/g, "");
 
@@ -359,6 +524,7 @@ export default function CheckoutModal({
         return;
       }
 
+      setDeliveryNeighborhoodId(data.id);
       setDeliveryFee(Number(data.delivery_fee));
 
       console.log("Entrega calculada:", data);
@@ -454,7 +620,39 @@ export default function CheckoutModal({
           </button>
         </div>
 
-        {step === 1 && (
+        {createdOrder && (
+          <div className="checkout-content checkout-success">
+            <div className="checkout-success-icon">✓</div>
+
+            <div className="checkout-success-heading">
+              <span>SEU PEDIDO</span>
+              <h3>Pedido confirmado!</h3>
+
+              <p>
+                Recebemos seu pedido com sucesso.
+                <br />
+                Agora é só aguardar o preparo.
+              </p>
+            </div>
+
+            <div className="checkout-success-order">
+              <span>NÚMERO DO PEDIDO</span>
+              <strong>#{createdOrder.order_number}</strong>
+            </div>
+
+            <div className="checkout-success-total">
+              <span>Total</span>
+              <strong>R$ {formatPrice(createdOrder.total)}</strong>
+            </div>
+
+            <button type="button" className="checkout-button" onClick={onClose}>
+              <span>Fechar</span>
+              <span>✓</span>
+            </button>
+          </div>
+        )}
+
+        {!createdOrder && step === 1 && (
           <form
             className="checkout-content checkout-customer-form"
             onSubmit={handleCustomerSubmit}
@@ -560,7 +758,7 @@ export default function CheckoutModal({
           </form>
         )}
 
-        {step === 2 && (
+        {!createdOrder && step === 2 && (
           <div className="checkout-content checkout-delivery-form">
             <div>
               <h3>Como você quer receber?</h3>
@@ -646,7 +844,7 @@ export default function CheckoutModal({
           </div>
         )}
 
-        {step === 3 && deliveryMethod === "delivery" && (
+        {!createdOrder && step === 3 && deliveryMethod === "delivery" && (
           <div className="checkout-content checkout-address-form">
             <div>
               <h3>Endereço de entrega</h3>
@@ -828,7 +1026,7 @@ export default function CheckoutModal({
           </div>
         )}
 
-        {step === 3 && deliveryMethod === "pickup" && (
+        {!createdOrder && step === 3 && deliveryMethod === "pickup" && (
           <div className="checkout-content checkout-pickup-form">
             <div>
               <h3>Local de retirada</h3>
@@ -842,11 +1040,11 @@ export default function CheckoutModal({
               }`}
             >
               {pickupLocations.map((location) => {
-                const isSelected = pickupLocation?.name === location.name;
+                const isSelected = pickupLocation?.id === location.id;
 
                 return (
                   <button
-                    key={location.name}
+                    key={location.id}
                     type="button"
                     className={`checkout-pickup-option ${
                       isSelected ? "active" : ""
@@ -863,10 +1061,10 @@ export default function CheckoutModal({
                     <span className="checkout-delivery-icon">🏠</span>
 
                     <span className="checkout-pickup-info">
-                      <strong>{location.name}</strong>
+                      <strong>{location.displayName}</strong>
 
                       <small>
-                        {location.street}, {location.number}
+                        {location.address}, {location.number}
                       </small>
 
                       <small>{location.neighborhood}</small>
@@ -921,7 +1119,7 @@ export default function CheckoutModal({
           </div>
         )}
 
-        {step === 4 && deliveryMethod === "delivery" && (
+        {!createdOrder && step === 4 && deliveryMethod === "delivery" && (
           <div className="checkout-content checkout-summary">
             <div>
               <h3>Resumo do pedido</h3>
@@ -957,7 +1155,7 @@ export default function CheckoutModal({
                     {address.noNumber ? "S/N" : address.number}
                   </strong>
 
-                  <span className="checkout-final-dot">••••</span>
+                  <span className="checkout-final-dot">,</span>
 
                   <strong>{address.neighborhood}</strong>
                 </div>
@@ -1007,7 +1205,74 @@ export default function CheckoutModal({
           </div>
         )}
 
-        {step === 5 && (
+        {!createdOrder && step === 4 && deliveryMethod === "pickup" && (
+          <div className="checkout-content checkout-summary">
+            <div>
+              <h3>Resumo do pedido</h3>
+
+              <p>Confira os dados antes de continuar.</p>
+            </div>
+
+            <div className="checkout-summary-values">
+              <div className="checkout-summary-line">
+                <span>Subtotal</span>
+
+                <strong>R$ {formatPrice(subtotal)}</strong>
+              </div>
+
+              <div className="checkout-summary-line">
+                <span>Retirada</span>
+
+                <strong>Grátis</strong>
+              </div>
+
+              <div className="checkout-summary-total">
+                <span>Total</span>
+
+                <strong>R$ {formatPrice(subtotal)}</strong>
+              </div>
+            </div>
+
+            <div className="checkout-summary-address">
+              <span className="checkout-summary-address-title">
+                RETIRADA EM
+              </span>
+
+              <div className="checkout-summary-address-main">
+                <strong>{pickupLocation.name}</strong>
+
+                <strong className="checkout-pickup-summary-address">
+                  {pickupLocation.address}, {pickupLocation.number},{" "}
+                  {pickupLocation.neighborhood}
+                </strong>
+              </div>
+            </div>
+
+            <div className="checkout-step-actions">
+              <button
+                type="button"
+                className="checkout-back-button"
+                onClick={handleBack}
+              >
+                <span>←</span>
+                <span>Voltar</span>
+              </button>
+
+              <button
+                type="button"
+                className="checkout-button"
+                onClick={() => {
+                  setErrors({});
+                  changeCheckoutStep(5, "forward");
+                }}
+              >
+                <span>Continuar</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {!createdOrder && step === 5 && (
           <div className="checkout-content checkout-payment-form">
             <div>
               <h3>Forma de pagamento</h3>
@@ -1234,7 +1499,7 @@ export default function CheckoutModal({
             </div>
           </div>
         )}
-        {step === 6 && (
+        {!createdOrder && step === 6 && (
           <div className="checkout-content checkout-final-review">
             <div>
               <h3>Revise seu pedido</h3>
@@ -1249,7 +1514,7 @@ export default function CheckoutModal({
                   {customer.name}
                 </strong>
 
-                <span className="checkout-final-client-dot">••••</span>
+                <span className="checkout-final-client-dot">•</span>
 
                 <strong className="checkout-final-client-phone">
                   {customer.whatsapp}
@@ -1267,7 +1532,7 @@ export default function CheckoutModal({
                     {address.noNumber ? "S/N" : address.number}
                   </strong>
 
-                  <span className="checkout-final-dot">••••</span>
+                  <span className="checkout-final-dot">,</span>
 
                   <strong>{address.neighborhood}</strong>
                 </div>
@@ -1278,13 +1543,26 @@ export default function CheckoutModal({
               </div>
             )}
 
+            {deliveryMethod === "pickup" && pickupLocation && (
+              <div className="checkout-final-section">
+                <span className="checkout-final-label">RETIRADA EM</span>
+
+                <strong>{pickupLocation.name}</strong>
+
+                <p className="checkout-pickup-final-address">
+                  {pickupLocation.address}, {pickupLocation.number},{" "}
+                  {pickupLocation.neighborhood}
+                </p>
+              </div>
+            )}
+
             <div className="checkout-final-section">
               <span className="checkout-final-label">PAGAMENTO</span>
 
               {paymentMethod === "pix" && (
                 <div className="checkout-final-inline">
                   <strong>PIX</strong>
-                  <span className="checkout-final-dot">••••</span>
+                  <span className="checkout-final-dot">•</span>
                   <strong>Pagamento via PIX.</strong>
                 </div>
               )}
@@ -1294,7 +1572,7 @@ export default function CheckoutModal({
                   {needsChange === false && (
                     <div className="checkout-final-inline">
                       <strong>Dinheiro</strong>
-                      <span className="checkout-final-dot">••••</span>
+                      <span className="checkout-final-dot">•</span>
                       <p>Não precisa de troco.</p>
                     </div>
                   )}
@@ -1328,8 +1606,15 @@ export default function CheckoutModal({
               </div>
 
               <div>
-                <span>Entrega</span>
-                <strong>R$ {formatPrice(deliveryFee ?? 0)}</strong>
+                <span>
+                  {deliveryMethod === "delivery" ? "Entrega" : "Retirada"}
+                </span>
+
+                <strong>
+                  {deliveryMethod === "delivery"
+                    ? `R$ ${formatPrice(deliveryFee ?? 0)}`
+                    : "Grátis"}
+                </strong>
               </div>
 
               <div className="checkout-final-total">
@@ -1337,6 +1622,12 @@ export default function CheckoutModal({
                 <strong>R$ {formatPrice(orderTotal)}</strong>
               </div>
             </div>
+
+            {submitError && (
+              <p className="checkout-submit-error" role="alert">
+                {submitError}
+              </p>
+            )}
 
             <div className="checkout-step-actions">
               <button
@@ -1351,11 +1642,12 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={() => {
-                  console.log("Pedido pronto para confirmação.");
-                }}
+                onClick={handleConfirmOrder}
+                disabled={submitting}
               >
-                <span>Confirmar pedido</span>
+                <span>
+                  {submitting ? "Confirmando..." : "Confirmar pedido"}
+                </span>
                 <span>→</span>
               </button>
             </div>

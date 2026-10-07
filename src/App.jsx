@@ -1662,6 +1662,8 @@ function App() {
           customer={checkoutCustomer}
           onCustomerChange={setCheckoutCustomer}
           subtotal={totalPrice}
+          cart={cart}
+          onOrderSuccess={clearCart}
         />
       </div>
     );
@@ -1733,6 +1735,8 @@ function App() {
           customer={checkoutCustomer}
           onCustomerChange={setCheckoutCustomer}
           subtotal={totalPrice}
+          cart={cart}
+          onOrderSuccess={clearCart}
         />
       </div>
     );
@@ -2238,6 +2242,8 @@ function App() {
         customer={checkoutCustomer}
         onCustomerChange={setCheckoutCustomer}
         subtotal={totalPrice}
+        cart={cart}
+        onOrderSuccess={clearCart}
       />
     </div>
   );

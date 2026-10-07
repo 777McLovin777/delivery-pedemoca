@@ -6521,7 +6521,7 @@ body::-webkit-scrollbar {
 
 /* Nome da unidade */
 .checkout-pickup-info strong {
-  font-size: 28px;
+  font-size: 25px;
 }
 
 /* Endereço */
@@ -6540,4 +6540,180 @@ body::-webkit-scrollbar {
 .checkout-check-symbol {
   display: inline-block;
   transform: translateY(-15px);
+}
+
+.checkout-pickup-summary-address {
+  display: block;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   CHECKOUT — LOCAL DE RETIRADA — MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .checkout-pickup-option {
+    min-height: 135px;
+
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+
+    margin-top: 12px;
+    padding: 16px 14px;
+  }
+
+  /* Emoji */
+  .checkout-pickup-option .checkout-delivery-icon {
+    font-size: 24px;
+  }
+
+  /* Nome do ponto */
+  .checkout-pickup-info strong {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  /* Endereço */
+  .checkout-pickup-info small {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  /* Bolinha */
+  .checkout-pickup-option .checkout-option-check {
+    width: 24px;
+    height: 24px;
+    font-size: 15px;
+
+    transform: none;
+  }
+
+  /* Apenas o ✓ */
+  .checkout-pickup-option .checkout-check-symbol {
+    transform: translateY(-2px);
+  }
+}
+
+.checkout-pickup-final-address {
+  margin: 4px 0 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* =========================
+   CHECKOUT — PEDIDO CONFIRMADO
+========================= */
+
+.checkout-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.checkout-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+
+  background: var(--red);
+  color: var(--cream);
+
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.checkout-success-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkout-success-heading > span,
+.checkout-success-order > span {
+  color: var(--red);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.checkout-success-heading h3 {
+  margin: 0;
+  color: var(--brown);
+}
+
+.checkout-success-heading p {
+  margin: 0;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.checkout-success-order {
+  width: 100%;
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  background: var(--cream-light);
+  border-radius: 14px;
+}
+
+.checkout-success-order strong {
+  color: var(--brown);
+  font-size: 1.8rem;
+}
+
+.checkout-success-total {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-top: 16px;
+  border-top: 1px dashed rgba(45, 18, 13, 0.22);
+
+  color: var(--brown);
+}
+
+.checkout-success-total strong {
+  font-size: 1.2rem;
+}
+
+.checkout-success > .checkout-button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* =========================
+   CHECKOUT — ERRO AO CONFIRMAR
+========================= */
+
+.checkout-submit-error {
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+
+  border: 1px solid var(--red);
+  border-radius: 12px;
+
+  background: var(--cream-light);
+  color: var(--red);
+
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
 }
