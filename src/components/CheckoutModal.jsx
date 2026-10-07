@@ -15,6 +15,7 @@ export default function CheckoutModal({
   const [pageAnimation, setPageAnimation] = useState("");
   const [errors, setErrors] = useState({});
   const [deliveryMethod, setDeliveryMethod] = useState("");
+  const [pickupLocation, setPickupLocation] = useState(null);
   const [whatsappShake, setWhatsappShake] = useState(false);
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
 
@@ -36,6 +37,21 @@ export default function CheckoutModal({
     complement: "",
     reference: "",
   });
+
+  const pickupLocations = [
+    {
+      name: "Vila Nova",
+      street: "Avenida Jundiaí",
+      number: "348",
+      neighborhood: "Vila Nova",
+    },
+    {
+      name: "Morro Branco",
+      street: "Estrada do Morro Branco",
+      number: "994",
+      neighborhood: "Jardim Morro Branco",
+    },
+  ];
 
   const neighborhoods = [
     "Bandeirantes",
@@ -155,6 +171,18 @@ export default function CheckoutModal({
     });
   }
 
+  function triggerInvalidShake(selector) {
+    const element = dialog.current?.querySelector(selector);
+
+    if (!element) return;
+
+    element.classList.remove("checkout-invalid-shake");
+
+    requestAnimationFrame(() => {
+      element.classList.add("checkout-invalid-shake");
+    });
+  }
+
   function update(field, value) {
     onCustomerChange({
       ...customer,
@@ -221,9 +249,7 @@ export default function CheckoutModal({
     if (Object.keys(nextErrors).length) {
       const firstErrorField = nextErrors.name ? "name" : "whatsapp";
 
-      if (nextErrors.whatsapp) {
-        triggerWhatsappShake();
-      }
+      triggerInvalidShake(`[name="${firstErrorField}"]`);
 
       dialog.current?.querySelector(`[name="${firstErrorField}"]`)?.focus();
 
@@ -244,6 +270,8 @@ export default function CheckoutModal({
         deliveryMethod: "Escolha uma opção para continuar.",
       });
 
+      triggerInvalidShake(".checkout-delivery-options");
+
       return;
     }
 
@@ -251,10 +279,14 @@ export default function CheckoutModal({
 
     if (deliveryMethod === "delivery") {
       changeCheckoutStep(3, "forward");
+
       return;
     }
 
     if (deliveryMethod === "pickup") {
+      setDeliveryFee(0);
+      changeCheckoutStep(3, "forward");
+
       return;
     }
   }
@@ -296,6 +328,8 @@ export default function CheckoutModal({
       setErrors(nextErrors);
 
       const firstErrorField = Object.keys(nextErrors)[0];
+
+      triggerInvalidShake(`[name="${firstErrorField}"]`);
 
       dialog.current?.querySelector(`[name="${firstErrorField}"]`)?.focus();
 
@@ -534,7 +568,11 @@ export default function CheckoutModal({
               <p>Escolha entre receber seu pedido ou retirar com a gente.</p>
             </div>
 
-            <div className="checkout-delivery-options">
+            <div
+              className={`checkout-delivery-options ${
+                errors.deliveryMethod ? "checkout-options-error" : ""
+              }`}
+            >
               <button
                 type="button"
                 className={`checkout-delivery-option ${
@@ -789,6 +827,100 @@ export default function CheckoutModal({
             </div>
           </div>
         )}
+
+        {step === 3 && deliveryMethod === "pickup" && (
+          <div className="checkout-content checkout-pickup-form">
+            <div>
+              <h3>Local de retirada</h3>
+
+              <p>Escolha onde você prefere retirar seu pedido.</p>
+            </div>
+
+            <div
+              className={`checkout-pickup-options ${
+                errors.pickupLocation ? "checkout-options-error" : ""
+              }`}
+            >
+              {pickupLocations.map((location) => {
+                const isSelected = pickupLocation?.name === location.name;
+
+                return (
+                  <button
+                    key={location.name}
+                    type="button"
+                    className={`checkout-pickup-option ${
+                      isSelected ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setPickupLocation(location);
+
+                      setErrors((current) => ({
+                        ...current,
+                        pickupLocation: undefined,
+                      }));
+                    }}
+                  >
+                    <span className="checkout-delivery-icon">🏠</span>
+
+                    <span className="checkout-pickup-info">
+                      <strong>{location.name}</strong>
+
+                      <small>
+                        {location.street}, {location.number}
+                      </small>
+
+                      <small>{location.neighborhood}</small>
+                    </span>
+
+                    <span className="checkout-option-check">
+                      {isSelected ? "✓" : ""}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {errors.pickupLocation && (
+              <p className="checkout-error" role="alert">
+                {errors.pickupLocation}
+              </p>
+            )}
+
+            <div className="checkout-step-actions">
+              <button
+                type="button"
+                className="checkout-back-button"
+                onClick={handleBack}
+              >
+                <span>←</span>
+                <span>Voltar</span>
+              </button>
+
+              <button
+                type="button"
+                className="checkout-button"
+                onClick={() => {
+                  if (!pickupLocation) {
+                    setErrors({
+                      pickupLocation: "Escolha um local para retirada.",
+                    });
+
+                    triggerInvalidShake(".checkout-pickup-options");
+
+                    return;
+                  }
+
+                  setErrors({});
+                  changeCheckoutStep(4, "forward");
+                }}
+              >
+                <span>Continuar</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {step === 4 && deliveryMethod === "delivery" && (
           <div className="checkout-content checkout-summary">
             <div>
@@ -882,7 +1014,11 @@ export default function CheckoutModal({
               <p>Como você prefere pagar seu pedido?</p>
             </div>
 
-            <div className="checkout-payment-options">
+            <div
+              className={`checkout-payment-options ${
+                errors.paymentMethod ? "checkout-options-error" : ""
+              }`}
+            >
               <button
                 type="button"
                 className={`checkout-payment-option ${
@@ -935,7 +1071,11 @@ export default function CheckoutModal({
                   <small>Informe se deseja receber troco no pagamento.</small>
                 </div>
 
-                <div className="checkout-change-options">
+                <div
+                  className={`checkout-change-options ${
+                    errors.needsChange ? "checkout-options-error" : ""
+                  }`}
+                >
                   <button
                     type="button"
                     className={`checkout-change-option ${
@@ -1041,6 +1181,9 @@ export default function CheckoutModal({
                     setErrors({
                       paymentMethod: "Escolha uma forma de pagamento.",
                     });
+
+                    triggerInvalidShake(".checkout-payment-options");
+
                     return;
                   }
 
@@ -1048,6 +1191,9 @@ export default function CheckoutModal({
                     setErrors({
                       needsChange: "Informe se você precisa de troco.",
                     });
+
+                    triggerInvalidShake(".checkout-change-options");
+
                     return;
                   }
 
@@ -1058,6 +1204,13 @@ export default function CheckoutModal({
                       setErrors({
                         cashGiven: "Informe para quanto você precisa de troco.",
                       });
+
+                      triggerInvalidShake('[name="cashGiven"]');
+
+                      dialog.current
+                        ?.querySelector('[name="cashGiven"]')
+                        ?.focus();
+
                       return;
                     }
 
