@@ -15,6 +15,7 @@ export default function CheckoutModal({
 
   const [step, setStep] = useState(1);
   const [pageAnimation, setPageAnimation] = useState("");
+  const [pageDirection, setPageDirection] = useState("forward");
   const [errors, setErrors] = useState({});
   const [deliveryMethod, setDeliveryMethod] = useState("");
   const [pickupLocation, setPickupLocation] = useState(null);
@@ -380,6 +381,8 @@ export default function CheckoutModal({
   function changeCheckoutStep(nextStep, direction = "forward") {
     if (pageAnimation) return;
 
+    setPageDirection(direction);
+
     const exitAnimation =
       direction === "forward"
         ? "checkout-step-exit-left"
@@ -394,14 +397,20 @@ export default function CheckoutModal({
 
     clearTimeout(pageTimer.current);
 
-    pageTimer.current = setTimeout(() => {
-      setStep(nextStep);
-      setPageAnimation(enterAnimation);
+    pageTimer.current = setTimeout(
+      () => {
+        setStep(nextStep);
+        setPageAnimation(enterAnimation);
 
-      pageTimer.current = setTimeout(() => {
-        setPageAnimation("");
-      }, 500);
-    }, 650);
+        pageTimer.current = setTimeout(
+          () => {
+            setPageAnimation("");
+          },
+          direction === "backward" ? 650 : 500,
+        );
+      },
+      direction === "backward" ? 500 : 650,
+    );
   }
 
   function handleCustomerSubmit(event) {
@@ -600,6 +609,14 @@ export default function CheckoutModal({
             <span className="checkout-ring" />
           </div>
         ))}
+      </div>
+
+      <div
+        className={`checkout-sheet-fold checkout-sheet-fold-${pageDirection}`}
+        aria-hidden="true"
+      >
+        <span className="checkout-sheet-fold-upper" />
+        <span className="checkout-sheet-fold-lower" />
       </div>
 
       <div className="checkout-page">
