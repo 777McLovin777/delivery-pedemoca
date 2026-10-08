@@ -18,6 +18,11 @@
 
   --cream: #fffaf1;
   --text-light: #806d67;
+
+  /* Tons suaves exclusivos do checkout */
+  --checkout-blue: #e4eff2;
+  --checkout-yellow: #f7f2df;
+  --checkout-pink: #f3e5e9;
 }
 
 /* =========================================
@@ -4454,11 +4459,11 @@ body::-webkit-scrollbar {
 
   overflow-y: auto;
 
-  padding: 30px 30px 30px 42px;
+  padding: 0;
 
   border-radius: 28px;
 
-  background: var(--white);
+  background: transparent;
 
   box-shadow: 0 25px 70px rgba(45, 18, 13, 0.25);
 }
@@ -4612,7 +4617,7 @@ body::-webkit-scrollbar {
     max-width: 420px;
     max-height: calc(100vh - 72px);
 
-    padding: 24px 20px 22px 30px;
+    padding: 0;
 
     border-radius: 22px;
   }
@@ -5972,66 +5977,35 @@ body::-webkit-scrollbar {
 }
 
 /* =========================================================
-   CINCO PARES DE ARGOLAS
+   CHECKOUT — ESPIRAL COMPLETA EM SVG
    ========================================================= */
 
 .checkout-ring-pair {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-
-  gap: 4px;
-
-  margin: 0;
-  padding: 0;
-
-  transform: rotate(none);
-  transform-origin: center;
-
-  width: 32px;
-  height: 54px;
-
-  flex: 0 0 32px;
-}
-
-.checkout-ring-pair {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-
-  gap: 4px;
-
-  margin: 0;
-  padding: 0;
-
-  transform: rotate(none);
-  transform-origin: center;
-
-  /* Todos os cinco pares ocupam exatamente a mesma área */
-  width: 32px;
-  height: 54px;
-
-  flex: 0 0 32px;
-}
-
-.checkout-ring {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  width: 10px;
-  height: 44px;
+  width: 32px;
+  height: 54px;
+  flex: 0 0 32px;
+}
 
-  flex: 0 0 10px;
+/* Espiral contínua — computador */
+.checkout-notepad-rings:has(.checkout-spiral-continuous) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  border: 3px solid var(--black);
-  border-radius: 999px;
+.checkout-spiral-continuous {
+  display: block;
+  width: 100%;
+  height: 54px;
+  flex: 0 0 100%;
+  overflow: visible;
 
-  background: var(--black);
-
-  box-sizing: border-box;
-
-  box-shadow:
-    1px 1px 0 var(--cream-light),
-    2px 2px 2px rgba(45, 18, 13, 0.12);
+  filter: drop-shadow(1px 2px 1px rgb(45 18 13 / 20%));
 }
 
 /* =========================================================
@@ -6085,29 +6059,18 @@ body::-webkit-scrollbar {
     transform: translateZ(0);
   }
 
+  /* CHECKOUT — ESPIRAL SVG NO CELULAR */
+
   .checkout-ring-pair {
     width: 24px;
     height: 44px;
-
     flex: 0 0 24px;
-
-    gap: 3px;
-
-    transform: rotate(none);
-    transform-origin: center;
   }
 
-  .checkout-ring {
-    width: 8px;
-    height: 38px;
-
-    flex: 0 0 8px;
-
-    border-width: 3px;
-
-    box-shadow:
-      1px 1px 0 var(--cream-light),
-      2px 2px 2px rgba(45, 18, 13, 0.1);
+  /* Espiral contínua — celular */
+  .checkout-spiral-continuous {
+    width: 100%;
+    height: 44px;
   }
 }
 
@@ -6169,6 +6132,18 @@ body::-webkit-scrollbar {
 
   background: var(--red);
   color: var(--white);
+}
+
+/* CHECKOUT — POSIÇÃO DO X NO CELULAR */
+@media (max-width: 600px) {
+  .checkout-header {
+    padding-top: 30px;
+  }
+
+  .checkout-close {
+    top: 0;
+    right: 0;
+  }
 }
 
 .checkout-section-title,
@@ -6344,13 +6319,26 @@ body::-webkit-scrollbar {
   position: relative;
   z-index: 10;
 
-  background: var(--white);
   border-radius: inherit;
 
   transform-style: preserve-3d;
   backface-visibility: hidden;
 
   will-change: transform, opacity, filter;
+}
+
+/* CORES DAS FOLHAS — CICLO DE 3 ETAPAS */
+
+.checkout-modal .checkout-page.checkout-page-test-1 {
+  background: var(--blue);
+}
+
+.checkout-modal .checkout-page.checkout-page-test-2 {
+  background: var(--yellow);
+}
+
+.checkout-modal .checkout-page.checkout-page-test-3 {
+  background: var(--pink);
 }
 
 /* CONTINUAR — agora movimenta a FOLHA INTEIRA */
@@ -6366,19 +6354,19 @@ body::-webkit-scrollbar {
   animation: checkout-sheet-forward-in 500ms ease-out forwards;
 }
 
-/* VOLTAR */
+/* VOLTAR — comportamento temporário estável */
+
 .checkout-step-exit-right .checkout-page {
-  animation: checkout-sheet-back-out 500ms ease-in forwards;
+  animation: none;
+  transform: none;
+  opacity: 1;
 }
 
-/* Folha anterior retorna */
 .checkout-step-enter-left .checkout-page {
-  transform-origin: top left;
-
-  animation: checkout-sheet-back-in 650ms cubic-bezier(0.22, 0.61, 0.36, 1)
-    forwards;
+  animation: none;
+  transform: none;
+  opacity: 1;
 }
-
 /* =========================================================
    CONTINUAR — VIRADA REAL DE FOLHA DO BLOQUINHO
 ========================================================= */
@@ -6548,6 +6536,8 @@ body::-webkit-scrollbar {
 
   display: flex;
   flex-direction: column;
+
+  padding: 30px 30px 30px 42px;
 }
 
 .checkout-page > .checkout-content {
@@ -6821,177 +6811,476 @@ body::-webkit-scrollbar {
 }
 
 /* =========================================================
-   CHECKOUT — DOBRA DA FOLHA (IDA E VOLTA)
+   CHECKOUT — ARGOLAS SEMPRE À FRENTE DAS FOLHAS
    ========================================================= */
 
-.checkout-sheet-fold {
+.checkout-modal .checkout-notepad-rings {
+  position: absolute;
+  z-index: 100;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+.checkout-modal .checkout-page {
+  position: relative;
+  z-index: 10;
+}
+
+/* PRÓXIMA FOLHA VISÍVEL DURANTE A VIRADA */
+
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-1)
+  .checkout-notepad-page {
+  background: var(--yellow);
+}
+
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-2)
+  .checkout-notepad-page {
+  background: var(--pink);
+}
+
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-3)
+  .checkout-notepad-page {
+  background: var(--blue);
+}
+
+/* COR DO FUNDO EXTERNO ACOMPANHA A FOLHA */
+
+.checkout-modal:has(.checkout-page-test-1) {
+  background: var(--blue);
+}
+
+.checkout-modal:has(.checkout-page-test-2) {
+  background: var(--yellow);
+}
+
+.checkout-modal:has(.checkout-page-test-3) {
+  background: var(--pink);
+}
+
+/* CHECKOUT — FOLHA INFERIOR DA VIRADA */
+
+.checkout-modal {
+  isolation: isolate;
+}
+
+.checkout-modal .checkout-next-sheet {
   position: absolute;
   inset: 0;
-  z-index: 11;
-  pointer-events: none;
-  visibility: hidden;
-  overflow: hidden;
+  z-index: 5;
   border-radius: inherit;
+  pointer-events: none;
 }
 
-.checkout-sheet-fold-upper,
-.checkout-sheet-fold-lower {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background: var(--white);
+.checkout-modal .checkout-next-sheet-1 {
+  background: var(--blue);
+}
+
+.checkout-modal .checkout-next-sheet-2 {
+  background: var(--yellow);
+}
+
+.checkout-modal .checkout-next-sheet-3 {
+  background: var(--pink);
+}
+
+.checkout-modal .checkout-page {
+  z-index: 10;
+}
+
+.checkout-modal .checkout-notepad-rings {
+  z-index: 100;
+}
+
+/* ========================================
+   CHECKOUT — VIRADA DE FOLHA EM 3D
+======================================== */
+
+/* Profundidade do bloco de notas */
+.checkout-modal {
+  perspective: 1400px;
+}
+
+/* Folha que será movimentada */
+.checkout-modal .checkout-page {
+  transform-origin: center top;
   backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
-.checkout-sheet-fold-upper {
-  top: 0;
-  transform-origin: bottom center;
+/* Virada de ida */
+.checkout-modal.checkout-step-exit-left .checkout-page {
+  animation: checkout-real-page-flip 650ms cubic-bezier(0.45, 0, 0.25, 1)
+    forwards;
 }
 
-.checkout-sheet-fold-lower {
-  bottom: 0;
-  transform-origin: top center;
-}
-
-/* CONTINUAR — dobra de baixo para cima */
-
-.checkout-step-exit-left .checkout-sheet-fold-forward {
-  visibility: visible;
-}
-
-.checkout-step-exit-left .checkout-sheet-fold-lower {
-  animation: checkout-fold-forward 650ms ease-in-out both;
-}
-
-@keyframes checkout-fold-forward {
+/* Movimento de baixo para cima */
+@keyframes checkout-real-page-flip {
   0% {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(0deg);
+    transform: rotateX(0deg);
+    filter: brightness(1);
   }
 
-  25% {
-    opacity: 0.6;
-    transform: perspective(1400px) rotateX(15deg);
+  35% {
+    transform: rotateX(35deg);
+    filter: brightness(0.96);
   }
 
-  60% {
-    opacity: 0.9;
-    transform: perspective(1400px) rotateX(65deg);
+  70% {
+    transform: rotateX(100deg);
+    filter: brightness(0.88);
   }
 
   100% {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(150deg);
+    transform: rotateX(180deg);
+    filter: brightness(0.92);
   }
 }
 
-/* VOLTAR — desdobra de cima para baixo */
-
-.checkout-step-exit-right .checkout-sheet-fold-backward {
-  visibility: visible;
+/* A próxima folha permanece parada */
+.checkout-modal.checkout-step-exit-left .checkout-next-sheet {
+  transform: none;
 }
 
-.checkout-step-exit-right .checkout-sheet-fold-upper {
-  animation: checkout-fold-backward 650ms ease-in-out both;
-}
-
-@keyframes checkout-fold-backward {
-  0% {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(-85deg);
-  }
-
-  25% {
-    opacity: 0.35;
-    transform: perspective(1400px) rotateX(-65deg);
-  }
-
-  55% {
-    opacity: 0.7;
-    transform: perspective(1400px) rotateX(-35deg);
-  }
-
-  85% {
-    opacity: 0.3;
-    transform: perspective(1400px) rotateX(-10deg);
-  }
-
-  100% {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(0deg);
-  }
-}
-
-/* VOLTAR — evita que a folha atravesse as argolas */
-
-.checkout-step-exit-right .checkout-sheet-fold-upper {
-  transform-origin: top center;
-}
-
-.checkout-step-exit-right .checkout-sheet-fold-lower {
-  opacity: 0;
-}
-
-/* Argolas sempre acima da folha */
-
-.checkout-notepad-rings {
+/* Argolas permanecem acima da animação */
+.checkout-modal .checkout-notepad-rings {
   z-index: 100;
 }
 
-/* =========================================================
-   CHECKOUT — CORREÇÃO DE SOBREPOSIÇÃO NAS ARGOLAS
-   ========================================================= */
+/* ========================================
+   CHECKOUT — FOLHA DECORATIVA 3D
+======================================== */
 
-/* O formulário não gira mais junto com a folha */
-.checkout-step-exit-left .checkout-page,
-.checkout-step-exit-right .checkout-page {
+/* O conteúdo deixa de girar */
+.checkout-modal.checkout-step-exit-left .checkout-page {
   animation: none;
   transform: none;
 }
 
-/* A folha visual permanece abaixo das argolas */
-.checkout-sheet-fold {
-  z-index: 11;
-  transform: translateZ(0);
+/* Folha visual posicionada sobre a próxima */
+.checkout-modal .checkout-flip-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  transform-origin: center top;
+  transform-style: preserve-3d;
+  pointer-events: none;
 }
 
-/* As argolas ficam fixas acima de toda a animação */
-.checkout-notepad-rings {
-  z-index: 100;
-  transform: translateZ(0);
+/* Cores da folha que está virando */
+.checkout-modal .checkout-flip-sheet-1 {
+  --sheet-color: var(--blue);
 }
 
-/* =========================================================
-   CHECKOUT — TESTE DO RETORNO SEM FLASH BRANCO
-   ========================================================= */
-
-/* Desativa a folha branca apenas ao voltar */
-.checkout-step-exit-right .checkout-sheet-fold,
-.checkout-step-enter-left .checkout-sheet-fold {
-  display: none;
+.checkout-modal .checkout-flip-sheet-2 {
+  --sheet-color: var(--yellow);
 }
 
-/* Mantém o conteúdo visível durante a saída */
-.checkout-step-exit-right .checkout-page {
-  animation: none;
-  opacity: 1;
-  transform: none;
+.checkout-modal .checkout-flip-sheet-3 {
+  --sheet-color: var(--pink);
 }
 
-/* Evita o giro antigo na entrada da página anterior */
-.checkout-step-enter-left .checkout-page {
-  animation: checkout-return-soft 300ms ease-out both;
+/* Frente e verso */
+.checkout-modal .checkout-flip-sheet-front,
+.checkout-modal .checkout-flip-sheet-back {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  background: var(--sheet-color);
 }
 
-@keyframes checkout-return-soft {
+.checkout-modal .checkout-flip-sheet-back {
+  transform: rotateX(180deg);
+  filter: brightness(0.94);
+}
+
+/* Movimento da folha decorativa */
+.checkout-modal.checkout-step-exit-left .checkout-flip-sheet {
+  animation: checkout-decorative-flip 650ms cubic-bezier(0.45, 0, 0.25, 1)
+    forwards;
+}
+
+@keyframes checkout-decorative-flip {
   from {
-    opacity: 0.65;
-    transform: translateY(-6px);
+    transform: rotateX(0deg);
   }
 
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotateX(180deg);
   }
+}
+
+/* Argolas continuam na frente */
+.checkout-modal .checkout-notepad-rings {
+  z-index: 100;
+}
+
+/* ========================================
+   CHECKOUT — CORREÇÃO DAS CAMADAS
+======================================== */
+
+/* A folha atual não cobre a próxima durante a virada */
+.checkout-modal.checkout-step-exit-left .checkout-page {
+  visibility: hidden;
+  animation: none;
+  transform: none;
+}
+
+/* A folha decorativa permanece visível e animada */
+.checkout-modal.checkout-step-exit-left .checkout-flip-sheet {
+  visibility: visible;
+  z-index: 20;
+}
+
+/* A próxima folha fica atrás da que está virando */
+.checkout-modal.checkout-step-exit-left .checkout-next-sheet {
+  visibility: visible;
+  z-index: 5;
+}
+
+/* Argolas sempre na frente */
+.checkout-modal .checkout-notepad-rings {
+  z-index: 100;
+}
+
+/* ========================================
+   CHECKOUT — PALETA SUAVE DAS FOLHAS
+======================================== */
+
+/* Folhas principais */
+.checkout-modal .checkout-page.checkout-page-test-1,
+.checkout-modal:has(.checkout-page-test-1) {
+  background: var(--checkout-blue);
+}
+
+.checkout-modal .checkout-page.checkout-page-test-2,
+.checkout-modal:has(.checkout-page-test-2) {
+  background: var(--checkout-yellow);
+}
+
+.checkout-modal .checkout-page.checkout-page-test-3,
+.checkout-modal:has(.checkout-page-test-3) {
+  background: var(--checkout-pink);
+}
+
+/* Folhas que aparecem por baixo */
+.checkout-modal .checkout-next-sheet-1 {
+  background: var(--checkout-blue);
+}
+
+.checkout-modal .checkout-next-sheet-2 {
+  background: var(--checkout-yellow);
+}
+
+.checkout-modal .checkout-next-sheet-3 {
+  background: var(--checkout-pink);
+}
+
+/* Folhas que giram */
+.checkout-modal .checkout-flip-sheet-1 {
+  --sheet-color: var(--checkout-blue);
+}
+
+.checkout-modal .checkout-flip-sheet-2 {
+  --sheet-color: var(--checkout-yellow);
+}
+
+.checkout-modal .checkout-flip-sheet-3 {
+  --sheet-color: var(--checkout-pink);
+}
+
+/* Pilha de folhas durante a virada */
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-1)
+  .checkout-notepad-page {
+  background: var(--checkout-yellow);
+}
+
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-2)
+  .checkout-notepad-page {
+  background: var(--checkout-pink);
+}
+
+.checkout-modal.checkout-step-exit-left:has(.checkout-page-test-3)
+  .checkout-notepad-page {
+  background: var(--checkout-blue);
+}
+
+/* ========================================
+   CHECKOUT — BORDAS ARREDONDADAS
+======================================== */
+
+/* Folha principal */
+.checkout-modal .checkout-page {
+  border-radius: 18px;
+}
+
+/* Folha inferior e folha que gira */
+.checkout-modal .checkout-next-sheet,
+.checkout-modal .checkout-flip-sheet,
+.checkout-modal .checkout-flip-sheet-front,
+.checkout-modal .checkout-flip-sheet-back {
+  border-radius: 18px;
+}
+
+/* Folhas empilhadas atrás do bloquinho */
+.checkout-modal .checkout-notepad-page {
+  border-radius: 18px;
+}
+
+/* Mantém frente e verso dentro do formato da folha */
+.checkout-modal .checkout-flip-sheet {
+  overflow: visible;
+}
+
+.checkout-modal .checkout-flip-sheet-front,
+.checkout-modal .checkout-flip-sheet-back {
+  overflow: hidden;
+}
+
+/* ========================================
+   CHECKOUT — SOMBRAS DA VIRADA 3D
+======================================== */
+
+/* Sombra projetada sobre a próxima folha */
+.checkout-modal.checkout-step-exit-left .checkout-next-sheet {
+  box-shadow:
+    inset 0 22px 32px -24px rgba(45, 18, 13, 0.16),
+    inset 0 0 45px rgba(45, 18, 13, 0.035);
+
+  animation: checkout-paper-shadow 650ms ease-in-out both;
+}
+
+/* Sombreamento suave da folha que está girando */
+.checkout-modal .checkout-flip-sheet-front,
+.checkout-modal .checkout-flip-sheet-back {
+  filter: none;
+}
+
+.checkout-modal .checkout-flip-sheet-front::after,
+.checkout-modal .checkout-flip-sheet-back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(45, 18, 13, 0.16),
+    transparent 42%,
+    rgba(45, 18, 13, 0.05)
+  );
+
+  opacity: 0;
+  animation: checkout-paper-shading 650ms ease-in-out both;
+}
+
+/* Sombra cresce durante a virada e desaparece no final */
+@keyframes checkout-paper-shadow {
+  0% {
+    box-shadow: none;
+  }
+
+  45% {
+    box-shadow:
+      inset 0 34px 42px -22px rgba(45, 18, 13, 0.23),
+      inset 0 0 50px rgba(45, 18, 13, 0.06);
+  }
+
+  100% {
+    box-shadow: none;
+  }
+}
+
+/* A própria folha escurece discretamente ao dobrar */
+@keyframes checkout-paper-shading {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.12;
+  }
+}
+
+/* ========================================
+   CHECKOUT — VIRADA PROGRESSIVA DA FOLHA
+======================================== */
+
+/* Mantém a profundidade 3D */
+.checkout-modal {
+  perspective: 1600px;
+  perspective-origin: center top;
+}
+
+/* Movimento mais lento e natural */
+.checkout-modal.checkout-step-exit-left .checkout-flip-sheet {
+  transform-origin: center top;
+
+  animation: checkout-smooth-page-flip 650ms cubic-bezier(0.42, 0, 0.58, 1) both;
+}
+
+/* CHECKOUT — TESTE DE VIRADA COM FLEXIBILIDADE */
+
+@keyframes checkout-smooth-page-flip {
+  0% {
+    transform: rotateX(0deg) scaleY(1) skewX(0deg);
+  }
+
+  15% {
+    transform: rotateX(8deg) scaleY(0.985) skewX(-0.5deg);
+  }
+
+  35% {
+    transform: rotateX(38deg) scaleY(0.955) skewX(-1.5deg);
+  }
+
+  55% {
+    transform: rotateX(88deg) scaleY(0.94) skewX(-2deg);
+  }
+
+  75% {
+    transform: rotateX(140deg) scaleY(0.97) skewX(-0.8deg);
+  }
+
+  100% {
+    transform: rotateX(180deg) scaleY(1) skewX(0deg);
+  }
+}
+
+/* CHECKOUT — FUROS DA ENCADERNAÇÃO */
+
+.checkout-modal .checkout-page {
+  position: relative;
+}
+
+.checkout-binding-holes {
+  position: absolute;
+  top: 2px;
+  left: 8%;
+  right: 8%;
+  height: 12px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 0 4%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.checkout-binding-hole {
+  width: 10px;
+  height: 6px;
+  flex: 0 0 10px;
+
+  border-radius: 50%;
+  background: var(--brown);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
 }

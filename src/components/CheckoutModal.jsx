@@ -557,7 +557,7 @@ export default function CheckoutModal({
     }
 
     setErrors({});
-    changeCheckoutStep(step - 1, "back");
+    changeCheckoutStep(step - 1, "backward");
   }
 
   if (!open) return null;
@@ -602,24 +602,122 @@ export default function CheckoutModal({
         })}
       </div>
 
+      {/* Folha de fundo durante a virada */}
+      {pageAnimation === "checkout-step-exit-left" && (
+        <div
+          className={`checkout-next-sheet checkout-next-sheet-${
+            (step % 3) + 1
+          }`}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Folha decorativa que vira sobre a próxima página */}
+      {pageAnimation === "checkout-step-exit-left" && (
+        <div
+          className={`checkout-flip-sheet checkout-flip-sheet-${
+            ((step - 1) % 3) + 1
+          }`}
+          aria-hidden="true"
+        >
+          <div className="checkout-flip-sheet-front" />
+          <div className="checkout-flip-sheet-back" />
+        </div>
+      )}
+
       <div className="checkout-notepad-rings" aria-hidden="true">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div className="checkout-ring-pair" key={index}>
-            <span className="checkout-ring" />
-            <span className="checkout-ring" />
-          </div>
-        ))}
+        <svg
+          className="checkout-spiral-continuous"
+          viewBox="0 0 300 54"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient
+              id="checkout-spiral-metal"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" stopColor="#202020" />
+              <stop offset="25%" stopColor="#777777" />
+              <stop offset="48%" stopColor="#d0d0d0" />
+              <stop offset="65%" stopColor="#777777" />
+              <stop offset="100%" stopColor="#202020" />
+            </linearGradient>
+          </defs>
+
+          {/* Parte traseira do arame */}
+          <path
+            d={Array.from({ length: 6 }, (_, i) => {
+              const x = 17 + i * 52;
+
+              return `
+          M ${x + 17} 41
+          C ${x + 24} 45, ${x + 33} 45, ${x + 39} 39
+        `;
+            }).join(" ")}
+            fill="none"
+            stroke="var(--brown)"
+            strokeOpacity="0.4"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
+
+          {/* Argolas metálicas inclinadas */}
+          <path
+            d={Array.from({ length: 6 }, (_, i) => {
+              const x = 17 + i * 52;
+
+              return `
+          M ${x + 17} 41
+          C ${x + 8} 43, ${x - 2} 34, ${x - 1} 21
+          C ${x} 8, ${x + 9} 4, ${x + 16} 9
+          C ${x + 26} 15, ${x + 23} 29, ${x + 17} 39
+          C ${x + 15} 42, ${x + 18} 44, ${x + 22} 42
+        `;
+            }).join(" ")}
+            fill="none"
+            stroke="url(#checkout-spiral-metal)"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Reflexos discretos do metal */}
+          {Array.from({ length: 6 }, (_, i) => {
+            const x = 17 + i * 52;
+
+            return (
+              <path
+                key={i}
+                d={`
+            M ${x + 1} 14
+            C ${x + 5} 7, ${x + 11} 7, ${x + 15} 10
+          `}
+                fill="none"
+                stroke="var(--white)"
+                strokeOpacity="0.38"
+                strokeWidth="0.9"
+                strokeLinecap="round"
+              />
+            );
+          })}
+        </svg>
       </div>
 
       <div
-        className={`checkout-sheet-fold checkout-sheet-fold-${pageDirection}`}
-        aria-hidden="true"
+        className={`checkout-page checkout-page-test-${((step - 1) % 3) + 1}`}
       >
-        <span className="checkout-sheet-fold-upper" />
-        <span className="checkout-sheet-fold-lower" />
-      </div>
+        {/* Furos da encadernação na folha */}
+        <div className="checkout-binding-holes" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, i) => (
+            <span className="checkout-binding-hole" key={i} />
+          ))}
+        </div>
 
-      <div className="checkout-page">
         <div className="checkout-header">
           <div>
             <span className="checkout-eyebrow">SEU PEDIDO</span>
