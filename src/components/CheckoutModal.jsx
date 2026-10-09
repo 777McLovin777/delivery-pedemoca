@@ -670,8 +670,8 @@ export default function CheckoutModal({
               className="checkout-spiral-back-wires"
               mask="url(#checkout-spiral-back-mask)"
             >
-              {Array.from({ length: 10 }).map((_, index) => {
-                const x = 20 + index * (555 / 9);
+              {Array.from({ length: 6 }).map((_, index) => {
+                const x = 20 + index * (555 / 5);
 
                 return (
                   <path
@@ -687,9 +687,8 @@ export default function CheckoutModal({
               })}
             </g>
 
-            {Array.from({ length: 10 }).map((_, index) => {
-              const x = 20 + index * (555 / 9);
-
+            {Array.from({ length: 6 }).map((_, index) => {
+              const x = 20 + index * (555 / 5);
               return (
                 <g key={index}>
                   {/* Furo com profundidade */}
