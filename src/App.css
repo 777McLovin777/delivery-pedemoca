@@ -3312,9 +3312,9 @@ body::-webkit-scrollbar {
   overflow: hidden;
   overscroll-behavior: none;
 
-  background: rgba(17, 17, 17, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(17, 17, 17, 0.45);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* =======================================================
@@ -4447,7 +4447,7 @@ body::-webkit-scrollbar {
 
   padding: 20px;
 
-  background: rgba(45, 18, 13, 0.55);
+  background: color-mix(in srgb, var(--brown) 70%, transparent);
 }
 
 .checkout-modal {
@@ -4661,7 +4661,7 @@ body::-webkit-scrollbar {
   width: calc(100% - 32px);
 }
 .checkout-customer-dialog::backdrop {
-  background: rgba(45, 18, 13, 0.55);
+  background: color-mix(in srgb, var(--brown) 70%, transparent);
 }
 .checkout-customer-form {
   display: flex;
@@ -7314,15 +7314,6 @@ body::-webkit-scrollbar {
   pointer-events: none;
 }
 
-/* A encadernação permanece imóvel */
-.checkout-modal.checkout-step-exit-left .checkout-spiral,
-.checkout-modal.checkout-step-exit-right .checkout-spiral,
-.checkout-modal.checkout-step-enter-left .checkout-spiral,
-.checkout-modal.checkout-step-enter-right .checkout-spiral {
-  animation: none !important;
-  transition: none !important;
-}
-
 /* Os elementos clicáveis continuam funcionando */
 .checkout-modal .checkout-fixed-header .checkout-close {
   z-index: 6;
@@ -7335,51 +7326,29 @@ body::-webkit-scrollbar {
   }
 }
 
-/* CHECKOUT — ESPIRAL DURANTE A VIRADA DAS FOLHAS */
-/* Espiral — avançar */
-@keyframes checkout-spiral-pass-forward {
-  0%,
-  35% {
-    opacity: 1;
-  }
+/* =========================================
+   CHECKOUT — ESPIRAL SINCRONIZADA
+   COM "SEU PEDIDO" E BOTÃO X
+========================================= */
 
-  43%,
-  60% {
-    opacity: 0;
-  }
-
-  68%,
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Espiral — voltar */
-@keyframes checkout-spiral-pass-backward {
-  0%,
-  32% {
-    opacity: 1;
-  }
-
-  40%,
-  60% {
-    opacity: 0;
-  }
-
-  68%,
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Avançar */
+/* Avançar: desaparece junto com o cabeçalho */
 .checkout-modal.checkout-step-exit-left .checkout-spiral {
-  animation: checkout-spiral-pass-forward 650ms linear both !important;
+  animation: checkout-header-fade-out 650ms ease-in forwards;
 }
 
-/* Voltar */
+/* Avançar: reaparece na nova folha */
+.checkout-modal.checkout-step-enter-right .checkout-spiral {
+  animation: checkout-header-fade-in 500ms ease-out both;
+}
+
+/* Voltar: desaparece junto com o cabeçalho */
 .checkout-modal.checkout-step-exit-right .checkout-spiral {
-  animation: checkout-spiral-pass-backward 500ms linear both !important;
+  animation: checkout-header-fade-out 500ms ease-in forwards;
+}
+
+/* Voltar: reaparece na folha anterior */
+.checkout-modal.checkout-step-enter-left .checkout-spiral {
+  animation: checkout-header-fade-in 650ms ease-out both;
 }
 
 /* CHECKOUT — SOMENTE ETAPA 6 */
@@ -7410,4 +7379,54 @@ body::-webkit-scrollbar {
     padding-top: 6px;
     padding-bottom: 6px;
   }
+}
+
+/* =========================================
+   CHECKOUT — DIAGONAIS ATRÁS DAS FOLHAS
+========================================= */
+
+.checkout-modal .checkout-spiral-rear {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: calc(100% - 32px);
+  height: 48px;
+
+  z-index: 0;
+  pointer-events: none;
+}
+
+.checkout-modal .checkout-spiral-rear svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@media (max-width: 600px) {
+  .checkout-modal .checkout-spiral-rear {
+    top: -12px;
+    width: calc(100% - 24px);
+    height: 38px;
+  }
+}
+
+/* Mesma animação do cabeçalho */
+
+.checkout-modal.checkout-step-exit-left .checkout-spiral-rear {
+  animation: checkout-header-fade-out 650ms ease-in forwards;
+}
+
+.checkout-modal.checkout-step-enter-right .checkout-spiral-rear {
+  animation: checkout-header-fade-in 500ms ease-out both;
+}
+
+.checkout-modal.checkout-step-exit-right .checkout-spiral-rear {
+  animation: checkout-header-fade-out 500ms ease-in forwards;
+}
+
+.checkout-modal.checkout-step-enter-left .checkout-spiral-rear {
+  animation: checkout-header-fade-in 650ms ease-out both;
 }

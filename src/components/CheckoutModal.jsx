@@ -631,6 +631,45 @@ export default function CheckoutModal({
         </div>
       )}
 
+      {/* Diagonais posicionadas atrás do caderninho */}
+      <div className="checkout-spiral-rear">
+        <svg
+          className="checkout-spiral-svg"
+          viewBox="0 0 595 48"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient
+              id="checkout-rear-metal"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" stopColor="var(--brown)" />
+              <stop offset="50%" stopColor="var(--cream)" />
+              <stop offset="100%" stopColor="var(--brown)" />
+            </linearGradient>
+          </defs>
+
+          {Array.from({ length: 6 }).map((_, index) => {
+            const x = 20 + index * (555 / 5);
+
+            return (
+              <path
+                key={index}
+                d={`M ${x + 2} 8 L ${x + 19} 19.66`}
+                fill="none"
+                stroke="url(#checkout-rear-metal)"
+                strokeWidth="7"
+                strokeLinecap="round"
+              />
+            );
+          })}
+        </svg>
+      </div>
+
       {/* Região superior fixa, fora da folha animada */}
 
       <div className="checkout-fixed-header">
@@ -664,28 +703,6 @@ export default function CheckoutModal({
                 <rect x="0" y="0" width="600" height="17" fill="white" />
               </mask>
             </defs>
-
-            {/* Camada independente das diagonais traseiras */}
-            <g
-              className="checkout-spiral-back-wires"
-              mask="url(#checkout-spiral-back-mask)"
-            >
-              {Array.from({ length: 6 }).map((_, index) => {
-                const x = 20 + index * (555 / 5);
-
-                return (
-                  <path
-                    key={index}
-                    d={`M ${x + 2} 8 L ${x + 19} 19.66`}
-                    fill="none"
-                    stroke="url(#checkout-spiral-metal)"
-                    strokeWidth="7"
-                    strokeLinecap="round"
-                    opacity="1"
-                  />
-                );
-              })}
-            </g>
 
             {Array.from({ length: 6 }).map((_, index) => {
               const x = 20 + index * (555 / 5);
@@ -733,19 +750,6 @@ export default function CheckoutModal({
                     strokeLinecap="round"
                     opacity="0.35"
                   />
-                  {/* Acabamento dobrado da primeira argola */}
-                  {index === 0 && (
-                    <path
-                      d={`M ${x} 32
-        Q ${x - 7} 36 ${x - 10} 29
-        Q ${x - 12} 25 ${x - 8} 23`}
-                      fill="none"
-                      stroke="url(#checkout-spiral-metal)"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  )}
                 </g>
               );
             })}
