@@ -7430,3 +7430,67 @@ body::-webkit-scrollbar {
 .checkout-modal.checkout-step-enter-left .checkout-spiral-rear {
   animation: checkout-header-fade-in 650ms ease-out both;
 }
+
+/* =========================================================
+   CHECKOUT — CORREÇÃO DE ROLAGEM NO iOS
+   ETAPA 1: TECLADO E FORMULÁRIOS
+========================================================= */
+
+@media (max-width: 600px) {
+  .checkout-modal {
+    height: min(740px, calc(100dvh - 24px));
+    min-height: 0;
+  }
+
+  .checkout-modal .checkout-page {
+    min-height: 0;
+  }
+
+  .checkout-modal .checkout-page > .checkout-content {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .checkout-modal.checkout-address-dialog .checkout-address-form {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .checkout-modal .checkout-field input {
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+   CHECKOUT — AJUSTE AO TECLADO VIRTUAL DO iPHONE
+========================================================= */
+
+@media (max-width: 600px) {
+  .checkout-modal[open] {
+    position: fixed;
+
+    top: calc(
+      var(--checkout-visible-top, 0px) +
+        var(--checkout-visible-height, 100dvh) / 2
+    );
+
+    left: 50%;
+    right: auto;
+    bottom: auto;
+
+    margin: 0;
+
+    transform: translate(-50%, -50%);
+
+    height: min(740px, calc(var(--checkout-visible-height, 100dvh) - 24px));
+
+    max-height: none;
+    min-height: 0;
+  }
+}

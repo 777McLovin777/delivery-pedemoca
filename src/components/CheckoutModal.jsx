@@ -11,6 +11,7 @@ export default function CheckoutModal({
   onOrderSuccess,
 }) {
   const dialog = useRef(null);
+  const viewportFrame = useRef(null);
   const pageTimer = useRef(null);
 
   const [step, setStep] = useState(1);
@@ -99,9 +100,46 @@ export default function CheckoutModal({
 
     dialog.current?.showModal();
 
+    const viewport = window.visualViewport;
+
+    function updateCheckoutViewport() {
+      if (!dialog.current) return;
+
+      const height = viewport?.height ?? window.innerHeight;
+      const offsetTop = viewport?.offsetTop ?? 0;
+
+      dialog.current.style.setProperty(
+        "--checkout-visible-height",
+        `${height}px`,
+      );
+
+      dialog.current.style.setProperty(
+        "--checkout-visible-top",
+        `${offsetTop}px`,
+      );
+    }
+
+    function scheduleViewportUpdate() {
+      cancelAnimationFrame(viewportFrame.current);
+
+      viewportFrame.current = requestAnimationFrame(updateCheckoutViewport);
+    }
+
+    scheduleViewportUpdate();
+
+    viewport?.addEventListener("resize", scheduleViewportUpdate);
+    viewport?.addEventListener("scroll", scheduleViewportUpdate);
+    window.addEventListener("resize", scheduleViewportUpdate);
+
     return () => {
       document.body.style.overflow = previousOverflow;
       document.body.style.overscrollBehavior = previousOverscrollBehavior;
+
+      viewport?.removeEventListener("resize", scheduleViewportUpdate);
+      viewport?.removeEventListener("scroll", scheduleViewportUpdate);
+      window.removeEventListener("resize", scheduleViewportUpdate);
+
+      cancelAnimationFrame(viewportFrame.current);
 
       dialog.current?.close();
       previousFocus?.focus();
