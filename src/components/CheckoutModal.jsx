@@ -613,10 +613,16 @@ export default function CheckoutModal({
       )}
 
       {/* Folha decorativa que vira sobre a próxima página */}
-      {pageAnimation === "checkout-step-exit-left" && (
+      {/* Folha decorativa — avançar e voltar */}
+      {(pageAnimation === "checkout-step-exit-left" ||
+        pageAnimation === "checkout-step-exit-right") && (
         <div
           className={`checkout-flip-sheet checkout-flip-sheet-${
             ((step - 1) % 3) + 1
+          } ${
+            pageAnimation === "checkout-step-exit-right"
+              ? "checkout-flip-sheet-backward"
+              : ""
           }`}
           aria-hidden="true"
         >
@@ -625,114 +631,147 @@ export default function CheckoutModal({
         </div>
       )}
 
-      <div className="checkout-notepad-rings" aria-hidden="true">
-        <svg
-          className="checkout-spiral-continuous"
-          viewBox="0 0 300 54"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <defs>
-            <linearGradient
-              id="checkout-spiral-metal"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
+      {/* Região superior fixa, fora da folha animada */}
+
+      <div className="checkout-fixed-header">
+        {/* Espiral do bloquinho */}
+        <div className="checkout-spiral" aria-hidden="true">
+          <svg
+            viewBox="0 0 600 48"
+            preserveAspectRatio="none"
+            className="checkout-spiral-svg"
+          >
+            <defs>
+              <linearGradient
+                id="checkout-spiral-metal"
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="0"
+              >
+                <stop offset="0%" stopColor="#222222" />
+                <stop offset="45%" stopColor="#777777" />
+                <stop offset="100%" stopColor="#202020" />
+              </linearGradient>
+              <mask
+                id="checkout-spiral-back-mask"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="600"
+                height="48"
+              >
+                <rect x="0" y="0" width="600" height="17" fill="white" />
+              </mask>
+            </defs>
+
+            {/* Camada independente das diagonais traseiras */}
+            <g
+              className="checkout-spiral-back-wires"
+              mask="url(#checkout-spiral-back-mask)"
             >
-              <stop offset="0%" stopColor="#202020" />
-              <stop offset="25%" stopColor="#777777" />
-              <stop offset="48%" stopColor="#d0d0d0" />
-              <stop offset="65%" stopColor="#777777" />
-              <stop offset="100%" stopColor="#202020" />
-            </linearGradient>
-          </defs>
+              {Array.from({ length: 10 }).map((_, index) => {
+                const x = 20 + index * (555 / 9);
 
-          {/* Parte traseira do arame */}
-          <path
-            d={Array.from({ length: 6 }, (_, i) => {
-              const x = 17 + i * 52;
+                return (
+                  <path
+                    key={index}
+                    d={`M ${x + 2} 8 L ${x + 19} 19.66`}
+                    fill="none"
+                    stroke="url(#checkout-spiral-metal)"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    opacity="1"
+                  />
+                );
+              })}
+            </g>
 
-              return `
-          M ${x + 17} 41
-          C ${x + 24} 45, ${x + 33} 45, ${x + 39} 39
-        `;
-            }).join(" ")}
-            fill="none"
-            stroke="var(--brown)"
-            strokeOpacity="0.4"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-          />
+            {Array.from({ length: 10 }).map((_, index) => {
+              const x = 20 + index * (555 / 9);
 
-          {/* Argolas metálicas inclinadas */}
-          <path
-            d={Array.from({ length: 6 }, (_, i) => {
-              const x = 17 + i * 52;
+              return (
+                <g key={index}>
+                  {/* Furo com profundidade */}
+                  {/* Borda interna do papel perfurado */}
+                  <ellipse
+                    cx={x}
+                    cy="34"
+                    rx="8"
+                    ry="10"
+                    fill="var(--brown)"
+                    opacity="0.25"
+                  />
 
-              return `
-          M ${x + 17} 41
-          C ${x + 8} 43, ${x - 2} 34, ${x - 1} 21
-          C ${x} 8, ${x + 9} 4, ${x + 16} 9
-          C ${x + 26} 15, ${x + 23} 29, ${x + 17} 39
-          C ${x + 15} 42, ${x + 18} 44, ${x + 22} 42
-        `;
-            }).join(" ")}
-            fill="none"
-            stroke="url(#checkout-spiral-metal)"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+                  {/* Interior escuro do furo */}
+                  <ellipse cx={x} cy="32" rx="6" ry="8" fill="var(--brown)" />
 
-          {/* Reflexos discretos do metal */}
-          {Array.from({ length: 6 }, (_, i) => {
-            const x = 17 + i * 52;
+                  {/* Reflexo na borda inferior do papel */}
+                  <path
+                    d={`M ${x - 5} 38 Q ${x} 43 ${x + 5} 38`}
+                    fill="none"
+                    stroke="var(--cream)"
+                    strokeWidth="1.5"
+                    opacity="0.8"
+                  />
 
-            return (
-              <path
-                key={i}
-                d={`
-            M ${x + 1} 14
-            C ${x + 5} 7, ${x + 11} 7, ${x + 15} 10
-          `}
-                fill="none"
-                stroke="var(--white)"
-                strokeOpacity="0.38"
-                strokeWidth="0.9"
-                strokeLinecap="round"
-              />
-            );
-          })}
-        </svg>
+                  {/* Arame frontal — desce reto até o furo */}
+                  <path
+                    d={`M ${x} 32 L ${x} 9 Q ${x} 3 ${x + 5} 5`}
+                    fill="none"
+                    stroke="url(#checkout-spiral-metal)"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+
+                  {/* Reflexo metálico na parte frontal */}
+                  <path
+                    d={`M ${x - 1.5} 29 L ${x - 1.5} 10`}
+                    fill="none"
+                    stroke="var(--white)"
+                    strokeWidth="0.8"
+                    strokeLinecap="round"
+                    opacity="0.35"
+                  />
+                  {/* Acabamento dobrado da primeira argola */}
+                  {index === 0 && (
+                    <path
+                      d={`M ${x} 32
+        Q ${x - 7} 36 ${x - 10} 29
+        Q ${x - 12} 25 ${x - 8} 23`}
+                      fill="none"
+                      stroke="url(#checkout-spiral-metal)"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+        <span className="checkout-eyebrow">SEU PEDIDO</span>
+
+        <button
+          type="button"
+          className="checkout-close"
+          onClick={onClose}
+          aria-label="Fechar checkout"
+        >
+          ×
+        </button>
       </div>
 
+      {/* Folha que participa da virada */}
       <div
         className={`checkout-page checkout-page-test-${((step - 1) % 3) + 1}`}
       >
-        {/* Furos da encadernação na folha */}
-        <div className="checkout-binding-holes" aria-hidden="true">
-          {Array.from({ length: 6 }, (_, i) => (
-            <span className="checkout-binding-hole" key={i} />
-          ))}
-        </div>
-
         <div className="checkout-header">
           <div>
-            <span className="checkout-eyebrow">SEU PEDIDO</span>
-
             <h2 id="checkout-title">Finalizar pedido</h2>
           </div>
-
-          <button
-            type="button"
-            className="checkout-close"
-            onClick={onClose}
-            aria-label="Fechar checkout"
-          >
-            ×
-          </button>
         </div>
 
         {createdOrder && (
@@ -822,7 +861,7 @@ export default function CheckoutModal({
                 autoComplete="tel-national"
                 required
                 maxLength={20}
-                placeholder="(11) 91234-5678"
+                placeholder="(11) 99999-9999"
                 value={customer.whatsapp}
                 className={whatsappShake ? "checkout-whatsapp-shake" : ""}
                 onChange={(event) => {
