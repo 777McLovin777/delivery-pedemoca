@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { neighborhoods } from "../data/neighborhoods";
 
 export default function CheckoutModal({
   open,
@@ -59,27 +60,6 @@ export default function CheckoutModal({
       setCheckoutToken(null);
     }
   }, [open, checkoutToken]);
-
-  const neighborhoods = [
-    "Bandeirantes",
-    "Centro",
-    "Chácara Boa Vista",
-    "Cocho D'água",
-    "Estrada da Barragem",
-    "Green Hills",
-    "Igavetá",
-    "Itaquara Parque",
-    "Jardim Bom Jesus",
-    "Jardim Morro Branco",
-    "Parque das Avencas",
-    "Parque Laranjeiras",
-    "Parque Payol 1",
-    "Parque Payol 2",
-    "Rasgão",
-    "Sidharta",
-    "Vila Lolli",
-    "Vila Nova",
-  ];
 
   const filteredNeighborhoods = neighborhoods.filter((neighborhood) =>
     neighborhood

@@ -7568,3 +7568,222 @@ body::-webkit-scrollbar {
   object-position: center;
   transform: none;
 }
+
+/* ==========================================
+   MINHA CONTA
+========================================== */
+
+.account-page {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+.account-main {
+  width: min(100% - 32px, 520px);
+  margin: 0 auto;
+  padding: 64px 0 100px;
+}
+
+.account-heading {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.account-heading span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--red);
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.account-heading h1 {
+  margin: 0;
+  color: var(--brown);
+  font-family: "Playfair Display", serif;
+  font-size: clamp(36px, 6vw, 52px);
+  line-height: 1.15;
+}
+
+.account-content {
+  padding: 36px;
+  background: var(--white);
+  border: 1px solid var(--pink);
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(45, 18, 13, 0.06);
+}
+
+.account-content h2 {
+  margin: 0 0 12px;
+  color: var(--brown);
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+}
+
+.account-content p {
+  margin: 0;
+  color: var(--text-light);
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.account-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.account-actions button {
+  min-height: 48px;
+  border: 1px solid var(--red);
+  border-radius: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.account-actions button:first-child {
+  background: var(--red);
+  color: var(--white);
+}
+
+.account-actions button:last-child {
+  background: var(--white);
+  color: var(--red);
+}
+
+.account-actions button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  .account-main {
+    padding: 40px 0 72px;
+  }
+
+  .account-content {
+    padding: 26px 22px;
+  }
+
+  .account-content h2 {
+    font-size: 23px;
+  }
+}
+
+/* FORMULÁRIOS DA ÁREA DO CLIENTE */
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.account-form label {
+  color: var(--brown);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.account-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+  border: 1px solid var(--pink);
+  border-radius: 9px;
+  background: var(--cream);
+  color: var(--brown);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.account-form input:focus {
+  outline: 2px solid var(--blue);
+  border-color: var(--red);
+}
+
+.account-form button[type="submit"] {
+  min-height: 48px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--red);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.account-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account-back {
+  margin-top: 22px;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--red);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ==========================================
+   MINHA CONTA - ENDEREÇOS
+========================================== */
+
+.account-address-section {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--pink);
+}
+
+.account-address-section h2 {
+  margin-bottom: 10px;
+}
+
+.account-address-add {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 20px;
+  border: 1px solid var(--red);
+  border-radius: 10px;
+  background: var(--red);
+  color: var(--white);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-address-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.account-address-card {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--pink);
+  border-radius: 12px;
+  background: var(--cream);
+}
+
+.account-address-card strong {
+  color: var(--brown);
+}
+
+.account-address-card p {
+  margin-top: 7px;
+}
+
+.account-address-card span {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+}
