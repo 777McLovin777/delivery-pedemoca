@@ -64,19 +64,52 @@ import mcafe3 from "./assets/mcafe3-optimized.webp";
 // Mousse de Oreo
 import moreo from "./assets/moreo-optimized.webp";
 
+// Cookies — Nutella
+import cnutella from "./assets/cnutella.png";
+import cnutella2 from "./assets/cnutella2.png";
+import cnutella3 from "./assets/cnutella3.png";
+import cnutella4 from "./assets/cnutella4.png";
+
+// Cookies — Kinder Bueno
+import ckinder from "./assets/ckinder.png";
+import ckinder2 from "./assets/ckinder2.png";
+import ckinder3 from "./assets/ckinder3.png";
+
+// Torta Escocesa
+import TMEembalda from "./assets/TMEembalda.png";
+import TMEmetade from "./assets/TMEmetade.png";
+import TMElado from "./assets/TMElado.png";
+
+/* =======================================================
+   IMAGENS PADRONIZADAS DOS CARROSSÉIS
+======================================================= */
+
+const carouselImages = import.meta.glob("./assets/carrossel/*-carousel.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+function getCarouselImage(originalImage) {
+  const originalPath = originalImage.split("?")[0];
+  const filename = originalPath.split("/").pop();
+  const extensionIndex = filename.lastIndexOf(".");
+
+  if (extensionIndex === -1) return originalImage;
+
+  const basename = filename.slice(0, extensionIndex);
+
+  const matchingPath = Object.keys(carouselImages).find((path) =>
+    path.endsWith(`/${basename}-carousel.webp`),
+  );
+
+  return matchingPath ? carouselImages[matchingPath] : originalImage;
+}
+
 /* =========================================================
    PRODUTOS
 ========================================================= */
-
 const products = [
-  {
-    id: 106,
-    name: "Mousse de Café",
-    category: "Mais pedidos",
-    description: "Mousse cremoso com sabor marcante de café.",
-    price: 10.9,
-    image: mcafe,
-  },
   {
     id: 201,
     name: "Pé de Moça Gourmet no Pote",
@@ -87,17 +120,54 @@ const products = [
     image: dpedemoca,
   },
   {
-    id: 105,
-    name: "Mousse de Oreo",
+    id: 302,
+    name: "Cookie Kinder Bueno",
     category: "Mais pedidos",
-    description:
-      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
-    price: 10.9,
-    image: moreo,
+    description: "Cookie artesanal com Kinder Bueno.",
+    price: 14.9, // Provisório
+    image: ckinder,
   },
+  {
+    id: 108,
+    name: "Brownie com Castanhas",
+    category: "Mais pedidos",
+    description: "Brownie artesanal de chocolate com castanhas.",
+    price: 13.9,
+    image: bnozes,
+  },
+  ,
 ];
 
 const menuProducts = [
+  // Cookie de Nutella
+  {
+    id: 301,
+    name: "Cookie de Nutella",
+    category: "Cookies",
+    description: "Cookie artesanal com Nutella.",
+    price: 14.9, // Valor provisório
+    image: cnutella,
+  },
+
+  // Cookie Kinder Bueno
+  {
+    id: 302,
+    name: "Cookie Kinder Bueno",
+    category: "Cookies",
+    description: "Cookie artesanal com Kinder Bueno.",
+    price: 14.9, // Valor provisório
+    image: ckinder,
+  },
+
+  // Torta Escocesa
+  {
+    id: 303,
+    name: "Torta Escocesa (Pica-Pau)",
+    category: "Tortas",
+    description: "Torta Escocesa artesanal.",
+    price: 15.9, // Valor provisório
+    image: TMEembalda,
+  },
   {
     id: 102,
     name: "Brownie com Frutas Vermelhas",
@@ -140,31 +210,6 @@ const menuProducts = [
       "Uvas frescas, creme suave e uma combinação delicada e irresistível.",
     price: 15.9,
     image: banoffe,
-  },
-  {
-    id: 105,
-    name: "Mousse de Oreo",
-    category: "Mousses",
-    description:
-      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
-    price: 10.9,
-    image: moreo,
-  },
-  {
-    id: 106,
-    name: "Mousse de Café",
-    category: "Mousses",
-    description: "Mousse cremoso com sabor marcante de café.",
-    price: 10.9,
-    image: mcafe,
-  },
-  {
-    id: 107,
-    name: "Tiramisù",
-    category: "Clássicos",
-    description: "Creme suave, café e cacau para quem gosta de um clássico.",
-    price: 16.9,
-    image: tiramisu,
   },
 ];
 
@@ -224,20 +269,20 @@ const newCategoryProducts = {
 const categoryRoutes = {
   doces: "Doces autorais",
   brownies: "Brownies",
+  cookies: "Cookies",
   tortas: "Tortas",
-  mousses: "Mousses",
   bebidas: "Bebidas",
 };
 
 const categoryOptions = [
   "Doces autorais",
   "Brownies",
+  "Cookies",
   "Tortas",
-  "Mousses",
   "Bebidas",
 ];
 
-const menuCategories = ["Brownies", "Tortas", "Mousses", "Clássicos"];
+const menuCategories = ["Brownies", "Cookies", "Tortas"];
 
 /* =========================================================
    FUNÇÕES AUXILIARES
@@ -548,7 +593,9 @@ function App() {
       return;
     }
 
-    const isBrownie = customizingProduct.category === "Brownies";
+    const isBrownie =
+      customizingProduct.category === "Brownies" ||
+      [101, 102, 108].includes(customizingProduct.id);
 
     const caldaChocolateAoLeite =
       selectedComplements["Calda de chocolate ao leite"] || 0;
@@ -1084,7 +1131,9 @@ function App() {
       return null;
     }
 
-    const isBrownie = customizingProduct.category === "Brownies";
+    const isBrownie =
+      customizingProduct.category === "Brownies" ||
+      [101, 102, 108].includes(customizingProduct.id);
 
     let productImages;
 
@@ -1103,16 +1152,28 @@ function App() {
     } else if (customizingProduct.id === 106) {
       // Mousse de Café
       productImages = [mcafe, mcafe2, mcafe3];
+    } else if (customizingProduct.id === 301) {
+      // Cookie de Nutella — 4 fotos
+      productImages = [cnutella, cnutella2, cnutella3, cnutella4];
+    } else if (customizingProduct.id === 302) {
+      // Cookie Kinder Bueno — 3 fotos
+      productImages = [ckinder, ckinder2, ckinder3];
+    } else if (customizingProduct.id === 303) {
+      // Torta Escocesa — 3 fotos
+      productImages = [TMEembalda, TMEmetade, TMElado];
     } else {
       // Demais produtos continuam usando o carrossel atual
       productImages = [customizingProduct.image, foto1, foto2, foto4];
     }
+
+    // Utiliza as versões padronizadas apenas no carrossel
+    productImages = productImages.map(getCarouselImage);
+
     function previousImage() {
       setCarouselIndex((current) =>
         current === 0 ? productImages.length - 1 : current - 1,
       );
     }
-
     function nextImage() {
       setCarouselIndex((current) =>
         current === productImages.length - 1 ? 0 : current + 1,
@@ -1693,22 +1754,22 @@ function App() {
 
           <section className="menu-hero"></section>
 
-          {categories.map((category) => (
-            <section
-              className={`menu-category category-${category.name.toLowerCase()}`}
-              key={category.name}
-            >
-              <div className="menu-category-heading">
-                <h2>{category.name}</h2>
-              </div>
-
-              <div className="products-grid">
-                {category.products.map((product) => (
+          <section className="menu-category-page">
+            <div className="products-grid">
+              {[
+                newCategoryProducts["Doces autorais"][0],
+                menuProducts.find((product) => product.id === 108),
+                menuProducts.find((product) => product.id === 302),
+                menuProducts.find((product) => product.id === 303),
+                newCategoryProducts.Bebidas[0], // Água sem gás
+                newCategoryProducts.Bebidas[2], // Coca-Cola
+              ]
+                .filter(Boolean)
+                .map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
-              </div>
-            </section>
-          ))}
+            </div>
+          </section>
         </main>
 
         <a href="/" className="menu-back-home">
