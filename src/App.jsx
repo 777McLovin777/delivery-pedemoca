@@ -1110,7 +1110,7 @@ function App() {
                     className="checkout-button"
                     onClick={openCheckout}
                   >
-                    <span>Continuar pedido</span>
+                    <span>Finalizar pedido</span>
                     <span>→</span>
                   </button>
                 </div>
