@@ -28,6 +28,7 @@ export default function CheckoutModal({
   const [deliveryLoading, setDeliveryLoading] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [payerEmail, setPayerEmail] = useState("");
 
   const [needsChange, setNeedsChange] = useState(null);
   const [cashGiven, setCashGiven] = useState("");
@@ -48,6 +49,9 @@ export default function CheckoutModal({
   const [checkoutToken, setCheckoutToken] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
+
+  // APENAS PARA TESTE VISUAL LOCAL — remover antes de publicar.
+  const previewPix = false;
   const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
@@ -159,6 +163,7 @@ export default function CheckoutModal({
       setDeliveryLoading(false);
 
       setPaymentMethod("");
+      setPayerEmail("");
       setNeedsChange(null);
       setCashGiven("");
 
@@ -316,8 +321,12 @@ export default function CheckoutModal({
       }
 
       console.log("PEDIDO CRIADO:", data);
+
       setCreatedOrder(data);
-      onOrderSuccess?.();
+
+      if (paymentMethod === "cash") {
+        onOrderSuccess?.();
+      }
     } catch (error) {
       console.error("ERRO AO CRIAR PEDIDO:", error);
 
@@ -815,39 +824,39 @@ export default function CheckoutModal({
           </div>
         </div>
 
-        {createdOrder && (
+        {(previewPix || (createdOrder && paymentMethod === "pix")) && (
           <div className="checkout-content checkout-success">
-            <div className="checkout-success-icon">✓</div>
-
             <div className="checkout-success-heading">
-              <span>SEU PEDIDO</span>
-              <h3>Pedido confirmado!</h3>
+              <span>PAGAMENTO PIX</span>
+              <h3>Aguardando pagamento</h3>
 
               <p>
-                Recebemos seu pedido com sucesso.
-                <br />
-                Agora é só aguardar o preparo.
+                Seu pedido foi registrado, mas o pagamento ainda não foi
+                confirmado.
               </p>
             </div>
 
             <div className="checkout-success-order">
               <span>NÚMERO DO PEDIDO</span>
-              <strong>#{createdOrder.order_number}</strong>
+              <strong>
+                #{previewPix ? "000123" : createdOrder.order_number}
+              </strong>
             </div>
 
             <div className="checkout-success-total">
-              <span>Total</span>
-              <strong>R$ {formatPrice(createdOrder.total)}</strong>
+              <span>Total a pagar</span>
+              <strong>
+                R$ {previewPix ? "35,90" : formatPrice(createdOrder.total)}
+              </strong>
             </div>
 
-            <button type="button" className="checkout-button" onClick={onClose}>
-              <span>Fechar</span>
-              <span>✓</span>
-            </button>
+            <p>
+              O código PIX será disponibilizado aqui quando a geração do
+              pagamento estiver ativada.
+            </p>
           </div>
         )}
-
-        {!createdOrder && step === 1 && (
+        {!previewPix && !createdOrder && step === 1 && (
           <form
             className="checkout-content checkout-customer-form"
             onSubmit={handleCustomerSubmit}
@@ -1524,6 +1533,51 @@ export default function CheckoutModal({
               </button>
             </div>
 
+            {paymentMethod === "pix" && (
+              <div className="checkout-field checkout-pix-email">
+                <label htmlFor="checkout-pix-email">
+                  E-mail para pagamento PIX
+                </label>
+
+                <input
+                  id="checkout-pix-email"
+                  name="payerEmail"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  placeholder="seuemail@exemplo.com"
+                  maxLength={254}
+                  value={payerEmail}
+                  onChange={(event) => {
+                    setPayerEmail(event.target.value);
+
+                    setErrors((current) => ({
+                      ...current,
+                      payerEmail: undefined,
+                    }));
+                  }}
+                  aria-invalid={Boolean(errors.payerEmail)}
+                  aria-describedby={
+                    errors.payerEmail ? "checkout-pix-email-error" : undefined
+                  }
+                />
+
+                {errors.payerEmail && (
+                  <p
+                    className="checkout-error"
+                    id="checkout-pix-email-error"
+                    role="alert"
+                  >
+                    {errors.payerEmail}
+                  </p>
+                )}
+
+                <small>
+                  Usaremos este e-mail para gerar seu pagamento PIX.
+                </small>
+              </div>
+            )}
+
             {paymentMethod === "cash" && (
               <div className="checkout-change-box">
                 <div className="checkout-change-heading">
@@ -1645,6 +1699,26 @@ export default function CheckoutModal({
                     triggerInvalidShake(".checkout-payment-options");
 
                     return;
+                  }
+
+                  if (paymentMethod === "pix") {
+                    const email = payerEmail.trim();
+
+                    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                      setErrors({
+                        payerEmail: !email
+                          ? "Informe seu e-mail para pagar com PIX."
+                          : "Informe um e-mail válido.",
+                      });
+
+                      triggerInvalidShake('[name="payerEmail"]');
+
+                      dialog.current
+                        ?.querySelector('[name="payerEmail"]')
+                        ?.focus();
+
+                      return;
+                    }
                   }
 
                   if (paymentMethod === "cash" && needsChange === null) {
