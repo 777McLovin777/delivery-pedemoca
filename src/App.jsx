@@ -75,7 +75,7 @@ import ckinder from "./assets/ckinder.png";
 import ckinder2 from "./assets/ckinder2.png";
 import ckinder3 from "./assets/ckinder3.png";
 
-// Torta Escocesa
+// Torta de Mateiga Escocesa
 import TMEembalda from "./assets/TMEembalda.png";
 import TMEmetade from "./assets/TMEmetade.png";
 import TMElado from "./assets/TMElado.png";
@@ -162,7 +162,7 @@ const menuProducts = [
   // Torta Escocesa
   {
     id: 303,
-    name: "Torta Escocesa (Pica-Pau)",
+    name: "Torta de Manteiga Escocesa",
     category: "Tortas",
     description: "Torta Escocesa artesanal.",
     price: 15.9, // Valor provisório
@@ -1159,7 +1159,7 @@ function App() {
       // Cookie Kinder Bueno — 3 fotos
       productImages = [ckinder, ckinder2, ckinder3];
     } else if (customizingProduct.id === 303) {
-      // Torta Escocesa — 3 fotos
+      // Torta de Manteiga Escocesa — 3 fotos
       productImages = [TMEembalda, TMEmetade, TMElado];
     } else {
       // Demais produtos continuam usando o carrossel atual
