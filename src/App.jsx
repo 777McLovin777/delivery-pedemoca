@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import "./App.css";
 import { supabase } from "./lib/supabase";
+import { neighborhoods } from "./data/neighborhoods";
 
 import CheckoutModal from "./components/CheckoutModal";
 
@@ -64,19 +65,52 @@ import mcafe3 from "./assets/mcafe3-optimized.webp";
 // Mousse de Oreo
 import moreo from "./assets/moreo-optimized.webp";
 
+// Cookies — Nutella
+import cnutella from "./assets/cnutella.png";
+import cnutella2 from "./assets/cnutella2.png";
+import cnutella3 from "./assets/cnutella3.png";
+import cnutella4 from "./assets/cnutella4.png";
+
+// Cookies — Kinder Bueno
+import ckinder from "./assets/ckinder.png";
+import ckinder2 from "./assets/ckinder2.png";
+import ckinder3 from "./assets/ckinder3.png";
+
+// Torta de Mateiga Escocesa
+import TMEembalda from "./assets/TMEembalda.png";
+import TMEmetade from "./assets/TMEmetade.png";
+import TMElado from "./assets/TMElado.png";
+
+/* =======================================================
+   IMAGENS PADRONIZADAS DOS CARROSSÉIS
+======================================================= */
+
+const carouselImages = import.meta.glob("./assets/carrossel/*-carousel.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+function getCarouselImage(originalImage) {
+  const originalPath = originalImage.split("?")[0];
+  const filename = originalPath.split("/").pop();
+  const extensionIndex = filename.lastIndexOf(".");
+
+  if (extensionIndex === -1) return originalImage;
+
+  const basename = filename.slice(0, extensionIndex);
+
+  const matchingPath = Object.keys(carouselImages).find((path) =>
+    path.endsWith(`/${basename}-carousel.webp`),
+  );
+
+  return matchingPath ? carouselImages[matchingPath] : originalImage;
+}
+
 /* =========================================================
    PRODUTOS
 ========================================================= */
-
 const products = [
-  {
-    id: 106,
-    name: "Mousse de Café",
-    category: "Mais pedidos",
-    description: "Mousse cremoso com sabor marcante de café.",
-    price: 10.9,
-    image: mcafe,
-  },
   {
     id: 201,
     name: "Pé de Moça Gourmet no Pote",
@@ -87,17 +121,54 @@ const products = [
     image: dpedemoca,
   },
   {
-    id: 105,
-    name: "Mousse de Oreo",
+    id: 302,
+    name: "Cookie Kinder Bueno",
     category: "Mais pedidos",
-    description:
-      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
-    price: 10.9,
-    image: moreo,
+    description: "Cookie artesanal com Kinder Bueno.",
+    price: 14.9, // Provisório
+    image: ckinder,
   },
+  {
+    id: 108,
+    name: "Brownie com Castanhas",
+    category: "Mais pedidos",
+    description: "Brownie artesanal de chocolate com castanhas.",
+    price: 13.9,
+    image: bnozes,
+  },
+  ,
 ];
 
 const menuProducts = [
+  // Cookie de Nutella
+  {
+    id: 301,
+    name: "Cookie de Nutella",
+    category: "Cookies",
+    description: "Cookie artesanal com Nutella.",
+    price: 14.9, // Valor provisório
+    image: cnutella,
+  },
+
+  // Cookie Kinder Bueno
+  {
+    id: 302,
+    name: "Cookie Kinder Bueno",
+    category: "Cookies",
+    description: "Cookie artesanal com Kinder Bueno.",
+    price: 14.9, // Valor provisório
+    image: ckinder,
+  },
+
+  // Torta Escocesa
+  {
+    id: 303,
+    name: "Torta de Manteiga Escocesa do Pica-Pau",
+    category: "Tortas",
+    description: "Torta Escocesa artesanal.",
+    price: 15.9, // Valor provisório
+    image: TMEembalda,
+  },
   {
     id: 102,
     name: "Brownie com Frutas Vermelhas",
@@ -140,31 +211,6 @@ const menuProducts = [
       "Uvas frescas, creme suave e uma combinação delicada e irresistível.",
     price: 15.9,
     image: banoffe,
-  },
-  {
-    id: 105,
-    name: "Mousse de Oreo",
-    category: "Mousses",
-    description:
-      "Mousse cremoso de Oreo para quem não resiste a esse clássico.",
-    price: 10.9,
-    image: moreo,
-  },
-  {
-    id: 106,
-    name: "Mousse de Café",
-    category: "Mousses",
-    description: "Mousse cremoso com sabor marcante de café.",
-    price: 10.9,
-    image: mcafe,
-  },
-  {
-    id: 107,
-    name: "Tiramisù",
-    category: "Clássicos",
-    description: "Creme suave, café e cacau para quem gosta de um clássico.",
-    price: 16.9,
-    image: tiramisu,
   },
 ];
 
@@ -224,20 +270,20 @@ const newCategoryProducts = {
 const categoryRoutes = {
   doces: "Doces autorais",
   brownies: "Brownies",
+  cookies: "Cookies",
   tortas: "Tortas",
-  mousses: "Mousses",
   bebidas: "Bebidas",
 };
 
 const categoryOptions = [
   "Doces autorais",
   "Brownies",
+  "Cookies",
   "Tortas",
-  "Mousses",
   "Bebidas",
 ];
 
-const menuCategories = ["Brownies", "Tortas", "Mousses", "Clássicos"];
+const menuCategories = ["Brownies", "Cookies", "Tortas"];
 
 /* =========================================================
    FUNÇÕES AUXILIARES
@@ -290,6 +336,245 @@ function App() {
   }
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountView, setAccountView] = useState("welcome");
+
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [registerForm, setRegisterForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [accountMessage, setAccountMessage] = useState(null);
+
+  const [addressForm, setAddressForm] = useState({
+    apelido: "Casa",
+    cep: "",
+    rua: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    referencia: "",
+  });
+
+  const [customerAddresses, setCustomerAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressMessage, setAddressMessage] = useState(null);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+
+  const [accountUser, setAccountUser] = useState(null);
+  const [accountCheckingSession, setAccountCheckingSession] = useState(true);
+  useEffect(() => {
+    let active = true;
+
+    async function loadSession() {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Erro ao verificar sessão:", error);
+      }
+
+      setAccountUser(data.user ?? null);
+      setAccountCheckingSession(false);
+    }
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+
+      setAccountUser(session?.user ?? null);
+      setAccountCheckingSession(false);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleRegister(event) {
+    event.preventDefault();
+    setAccountMessage(null);
+
+    const name = registerForm.name.trim();
+    const phone = registerForm.phone.replace(/\D/g, "");
+    const email = registerForm.email.trim().toLowerCase();
+
+    if (!name || !phone || !email) {
+      setAccountMessage("Preencha todos os campos.");
+      return;
+    }
+
+    if (phone.length < 10 || phone.length > 11) {
+      setAccountMessage("Informe um telefone válido com DDD.");
+      return;
+    }
+
+    if (registerForm.password.length < 6) {
+      setAccountMessage("A senha precisa ter pelo menos 6 caracteres.");
+      return;
+    }
+
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setAccountMessage("As senhas não coincidem.");
+      return;
+    }
+
+    setAccountLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: registerForm.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/minha-conta`,
+          data: {
+            nome_completo: name,
+            telefone: phone,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      setRegisterForm({
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setAccountMessage(
+        "Cadastro solicitado! Confira seu e-mail para confirmar sua conta.",
+      );
+    } catch (error) {
+      console.error("Erro no cadastro:", error);
+      setAccountMessage(
+        "Não foi possível concluir o cadastro. Verifique seus dados e tente novamente.",
+      );
+    } finally {
+      setAccountLoading(false);
+    }
+  }
+
+  /* =======================================================
+     LOGIN DO CLIENTE
+  ======================================================= */
+
+  async function handleLogin(event) {
+    event.preventDefault();
+
+    setAccountMessage(null);
+    setAccountLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginForm.email.trim().toLowerCase(),
+        password: loginForm.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setLoginForm({
+        email: "",
+        password: "",
+      });
+
+      setAccountMessage("Login realizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao entrar:", error);
+
+      setAccountMessage(
+        "Não foi possível entrar. Confira seu e-mail, senha e confirmação da conta.",
+      );
+    } finally {
+      setAccountLoading(false);
+    }
+  }
+
+  /* =======================================================
+     SALVAR ENDEREÇO DO CLIENTE
+  ======================================================= */
+
+  async function handleSaveAddress(event) {
+    event.preventDefault();
+    setAddressMessage(null);
+
+    if (!accountUser?.id) {
+      setAddressMessage("Entre na sua conta para salvar um endereço.");
+      return;
+    }
+
+    const cep = addressForm.cep.replace(/\D/g, "");
+    const estado = addressForm.estado.trim().toUpperCase();
+
+    if (cep.length !== 8 || estado.length !== 2) {
+      setAddressMessage("Confira o CEP e a sigla do estado.");
+      return;
+    }
+
+    setAddressLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from("enderecos_clientes")
+        .insert({
+          cliente_id: accountUser.id,
+          apelido: addressForm.apelido.trim() || "Casa",
+          cep,
+          rua: addressForm.rua.trim(),
+          numero: addressForm.numero.trim(),
+          complemento: addressForm.complemento.trim() || null,
+          bairro: addressForm.bairro.trim(),
+          cidade: addressForm.cidade.trim(),
+          estado,
+          referencia: addressForm.referencia.trim() || null,
+          principal: customerAddresses.length === 0,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setCustomerAddresses((current) => [...current, data]);
+      setShowAddressForm(false);
+      setAddressForm({
+        apelido: "Casa",
+        cep: "",
+        rua: "",
+        numero: "",
+        complemento: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+        referencia: "",
+      });
+
+      setAddressMessage("Endereço salvo com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar endereço:", error);
+      setAddressMessage("Não foi possível salvar o endereço.");
+    } finally {
+      setAddressLoading(false);
+    }
+  }
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -338,6 +623,45 @@ function App() {
   const [loyaltyAvailableRewards, setLoyaltyAvailableRewards] = useState(0);
 
   const carouselTouchStartX = useRef(null);
+
+  /* =======================================================
+     SALVAR PERFIL DO CLIENTE
+  ======================================================= */
+
+  useEffect(() => {
+    if (!accountUser?.id) return;
+
+    let cancelled = false;
+
+    async function saveCustomerProfile() {
+      const metadata = accountUser.user_metadata || {};
+
+      const name = metadata.nome_completo?.trim();
+      const phone = metadata.telefone || null;
+
+      if (!name) return;
+
+      const { error } = await supabase.from("perfis_clientes").upsert(
+        {
+          id: accountUser.id,
+          nome_completo: name,
+          telefone: phone,
+          atualizado_em: new Date().toISOString(),
+        },
+        { onConflict: "id" },
+      );
+
+      if (error && !cancelled) {
+        console.error("Erro ao salvar perfil do cliente:", error);
+      }
+    }
+
+    saveCustomerProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accountUser?.id]);
 
   /* =======================================================
      LOCAL STORAGE
@@ -548,7 +872,9 @@ function App() {
       return;
     }
 
-    const isBrownie = customizingProduct.category === "Brownies";
+    const isBrownie =
+      customizingProduct.category === "Brownies" ||
+      [101, 102, 108].includes(customizingProduct.id);
 
     const caldaChocolateAoLeite =
       selectedComplements["Calda de chocolate ao leite"] || 0;
@@ -773,6 +1099,8 @@ function App() {
   ======================================================= */
 
   const currentPath = window.location.pathname;
+
+  const isAccountPage = currentPath === "/minha-conta";
 
   const isMenuPage =
     currentPath === "/cardapio" || currentPath.startsWith("/cardapio/");
@@ -1063,7 +1391,7 @@ function App() {
                     className="checkout-button"
                     onClick={openCheckout}
                   >
-                    <span>Continuar pedido</span>
+                    <span>Finalizar pedido</span>
                     <span>→</span>
                   </button>
                 </div>
@@ -1084,7 +1412,9 @@ function App() {
       return null;
     }
 
-    const isBrownie = customizingProduct.category === "Brownies";
+    const isBrownie =
+      customizingProduct.category === "Brownies" ||
+      [101, 102, 108].includes(customizingProduct.id);
 
     let productImages;
 
@@ -1103,16 +1433,28 @@ function App() {
     } else if (customizingProduct.id === 106) {
       // Mousse de Café
       productImages = [mcafe, mcafe2, mcafe3];
+    } else if (customizingProduct.id === 301) {
+      // Cookie de Nutella — 4 fotos
+      productImages = [cnutella, cnutella2, cnutella3, cnutella4];
+    } else if (customizingProduct.id === 302) {
+      // Cookie Kinder Bueno — 3 fotos
+      productImages = [ckinder, ckinder2, ckinder3];
+    } else if (customizingProduct.id === 303) {
+      // Torta de Manteiga Escocesa — 3 fotos
+      productImages = [TMEembalda, TMEmetade, TMElado];
     } else {
       // Demais produtos continuam usando o carrossel atual
       productImages = [customizingProduct.image, foto1, foto2, foto4];
     }
+
+    // Utiliza as versões padronizadas apenas no carrossel
+    productImages = productImages.map(getCarouselImage);
+
     function previousImage() {
       setCarouselIndex((current) =>
         current === 0 ? productImages.length - 1 : current - 1,
       );
     }
-
     function nextImage() {
       setCarouselIndex((current) =>
         current === productImages.length - 1 ? 0 : current + 1,
@@ -1618,6 +1960,384 @@ function App() {
     );
   }
 
+  /* =======================================================
+   PÁGINA: MINHA CONTA
+======================================================= */
+
+  if (isAccountPage) {
+    return (
+      <div className="app account-page">
+        <MenuHeader />
+
+        <main className="account-main">
+          <div className="account-heading">
+            <span>Pé de Moça</span>
+            <h1>Minha conta</h1>
+          </div>
+
+          {accountCheckingSession && <p>Carregando sua conta...</p>}
+
+          {!accountCheckingSession && accountUser && (
+            <>
+              <h2>
+                Olá,{" "}
+                {accountUser.user_metadata?.nome_completo
+                  ?.trim()
+                  .split(/\s+/)[0] || "cliente"}
+                !
+              </h2>
+
+              <p>Que bom ter você de volta à Pé de Moça.</p>
+
+              <p>
+                <strong>E-mail:</strong> {accountUser.email}
+              </p>
+
+              <div className="account-address-section">
+                <h2>Meus endereços</h2>
+
+                <p>
+                  Cadastre um endereço para facilitar seus próximos pedidos.
+                </p>
+
+                {customerAddresses.map((address) => (
+                  <div className="account-address-card" key={address.id}>
+                    <strong>{address.apelido || "Meu endereço"}</strong>
+
+                    <p>
+                      {address.rua}, {address.numero}
+                      {address.complemento ? `, ${address.complemento}` : ""}
+                    </p>
+
+                    <p>
+                      {address.bairro} - {address.cidade}/{address.estado}
+                    </p>
+
+                    <p>CEP: {address.cep}</p>
+
+                    {address.principal && <span>Endereço principal</span>}
+                  </div>
+                ))}
+
+                {!showAddressForm && (
+                  <button
+                    type="button"
+                    className="account-address-add"
+                    onClick={() => {
+                      setAddressMessage(null);
+                      setShowAddressForm(true);
+                    }}
+                  >
+                    Adicionar endereço
+                  </button>
+                )}
+
+                {showAddressForm && (
+                  <form className="account-form" onSubmit={handleSaveAddress}>
+                    {[
+                      ["apelido", "Apelido do endereço", "text", false],
+                      ["rua", "Rua", "text", true],
+                      ["numero", "Número", "text", true],
+                      ["complemento", "Complemento", "text", false],
+                      ["bairro", "Bairro", "text", true],
+                      ["referencia", "Ponto de referência", "text", false],
+                    ].map(([field, label, type, required]) => (
+                      <div className="account-address-field" key={field}>
+                        <label htmlFor={`address-${field}`}>{label}</label>
+
+                        {field === "bairro" ? (
+                          <select
+                            id="address-bairro"
+                            value={addressForm.bairro}
+                            onChange={(event) =>
+                              setAddressForm((current) => ({
+                                ...current,
+                                bairro: event.target.value,
+                              }))
+                            }
+                            required
+                          >
+                            <option value="">Selecione seu bairro</option>
+
+                            {neighborhoods.map((neighborhood) => (
+                              <option key={neighborhood} value={neighborhood}>
+                                {neighborhood}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            id={`address-${field}`}
+                            type={type}
+                            value={addressForm[field]}
+                            onChange={(event) =>
+                              setAddressForm((current) => ({
+                                ...current,
+                                [field]: event.target.value,
+                              }))
+                            }
+                            required={required}
+                            maxLength={
+                              field === "cep"
+                                ? 9
+                                : field === "estado"
+                                  ? 2
+                                  : undefined
+                            }
+                            inputMode={field === "cep" ? "numeric" : undefined}
+                          />
+                        )}
+                      </div>
+                    ))}
+
+                    <button type="submit" disabled={addressLoading}>
+                      {addressLoading ? "Salvando..." : "Salvar endereço"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="account-back"
+                      onClick={() => {
+                        setShowAddressForm(false);
+                        setAddressMessage(null);
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </form>
+                )}
+
+                {addressMessage && (
+                  <p className="account-message" role="status">
+                    {addressMessage}
+                  </p>
+                )}
+              </div>
+
+              <div className="account-actions">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { error } = await supabase.auth.signOut();
+
+                    if (error) {
+                      setAccountMessage("Não foi possível sair da conta.");
+                      return;
+                    }
+
+                    setCustomerAddresses([]);
+                    setShowAddressForm(false);
+                    setAccountMessage(null);
+                    setAccountView("welcome");
+                  }}
+                >
+                  Sair da conta
+                </button>
+              </div>
+            </>
+          )}
+
+          <div className="account-content">
+            {!accountCheckingSession &&
+              !accountUser &&
+              accountView === "welcome" && (
+                <>
+                  <h2>Que bom ter você por aqui!</h2>
+
+                  <p>
+                    Entre na sua conta ou faça seu cadastro para aproveitar uma
+                    experiência ainda mais doce.
+                  </p>
+
+                  <div className="account-actions">
+                    <button
+                      type="button"
+                      onClick={() => setAccountView("login")}
+                    >
+                      Entrar
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAccountView("register")}
+                    >
+                      Criar conta
+                    </button>
+                  </div>
+                </>
+              )}
+
+            {!accountUser && accountView === "login" && (
+              <>
+                <h2>Entrar na minha conta</h2>
+                <p>Que bom ter você de volta!</p>
+
+                <form className="account-form" onSubmit={handleLogin}>
+                  <label htmlFor="login-email">E-mail</label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    autoComplete="email"
+                    value={loginForm.email}
+                    onChange={(event) =>
+                      setLoginForm((current) => ({
+                        ...current,
+                        email: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <label htmlFor="login-password">Senha</label>
+                  <input
+                    id="login-password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={loginForm.password}
+                    onChange={(event) =>
+                      setLoginForm((current) => ({
+                        ...current,
+                        password: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <button type="submit" disabled={accountLoading}>
+                    {accountLoading ? "Entrando..." : "Entrar"}
+                  </button>
+                </form>
+
+                {accountMessage && (
+                  <p className="account-message" role="status">
+                    {accountMessage}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="account-back"
+                  onClick={() => {
+                    setAccountMessage(null);
+                    setAccountView("welcome");
+                  }}
+                >
+                  Voltar
+                </button>
+              </>
+            )}
+
+            {!accountUser && accountView === "register" && (
+              <>
+                <h2>Criar minha conta</h2>
+                <p>Preencha seus dados para fazer parte da Pé de Moça.</p>
+
+                <form className="account-form" onSubmit={handleRegister}>
+                  <label htmlFor="register-name">Nome completo</label>
+                  <input
+                    id="register-name"
+                    type="text"
+                    autoComplete="name"
+                    value={registerForm.name}
+                    onChange={(event) =>
+                      setRegisterForm((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <label htmlFor="register-phone">Telefone</label>
+                  <input
+                    id="register-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={registerForm.phone}
+                    onChange={(event) =>
+                      setRegisterForm((current) => ({
+                        ...current,
+                        phone: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <label htmlFor="register-email">E-mail</label>
+                  <input
+                    id="register-email"
+                    type="email"
+                    autoComplete="email"
+                    value={registerForm.email}
+                    onChange={(event) =>
+                      setRegisterForm((current) => ({
+                        ...current,
+                        email: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <label htmlFor="register-password">Senha</label>
+                  <input
+                    id="register-password"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={6}
+                    value={registerForm.password}
+                    onChange={(event) =>
+                      setRegisterForm((current) => ({
+                        ...current,
+                        password: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <label htmlFor="register-confirm">Confirmar senha</label>
+                  <input
+                    id="register-confirm"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={6}
+                    value={registerForm.confirmPassword}
+                    onChange={(event) =>
+                      setRegisterForm((current) => ({
+                        ...current,
+                        confirmPassword: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+
+                  <button type="submit" disabled={accountLoading}>
+                    {accountLoading ? "Criando conta..." : "Criar conta"}
+                  </button>
+                </form>
+
+                {accountMessage && (
+                  <p className="account-message" role="status">
+                    {accountMessage}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="account-back"
+                  onClick={() => setAccountView("welcome")}
+                >
+                  Voltar
+                </button>
+              </>
+            )}
+          </div>
+        </main>
+
+        <CartDrawer />
+      </div>
+    );
+  }
+
   if (isMenuPage && currentCategory) {
     const categoryPageProducts = getCategoryProducts(currentCategory);
 
@@ -1693,22 +2413,22 @@ function App() {
 
           <section className="menu-hero"></section>
 
-          {categories.map((category) => (
-            <section
-              className={`menu-category category-${category.name.toLowerCase()}`}
-              key={category.name}
-            >
-              <div className="menu-category-heading">
-                <h2>{category.name}</h2>
-              </div>
-
-              <div className="products-grid">
-                {category.products.map((product) => (
+          <section className="menu-category-page">
+            <div className="products-grid">
+              {[
+                newCategoryProducts["Doces autorais"][0],
+                menuProducts.find((product) => product.id === 108),
+                menuProducts.find((product) => product.id === 302),
+                menuProducts.find((product) => product.id === 303),
+                newCategoryProducts.Bebidas[0], // Água sem gás
+                newCategoryProducts.Bebidas[2], // Coca-Cola
+              ]
+                .filter(Boolean)
+                .map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
-              </div>
-            </section>
-          ))}
+            </div>
+          </section>
         </main>
 
         <a href="/" className="menu-back-home">
@@ -1768,11 +2488,11 @@ function App() {
         </div>
 
         <nav className={`navigation ${menuOpen ? "navigation-open" : ""}`}>
-          <a href="#inicio" onClick={() => setMenuOpen(false)}>
-            Início
+          <a href="/minha-conta" onClick={() => setMenuOpen(false)}>
+            Minha conta
           </a>
 
-          <a href="#cardapio" onClick={() => setMenuOpen(false)}>
+          <a href="/cardapio" onClick={() => setMenuOpen(false)}>
             Cardápio
           </a>
 
