@@ -6,7 +6,13 @@ export default function CheckoutModal({
   open,
   onClose,
   customer,
+
   onCustomerChange,
+
+  savedAddresses = [],
+
+  customerEmail = "",
+
   subtotal,
   cart,
   onOrderSuccess,
@@ -31,6 +37,12 @@ export default function CheckoutModal({
   const [paymentMethod, setPaymentMethod] = useState("");
   const [payerEmail, setPayerEmail] = useState("");
 
+  useEffect(() => {
+    if (!open) return;
+
+    setPayerEmail((current) => current || customerEmail);
+  }, [open, customerEmail]);
+
   const [needsChange, setNeedsChange] = useState(null);
   const [cashGiven, setCashGiven] = useState("");
 
@@ -44,6 +56,41 @@ export default function CheckoutModal({
     complement: "",
     reference: "",
   });
+
+  /* =========================================================
+     CHECKOUT - PREENCHER ENDEREÇO PRINCIPAL
+  ========================================================= */
+
+  const addressInitialized = useRef(false);
+
+  useEffect(() => {
+    if (!open) {
+      addressInitialized.current = false;
+      return;
+    }
+
+    if (addressInitialized.current) return;
+
+    const primaryAddress = savedAddresses.find(
+      (item) => item.principal === true,
+    );
+
+    if (!primaryAddress) return;
+
+    addressInitialized.current = true;
+
+    setAddress({
+      neighborhood: primaryAddress.bairro || "",
+      street: primaryAddress.rua || "",
+      number:
+        primaryAddress.numero?.toUpperCase() === "S/N"
+          ? ""
+          : primaryAddress.numero || "",
+      noNumber: primaryAddress.numero?.toUpperCase() === "S/N",
+      complement: primaryAddress.complemento || "",
+      reference: primaryAddress.referencia || "",
+    });
+  }, [open, savedAddresses]);
 
   const [pickupLocations, setPickupLocations] = useState([]);
   const [pickupLocationsLoading, setPickupLocationsLoading] = useState(false);
@@ -490,6 +537,42 @@ export default function CheckoutModal({
 
       return;
     }
+  }
+
+  function handleSelectSavedAddress(addressId) {
+    if (addressId === "manual") {
+      setAddress({
+        neighborhood: "",
+        street: "",
+        number: "",
+        noNumber: false,
+        complement: "",
+        reference: "",
+      });
+    } else {
+      const selectedAddress = savedAddresses.find(
+        (item) => item.id === addressId,
+      );
+
+      if (!selectedAddress) return;
+
+      const savedNumber = String(selectedAddress.numero || "");
+      const isNoNumber = savedNumber.toUpperCase() === "S/N";
+
+      setAddress({
+        neighborhood: selectedAddress.bairro || "",
+        street: selectedAddress.rua || "",
+        number: isNoNumber ? "" : savedNumber,
+        noNumber: isNoNumber,
+        complement: selectedAddress.complemento || "",
+        reference: selectedAddress.referencia || "",
+      });
+    }
+
+    setDeliveryFee(null);
+    setDeliveryNeighborhoodId(null);
+    setErrors({});
+    setNeighborhoodOpen(false);
   }
 
   function updateAddress(field, value) {
@@ -1036,6 +1119,37 @@ export default function CheckoutModal({
               <p>Informe onde você quer receber seu pedido.</p>
             </div>
 
+            {savedAddresses.length > 0 && (
+              <div className="checkout-field">
+                <label htmlFor="checkout-saved-address">
+                  Usar endereço cadastrado
+                </label>
+
+                <select
+                  id="checkout-saved-address"
+                  className="checkout-saved-address-select"
+                  defaultValue={
+                    savedAddresses.find((item) => item.principal)?.id ||
+                    "manual"
+                  }
+                  onChange={(event) =>
+                    handleSelectSavedAddress(event.target.value)
+                  }
+                >
+                  {savedAddresses.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.apelido || "Endereço"}
+                      {item.principal ? " ⭐" : ""}
+                      {" — "}
+                      {item.rua}, {item.numero}
+                    </option>
+                  ))}
+
+                  <option value="manual">Preencher outro endereço</option>
+                </select>
+              </div>
+            )}
+
             <div className="checkout-field checkout-neighborhood-field">
               <label htmlFor="checkout-neighborhood">Bairro</label>
 
@@ -1051,6 +1165,7 @@ export default function CheckoutModal({
                   id="checkout-neighborhood"
                   name="neighborhood"
                   type="text"
+                  className="checkout-neighborhood-input"
                   autoComplete="off"
                   placeholder="Digite ou selecione seu bairro"
                   value={address.neighborhood}
@@ -1059,6 +1174,8 @@ export default function CheckoutModal({
                     updateAddress("neighborhood", event.target.value);
                     setNeighborhoodOpen(true);
                   }}
+                  aria-expanded={neighborhoodOpen}
+                  aria-invalid={Boolean(errors.neighborhood)}
                 />
 
                 <button

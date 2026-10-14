@@ -331,6 +331,17 @@ function App() {
   });
 
   function openCheckout() {
+    if (accountUser) {
+      const savedName = accountUser.user_metadata?.nome_completo || "";
+
+      const savedPhone = accountUser.user_metadata?.telefone || "";
+
+      setCheckoutCustomer((current) => ({
+        name: current.name.trim() || savedName,
+        whatsapp: current.whatsapp.trim() || savedPhone,
+      }));
+    }
+
     setCartOpen(false);
     setCheckoutOpen(true);
   }
@@ -343,6 +354,9 @@ function App() {
     password: "",
   });
 
+  const [loginErrors, setLoginErrors] = useState({});
+  const [loginShake, setLoginShake] = useState(0);
+
   const [registerForm, setRegisterForm] = useState({
     name: "",
     phone: "",
@@ -353,6 +367,112 @@ function App() {
 
   const [accountLoading, setAccountLoading] = useState(false);
   const [accountMessage, setAccountMessage] = useState(null);
+
+  const [registerErrors, setRegisterErrors] = useState({});
+  const [registerShake, setRegisterShake] = useState(0);
+
+  function validateRegisterField(field, form) {
+    const value = form[field]?.trim() || "";
+
+    switch (field) {
+      case "name":
+        return value ? "" : "Informe seu nome completo.";
+
+      case "phone": {
+        const digits = value.replace(/\D/g, "");
+
+        const validDDD = /^[1-9][1-9]/.test(digits.slice(0, 2));
+        const validMobile = digits.length === 11 && digits[2] === "9";
+
+        return validDDD && validMobile
+          ? ""
+          : "Informe um celular válido com DDD (11 dígitos).";
+      }
+
+      case "email":
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          ? ""
+          : "Informe um e-mail válido.";
+
+      case "password":
+        return value.length >= 6
+          ? ""
+          : "A senha precisa ter pelo menos 6 caracteres.";
+
+      case "confirmPassword":
+        return value && value === form.password
+          ? ""
+          : "As senhas não coincidem.";
+
+      default:
+        return "";
+    }
+  }
+
+  function validateRegisterForm(form) {
+    const errors = {};
+
+    for (const field of [
+      "name",
+      "phone",
+      "email",
+      "password",
+      "confirmPassword",
+    ]) {
+      const error = validateRegisterField(field, form);
+
+      if (error) errors[field] = error;
+    }
+
+    return errors;
+  }
+
+  /* =========================================================
+   CADASTRO - MÁSCARA DE TELEFONE
+========================================================= */
+
+  function formatPhone(value) {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+
+    if (!digits) return "";
+
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    }
+
+    if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    }
+
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+
+  function updateRegisterField(field, value) {
+    const formattedValue = field === "phone" ? formatPhone(value) : value;
+
+    const updated = {
+      ...registerForm,
+      [field]: formattedValue,
+    };
+
+    setRegisterForm(updated);
+
+    setRegisterErrors((current) => {
+      const next = { ...current };
+
+      if (field === "password") {
+        for (const key of ["password", "confirmPassword"]) {
+          if (current[key]) {
+            next[key] = validateRegisterField(key, updated);
+          }
+        }
+      } else if (current[field]) {
+        next[field] = validateRegisterField(field, updated);
+      }
+
+      return next;
+    });
+  }
 
   const [addressForm, setAddressForm] = useState({
     apelido: "Casa",
@@ -368,11 +488,99 @@ function App() {
 
   const [customerAddresses, setCustomerAddresses] = useState([]);
   const [addressLoading, setAddressLoading] = useState(false);
+
   const [addressMessage, setAddressMessage] = useState(null);
+  const [addressErrors, setAddressErrors] = useState({});
+  const [addressShake, setAddressShake] = useState(0);
+
+  // Exclusão de endereços
+  const [addressToDelete, setAddressToDelete] = useState(null);
+  const [addressDeleting, setAddressDeleting] = useState(false);
+
   const [showAddressForm, setShowAddressForm] = useState(false);
+
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [accountNeighborhoodOpen, setAccountNeighborhoodOpen] = useState(false);
+
+  const filteredAccountNeighborhoods = neighborhoods.filter((neighborhood) =>
+    neighborhood
+      .toLocaleLowerCase("pt-BR")
+      .includes(addressForm.bairro.toLocaleLowerCase("pt-BR")),
+  );
 
   const [accountUser, setAccountUser] = useState(null);
   const [accountCheckingSession, setAccountCheckingSession] = useState(true);
+
+  const [editingProfile, setEditingProfile] = useState(false);
+
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    phone: "",
+  });
+
+  const [profileErrors, setProfileErrors] = useState({});
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileMessage, setProfileMessage] = useState(null);
+
+  /* =========================================================
+   MINHA CONTA - OCULTAR MENSAGENS DE SUCESSO
+========================================================= */
+
+  useEffect(() => {
+    if (!profileMessage?.includes("sucesso!")) return;
+
+    const timer = setTimeout(() => {
+      setProfileMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [profileMessage]);
+
+  useEffect(() => {
+    if (!addressMessage?.includes("sucesso!")) return;
+
+    const timer = setTimeout(() => {
+      setAddressMessage(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [addressMessage]);
+
+  /* =========================================================
+   MINHA CONTA - CARREGAR ENDEREÇOS SALVOS
+========================================================= */
+
+  useEffect(() => {
+    if (!accountUser?.id) {
+      setCustomerAddresses([]);
+      return;
+    }
+
+    let active = true;
+
+    async function loadCustomerAddresses() {
+      const { data, error } = await supabase
+        .from("enderecos_clientes")
+        .select("*")
+        .eq("cliente_id", accountUser.id)
+        .order("criado_em", { ascending: false });
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Erro ao carregar endereços:", error);
+        return;
+      }
+
+      setCustomerAddresses(data || []);
+    }
+
+    loadCustomerAddresses();
+
+    return () => {
+      active = false;
+    };
+  }, [accountUser?.id]);
   useEffect(() => {
     let active = true;
 
@@ -381,7 +589,7 @@ function App() {
 
       if (!active) return;
 
-      if (error) {
+      if (error && error.name !== "AuthSessionMissingError") {
         console.error("Erro ao verificar sessão:", error);
       }
 
@@ -410,6 +618,14 @@ function App() {
     event.preventDefault();
     setAccountMessage(null);
 
+    const errors = validateRegisterForm(registerForm);
+    setRegisterErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setRegisterShake((current) => current + 1);
+      return;
+    }
+
     const name = registerForm.name.trim();
     const phone = registerForm.phone.replace(/\D/g, "");
     const email = registerForm.email.trim().toLowerCase();
@@ -419,8 +635,8 @@ function App() {
       return;
     }
 
-    if (phone.length < 10 || phone.length > 11) {
-      setAccountMessage("Informe um telefone válido com DDD.");
+    if (phone.length !== 11 || !/^[1-9][1-9]9\d{8}$/.test(phone)) {
+      setAccountMessage("Informe um celular válido com DDD (11 dígitos).");
       return;
     }
 
@@ -480,6 +696,24 @@ function App() {
     event.preventDefault();
 
     setAccountMessage(null);
+
+    const errors = {};
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email.trim())) {
+      errors.email = "Informe um e-mail válido.";
+    }
+
+    if (!loginForm.password.trim()) {
+      errors.password = "Informe sua senha.";
+    }
+
+    setLoginErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setLoginShake((current) => current + 1);
+      return;
+    }
+
     setAccountLoading(true);
 
     try {
@@ -501,17 +735,221 @@ function App() {
     } catch (error) {
       console.error("Erro ao entrar:", error);
 
-      setAccountMessage(
-        "Não foi possível entrar. Confira seu e-mail, senha e confirmação da conta.",
-      );
+      setAccountMessage("Não foi possível entrar. Confira seu e-mail, senha.");
     } finally {
       setAccountLoading(false);
     }
   }
 
-  /* =======================================================
-     SALVAR ENDEREÇO DO CLIENTE
-  ======================================================= */
+  /* =========================================================
+     MINHA CONTA - ENDEREÇO PRINCIPAL
+  ========================================================= */
+
+  async function handleSetPrimaryAddress(addressId) {
+    if (!accountUser?.id || !addressId) return;
+
+    setAddressMessage(null);
+
+    const selectedAddress = customerAddresses.find(
+      (address) => address.id === addressId,
+    );
+
+    if (!selectedAddress) return;
+
+    const isAlreadyPrimary = selectedAddress.principal;
+
+    try {
+      const { error } = await supabase.rpc(
+        isAlreadyPrimary
+          ? "desmarcar_endereco_principal"
+          : "definir_endereco_principal",
+        {
+          p_endereco_id: addressId,
+        },
+      );
+
+      if (error) throw error;
+
+      setCustomerAddresses((current) =>
+        current.map((address) => ({
+          ...address,
+          principal: isAlreadyPrimary ? false : address.id === addressId,
+        })),
+      );
+
+      setAddressMessage(
+        isAlreadyPrimary
+          ? "Endereço principal desmarcado com sucesso!"
+          : "Endereço principal atualizado com sucesso!",
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar endereço principal:", error);
+
+      setAddressMessage(
+        "Não foi possível atualizar o endereço principal. Tente novamente.",
+      );
+    }
+  }
+
+  /* =========================================================
+     MINHA CONTA - EXCLUIR/SALVAR/EDITAR ENDEREÇO
+  ========================================================= */
+
+  async function handleDeleteAddress() {
+    if (!addressToDelete?.id || !accountUser?.id || addressDeleting) return;
+
+    setAddressDeleting(true);
+    setAddressMessage(null);
+
+    try {
+      const { data, error } = await supabase
+        .from("enderecos_clientes")
+        .delete()
+        .eq("id", addressToDelete.id)
+        .eq("cliente_id", accountUser.id)
+        .select("id");
+
+      if (error) throw error;
+
+      if (!data?.length) {
+        throw new Error("Endereço não encontrado ou exclusão não autorizada.");
+      }
+
+      setCustomerAddresses((current) =>
+        current.filter((address) => address.id !== addressToDelete.id),
+      );
+
+      if (editingAddressId === addressToDelete.id) {
+        setEditingAddressId(null);
+        setShowAddressForm(false);
+      }
+
+      setAddressToDelete(null);
+      setAddressMessage("Endereço excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir endereço:", error);
+      setAddressMessage(
+        "Não foi possível excluir o endereço. Tente novamente.",
+      );
+      setAddressToDelete(null);
+    } finally {
+      setAddressDeleting(false);
+    }
+  }
+
+  /* =========================================================
+   MINHA CONTA - EDITAR DADOS PESSOAIS
+========================================================= */
+
+  function handleOpenProfileEdit() {
+    setProfileForm({
+      name: accountUser?.user_metadata?.nome_completo || "",
+      phone: formatPhone(accountUser?.user_metadata?.telefone || ""),
+    });
+
+    setProfileErrors({});
+    setProfileMessage(null);
+    setEditingProfile(true);
+  }
+
+  function handleCancelProfileEdit() {
+    setEditingProfile(false);
+    setProfileErrors({});
+    setProfileMessage(null);
+  }
+
+  /* =========================================================
+   MINHA CONTA - SALVAR DADOS PESSOAIS
+========================================================= */
+
+  async function handleSaveProfile(event) {
+    event.preventDefault();
+
+    if (!accountUser?.id || profileLoading) return;
+
+    setProfileMessage(null);
+
+    const name = profileForm.name.trim().replace(/\s+/g, " ");
+    const phone = profileForm.phone.replace(/\D/g, "");
+
+    const errors = {};
+
+    if (name.length < 2) {
+      errors.name = "Informe um nome com pelo menos 2 caracteres.";
+    }
+
+    if (!/^[1-9][1-9]9\d{8}$/.test(phone)) {
+      errors.phone = "Informe um celular válido com DDD.";
+    }
+
+    setProfileErrors(errors);
+
+    if (Object.keys(errors).length > 0) return;
+
+    setProfileLoading(true);
+
+    try {
+      // Atualiza os dados no Supabase Auth.
+      const { data: authData, error: authError } =
+        await supabase.auth.updateUser({
+          data: {
+            nome_completo: name,
+            telefone: phone,
+          },
+        });
+
+      if (authError) throw authError;
+
+      // Atualiza também a tabela de perfis.
+      const { error: profileError } = await supabase
+        .from("perfis_clientes")
+        .upsert(
+          {
+            id: accountUser.id,
+            nome_completo: name,
+            telefone: phone,
+            atualizado_em: new Date().toISOString(),
+          },
+          { onConflict: "id" },
+        );
+
+      if (profileError) throw profileError;
+
+      setAccountUser(authData.user);
+
+      setEditingProfile(false);
+      setProfileErrors({});
+      setProfileMessage("Dados atualizados com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar dados pessoais:", error);
+
+      setProfileMessage(
+        "Não foi possível concluir a atualização. Tente novamente.",
+      );
+    } finally {
+      setProfileLoading(false);
+    }
+  }
+
+  function handleEditAddress(address) {
+    setEditingAddressId(address.id);
+
+    setAddressForm({
+      apelido: address.apelido || "Casa",
+      cep: address.cep || "",
+      rua: address.rua || "",
+      numero: address.numero || "",
+      complemento: address.complemento || "",
+      bairro: address.bairro || "",
+      cidade: address.cidade || "",
+      estado: address.estado || "",
+      referencia: address.referencia || "",
+    });
+
+    setAddressMessage(null);
+    setAccountNeighborhoodOpen(false);
+    setShowAddressForm(true);
+  }
 
   async function handleSaveAddress(event) {
     event.preventDefault();
@@ -522,38 +960,72 @@ function App() {
       return;
     }
 
-    const cep = addressForm.cep.replace(/\D/g, "");
-    const estado = addressForm.estado.trim().toUpperCase();
+    const errors = {};
 
-    if (cep.length !== 8 || estado.length !== 2) {
-      setAddressMessage("Confira o CEP e a sigla do estado.");
+    if (!addressForm.rua.trim()) {
+      errors.rua = "Informe a rua ou avenida.";
+    }
+
+    if (!addressForm.numero.trim()) {
+      errors.numero = "Informe o número ou marque S/N.";
+    }
+
+    if (!neighborhoods.includes(addressForm.bairro.trim())) {
+      errors.bairro = "Selecione um bairro atendido pela Pé de Moça.";
+    }
+
+    setAddressErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setAddressShake((current) => current + 1);
       return;
     }
 
     setAddressLoading(true);
 
     try {
-      const { data, error } = await supabase
-        .from("enderecos_clientes")
-        .insert({
+      const addressData = {
+        apelido: addressForm.apelido.trim() || "Casa",
+        rua: addressForm.rua.trim(),
+        numero: addressForm.numero.trim(),
+        complemento: addressForm.complemento.trim() || null,
+        bairro: addressForm.bairro.trim(),
+        referencia: addressForm.referencia.trim() || null,
+      };
+
+      let query;
+
+      if (editingAddressId) {
+        // EDITAR: atualiza o endereço existente
+        query = supabase
+          .from("enderecos_clientes")
+          .update(addressData)
+          .eq("id", editingAddressId)
+          .eq("cliente_id", accountUser.id);
+      } else {
+        // ADICIONAR: cria um novo endereço
+        query = supabase.from("enderecos_clientes").insert({
+          ...addressData,
           cliente_id: accountUser.id,
-          apelido: addressForm.apelido.trim() || "Casa",
-          cep,
-          rua: addressForm.rua.trim(),
-          numero: addressForm.numero.trim(),
-          complemento: addressForm.complemento.trim() || null,
-          bairro: addressForm.bairro.trim(),
-          cidade: addressForm.cidade.trim(),
-          estado,
-          referencia: addressForm.referencia.trim() || null,
-          principal: customerAddresses.length === 0,
-        })
-        .select()
-        .single();
+          principal: false,
+        });
+      }
+
+      const { data, error } = await query.select().single();
 
       if (error) throw error;
 
-      setCustomerAddresses((current) => [...current, data]);
+      setCustomerAddresses((current) =>
+        editingAddressId
+          ? current.map((address) =>
+              address.id === editingAddressId ? data : address,
+            )
+          : [...current, data],
+      );
+
+      const wasEditing = Boolean(editingAddressId);
+
+      setEditingAddressId(null);
       setShowAddressForm(false);
       setAddressForm({
         apelido: "Casa",
@@ -567,10 +1039,20 @@ function App() {
         referencia: "",
       });
 
-      setAddressMessage("Endereço salvo com sucesso!");
+      setAddressMessage(
+        wasEditing
+          ? "Endereço atualizado com sucesso!"
+          : "Endereço salvo com sucesso!",
+      );
     } catch (error) {
-      console.error("Erro ao salvar endereço:", error);
-      setAddressMessage("Não foi possível salvar o endereço.");
+      console.error("Erro ao salvar endereço:", {
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+      });
+
+      setAddressMessage("Não foi possível salvar o endereço. Tente novamente.");
     } finally {
       setAddressLoading(false);
     }
@@ -625,19 +1107,17 @@ function App() {
   const carouselTouchStartX = useRef(null);
 
   /* =======================================================
-     SALVAR PERFIL DO CLIENTE
-  ======================================================= */
+   CRIAR PERFIL INICIAL DO CLIENTE
+======================================================= */
 
   useEffect(() => {
     if (!accountUser?.id) return;
 
-    let cancelled = false;
+    let active = true;
 
-    async function saveCustomerProfile() {
+    async function createCustomerProfile() {
       const metadata = accountUser.user_metadata || {};
-
       const name = metadata.nome_completo?.trim();
-      const phone = metadata.telefone || null;
 
       if (!name) return;
 
@@ -645,21 +1125,23 @@ function App() {
         {
           id: accountUser.id,
           nome_completo: name,
-          telefone: phone,
-          atualizado_em: new Date().toISOString(),
+          telefone: metadata.telefone || null,
         },
-        { onConflict: "id" },
+        {
+          onConflict: "id",
+          ignoreDuplicates: true,
+        },
       );
 
-      if (error && !cancelled) {
-        console.error("Erro ao salvar perfil do cliente:", error);
+      if (error && active) {
+        console.error("Erro ao criar perfil inicial:", error);
       }
     }
 
-    saveCustomerProfile();
+    createCustomerProfile();
 
     return () => {
-      cancelled = true;
+      active = false;
     };
   }, [accountUser?.id]);
 
@@ -1876,9 +2358,35 @@ function App() {
   function MenuHeader() {
     return (
       <header className="header">
-        <a href="/" className="brand">
-          <img className="brand-writing" src={escrita} alt="Pé de Moça" />
-        </a>
+        <div className="header-left">
+          <button
+            type="button"
+            className="mobile-menu"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Abrir menu"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
+
+          <a href="/" className="brand">
+            <img className="brand-writing" src={escrita} alt="Pé de Moça" />
+          </a>
+        </div>
+
+        <nav className={`navigation ${menuOpen ? "navigation-open" : ""}`}>
+          <a href="/" onClick={() => setMenuOpen(false)}>
+            Início
+          </a>
+
+          <a href="/cardapio" onClick={() => setMenuOpen(false)}>
+            Cardápio
+          </a>
+
+          <a href="/minha-conta" onClick={() => setMenuOpen(false)}>
+            Minha conta
+          </a>
+        </nav>
 
         <button
           className={`header-cart ${totalItems > 0 ? "has-items" : ""}`}
@@ -1978,7 +2486,7 @@ function App() {
           {accountCheckingSession && <p>Carregando sua conta...</p>}
 
           {!accountCheckingSession && accountUser && (
-            <>
+            <div className="account-profile-card">
               <h2>
                 Olá,{" "}
                 {accountUser.user_metadata?.nome_completo
@@ -1993,6 +2501,97 @@ function App() {
                 <strong>E-mail:</strong> {accountUser.email}
               </p>
 
+              {!editingProfile && (
+                <button
+                  type="button"
+                  className="account-profile-edit-button"
+                  onClick={handleOpenProfileEdit}
+                >
+                  <span aria-hidden="true">✎</span>
+                  Editar meus dados
+                </button>
+              )}
+
+              {profileMessage && (
+                <p className="account-address-message" role="status">
+                  {profileMessage}
+                </p>
+              )}
+
+              {editingProfile && (
+                <form
+                  className="account-form account-profile-edit-form"
+                  onSubmit={handleSaveProfile}
+                  noValidate
+                >
+                  <h3>Editar meus dados</h3>
+
+                  <div className="account-profile-divider" aria-hidden="true" />
+
+                  <div className="account-field">
+                    <label htmlFor="profile-name">Nome</label>
+
+                    <input
+                      id="profile-name"
+                      type="text"
+                      autoComplete="name"
+                      value={profileForm.name}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          name: event.target.value,
+                        }))
+                      }
+                    />
+
+                    {profileErrors.name && (
+                      <small className="account-field-error">
+                        {profileErrors.name}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="account-field">
+                    <label htmlFor="profile-phone">Celular</label>
+
+                    <input
+                      id="profile-phone"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      maxLength={15}
+                      value={profileForm.phone}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          phone: formatPhone(event.target.value),
+                        }))
+                      }
+                    />
+
+                    {profileErrors.phone && (
+                      <small className="account-field-error">
+                        {profileErrors.phone}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="account-profile-divider" aria-hidden="true" />
+
+                  <button type="submit" disabled={profileLoading}>
+                    {profileLoading ? "Salvando..." : "Salvar alterações"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="account-back account-cancel-button"
+                    onClick={handleCancelProfileEdit}
+                  >
+                    Cancelar
+                  </button>
+                </form>
+              )}
+
               <div className="account-address-section">
                 <h2>Meus endereços</h2>
 
@@ -2002,22 +2601,190 @@ function App() {
 
                 {customerAddresses.map((address) => (
                   <div className="account-address-card" key={address.id}>
-                    <strong>{address.apelido || "Meu endereço"}</strong>
+                    <div className="account-address-card-header">
+                      <strong>{address.apelido || "Meu endereço"}</strong>
+
+                      <button
+                        type="button"
+                        className="account-address-edit"
+                        onClick={() => handleSetPrimaryAddress(address.id)}
+                        aria-label={
+                          address.principal
+                            ? "Endereço principal"
+                            : "Definir como endereço principal"
+                        }
+                        title={
+                          address.principal
+                            ? "Endereço principal"
+                            : "Definir como principal"
+                        }
+                        aria-pressed={Boolean(address.principal)}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill={address.principal ? "var(--red)" : "none"}
+                          stroke="var(--red)"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <polygon points="12 2 15.1 8.3 22 9.3 17 14.2 18.2 21 12 17.8 5.8 21 7 14.2 2 9.3 8.9 8.3 12 2" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="account-address-edit"
+                        onClick={() => handleEditAddress(address)}
+                        aria-label={`Editar endereço ${address.apelido || "Meu endereço"}`}
+                        title="Editar endereço"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="account-address-delete"
+                        onClick={() => setAddressToDelete(address)}
+                        aria-label={`Excluir endereço ${address.apelido || "Meu endereço"}`}
+                        title="Excluir endereço"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 10v7" />
+                          <path d="M14 10v7" />
+                        </svg>
+                      </button>
+                    </div>
 
                     <p>
                       {address.rua}, {address.numero}
-                      {address.complemento ? `, ${address.complemento}` : ""}
                     </p>
 
                     <p>
-                      {address.bairro} - {address.cidade}/{address.estado}
+                      {address.bairro}
+                      {address.cidade ? ` - ${address.cidade}` : ""}
+                      {address.estado ? `/${address.estado}` : ""}
                     </p>
 
-                    <p>CEP: {address.cep}</p>
+                    {address.complemento?.trim() && (
+                      <p>
+                        <strong>Complemento:</strong> {address.complemento}
+                      </p>
+                    )}
 
-                    {address.principal && <span>Endereço principal</span>}
+                    {address.referencia?.trim() && (
+                      <p>
+                        <strong>Referência:</strong> {address.referencia}
+                      </p>
+                    )}
                   </div>
                 ))}
+
+                {addressToDelete && (
+                  <div
+                    className="account-delete-overlay"
+                    onClick={() => {
+                      if (!addressDeleting) setAddressToDelete(null);
+                    }}
+                  >
+                    <div
+                      className="account-delete-modal"
+                      role="alertdialog"
+                      aria-modal="true"
+                      aria-labelledby="account-delete-title"
+                      aria-describedby="account-delete-description"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="account-delete-icon">
+                        <svg
+                          width="25"
+                          height="25"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 10v7" />
+                          <path d="M14 10v7" />
+                        </svg>
+                      </div>
+
+                      <h3 id="account-delete-title">Excluir endereço?</h3>
+
+                      <p id="account-delete-description">
+                        Tem certeza de que deseja excluir o endereço{" "}
+                        <strong>
+                          {addressToDelete.apelido || "Meu endereço"}
+                        </strong>
+                        ? Essa ação não poderá ser desfeita.
+                      </p>
+
+                      <div className="account-delete-actions">
+                        <button
+                          type="button"
+                          className="account-delete-cancel"
+                          disabled={addressDeleting}
+                          onClick={() => setAddressToDelete(null)}
+                        >
+                          Cancelar
+                        </button>
+
+                        <button
+                          type="button"
+                          className="account-delete-confirm"
+                          disabled={addressDeleting}
+                          onClick={handleDeleteAddress}
+                        >
+                          {addressDeleting ? "Excluindo..." : "Excluir"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!showAddressForm && addressMessage && (
+                  <p className="account-address-message" role="status">
+                    {addressMessage}
+                  </p>
+                )}
 
                 {!showAddressForm && (
                   <button
@@ -2025,6 +2792,22 @@ function App() {
                     className="account-address-add"
                     onClick={() => {
                       setAddressMessage(null);
+                      setAddressErrors({});
+                      setEditingAddressId(null);
+                      setAccountNeighborhoodOpen(false);
+
+                      setAddressForm({
+                        apelido: "Casa",
+                        cep: "",
+                        rua: "",
+                        numero: "",
+                        complemento: "",
+                        bairro: "",
+                        cidade: "",
+                        estado: "",
+                        referencia: "",
+                      });
+
                       setShowAddressForm(true);
                     }}
                   >
@@ -2033,42 +2816,142 @@ function App() {
                 )}
 
                 {showAddressForm && (
-                  <form className="account-form" onSubmit={handleSaveAddress}>
+                  <form
+                    className="account-form account-address-form"
+                    onSubmit={handleSaveAddress}
+                    noValidate
+                  >
                     {[
-                      ["apelido", "Apelido do endereço", "text", false],
-                      ["rua", "Rua", "text", true],
-                      ["numero", "Número", "text", true],
-                      ["complemento", "Complemento", "text", false],
-                      ["bairro", "Bairro", "text", true],
-                      ["referencia", "Ponto de referência", "text", false],
-                    ].map(([field, label, type, required]) => (
+                      [
+                        "apelido",
+                        "Apelido do endereço",
+                        "text",
+                        false,
+                        "Ex.: Casa, Trabalho...",
+                      ],
+                      ["rua", "Rua", "text", true, "Nome da rua ou avenida"],
+                      ["numero", "Número", "text", true, "Ex.: 123"],
+                      [
+                        "complemento",
+                        "Complemento",
+                        "text",
+                        false,
+                        "Apto, bloco, casa dos fundos...",
+                      ],
+                      ["bairro", "Bairro", "text", true, ""],
+                      [
+                        "referencia",
+                        "Ponto de referência",
+                        "text",
+                        false,
+                        "Ex.: próximo ao mercado",
+                      ],
+                    ].map(([field, label, type, required, placeholder]) => (
                       <div className="account-address-field" key={field}>
                         <label htmlFor={`address-${field}`}>{label}</label>
 
                         {field === "bairro" ? (
-                          <select
-                            id="address-bairro"
-                            value={addressForm.bairro}
-                            onChange={(event) =>
-                              setAddressForm((current) => ({
-                                ...current,
-                                bairro: event.target.value,
-                              }))
-                            }
-                            required
+                          <div
+                            className="checkout-neighborhood-wrapper"
+                            onBlur={(event) => {
+                              if (
+                                !event.currentTarget.contains(
+                                  event.relatedTarget,
+                                )
+                              ) {
+                                setAccountNeighborhoodOpen(false);
+                              }
+                            }}
                           >
-                            <option value="">Selecione seu bairro</option>
+                            <input
+                              key={`bairro-${addressErrors.bairro ? addressShake : "ok"}`}
+                              id="address-bairro"
+                              name="bairro"
+                              type="text"
+                              className={`checkout-neighborhood-input ${
+                                addressErrors.bairro
+                                  ? "account-input-shake account-input-error"
+                                  : ""
+                              }`}
+                              aria-invalid={Boolean(addressErrors.bairro)}
+                              autoComplete="off"
+                              placeholder="Digite ou selecione seu bairro"
+                              value={addressForm.bairro}
+                              onFocus={() => setAccountNeighborhoodOpen(true)}
+                              onChange={(event) => {
+                                setAddressForm((current) => ({
+                                  ...current,
+                                  bairro: event.target.value,
+                                }));
+                                setAccountNeighborhoodOpen(true);
+                              }}
+                              aria-expanded={accountNeighborhoodOpen}
+                              aria-controls="account-neighborhood-options"
+                              required
+                            />
 
-                            {neighborhoods.map((neighborhood) => (
-                              <option key={neighborhood} value={neighborhood}>
-                                {neighborhood}
-                              </option>
-                            ))}
-                          </select>
+                            <button
+                              type="button"
+                              className="checkout-neighborhood-toggle"
+                              aria-label="Mostrar bairros"
+                              aria-expanded={accountNeighborhoodOpen}
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() =>
+                                setAccountNeighborhoodOpen(
+                                  (current) => !current,
+                                )
+                              }
+                            >
+                              {accountNeighborhoodOpen ? "▲" : "▼"}
+                            </button>
+
+                            {accountNeighborhoodOpen && (
+                              <div
+                                id="account-neighborhood-options"
+                                className="checkout-neighborhood-dropdown"
+                              >
+                                {filteredAccountNeighborhoods.length > 0 ? (
+                                  filteredAccountNeighborhoods.map(
+                                    (neighborhood) => (
+                                      <button
+                                        key={neighborhood}
+                                        type="button"
+                                        className="checkout-neighborhood-option"
+                                        onMouseDown={(event) =>
+                                          event.preventDefault()
+                                        }
+                                        onClick={() => {
+                                          setAddressForm((current) => ({
+                                            ...current,
+                                            bairro: neighborhood,
+                                          }));
+                                          setAccountNeighborhoodOpen(false);
+                                        }}
+                                      >
+                                        {neighborhood}
+                                      </button>
+                                    ),
+                                  )
+                                ) : (
+                                  <div className="checkout-neighborhood-empty">
+                                    Bairro não encontrado
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <input
+                            key={`${field}-${addressErrors[field] ? addressShake : "ok"}`}
                             id={`address-${field}`}
                             type={type}
+                            placeholder={placeholder}
+                            className={
+                              addressErrors[field]
+                                ? "account-input-shake account-input-error"
+                                : ""
+                            }
+                            aria-invalid={Boolean(addressErrors[field])}
                             value={addressForm[field]}
                             onChange={(event) =>
                               setAddressForm((current) => ({
@@ -2084,11 +2967,47 @@ function App() {
                                   ? 2
                                   : undefined
                             }
-                            inputMode={field === "cep" ? "numeric" : undefined}
+                            inputMode={
+                              field === "numero" && addressForm.numero !== "S/N"
+                                ? "numeric"
+                                : undefined
+                            }
+                            disabled={
+                              field === "numero" && addressForm.numero === "S/N"
+                            }
                           />
+                        )}
+
+                        {field === "numero" && (
+                          <label className="account-address-no-number">
+                            <input
+                              type="checkbox"
+                              checked={addressForm.numero === "S/N"}
+                              onChange={(event) => {
+                                setAddressForm((current) => ({
+                                  ...current,
+                                  numero: event.target.checked ? "S/N" : "",
+                                }));
+                              }}
+                            />
+                            <span>S/N</span>
+                          </label>
+                        )}
+
+                        {addressErrors[field] && (
+                          <span className="account-field-error" role="alert">
+                            <span aria-hidden="true">!</span>
+                            {addressErrors[field]}
+                          </span>
                         )}
                       </div>
                     ))}
+
+                    {addressMessage && (
+                      <p className="account-address-message">
+                        {addressMessage}
+                      </p>
+                    )}
 
                     <button type="submit" disabled={addressLoading}>
                       {addressLoading ? "Salvando..." : "Salvar endereço"}
@@ -2096,53 +3015,83 @@ function App() {
 
                     <button
                       type="button"
-                      className="account-back"
+                      className="account-back account-cancel-button"
                       onClick={() => {
                         setShowAddressForm(false);
+                        setEditingAddressId(null);
                         setAddressMessage(null);
+                        setAddressErrors({});
+                        setAccountNeighborhoodOpen(false);
+
+                        setAddressForm({
+                          apelido: "Casa",
+                          cep: "",
+                          rua: "",
+                          numero: "",
+                          complemento: "",
+                          bairro: "",
+                          cidade: "",
+                          estado: "",
+                          referencia: "",
+                        });
                       }}
                     >
                       Cancelar
                     </button>
                   </form>
                 )}
-
-                {addressMessage && (
-                  <p className="account-message" role="status">
-                    {addressMessage}
-                  </p>
-                )}
               </div>
 
-              <div className="account-actions">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const { error } = await supabase.auth.signOut();
+              {!showAddressForm && (
+                <div className="account-actions">
+                  <button
+                    type="button"
+                    className="account-return-button"
+                    onClick={() => {
+                      window.location.href = "/";
+                    }}
+                  >
+                    Voltar
+                  </button>
 
-                    if (error) {
-                      setAccountMessage("Não foi possível sair da conta.");
-                      return;
-                    }
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const { error } = await supabase.auth.signOut();
 
-                    setCustomerAddresses([]);
-                    setShowAddressForm(false);
-                    setAccountMessage(null);
-                    setAccountView("welcome");
-                  }}
-                >
-                  Sair da conta
-                </button>
-              </div>
-            </>
+                      if (error) {
+                        setAccountMessage("Não foi possível sair da conta.");
+                        return;
+                      }
+
+                      setCustomerAddresses([]);
+                      setShowAddressForm(false);
+                      setAccountMessage(null);
+                      setAccountView("welcome");
+                    }}
+                  >
+                    Sair da conta
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
-          <div className="account-content">
+          <div
+            className="account-content"
+            style={
+              accountUser || accountCheckingSession
+                ? { display: "none" }
+                : undefined
+            }
+          >
             {!accountCheckingSession &&
               !accountUser &&
               accountView === "welcome" && (
                 <>
-                  <h2>Que bom ter você por aqui!</h2>
+                  <h2 className="account-centered-title">
+                    Que bom ter você por aqui!
+                  </h2>
 
                   <p>
                     Entre na sua conta ou faça seu cadastro para aproveitar uma
@@ -2169,50 +3118,121 @@ function App() {
 
             {!accountUser && accountView === "login" && (
               <>
-                <h2>Entrar na minha conta</h2>
+                <h2 className="account-centered-title">
+                  Entrar na minha conta
+                </h2>
                 <p>Que bom ter você de volta!</p>
 
-                <form className="account-form" onSubmit={handleLogin}>
-                  <label htmlFor="login-email">E-mail</label>
-                  <input
-                    id="login-email"
-                    type="email"
-                    autoComplete="email"
-                    value={loginForm.email}
-                    onChange={(event) =>
-                      setLoginForm((current) => ({
-                        ...current,
-                        email: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                <form
+                  className="account-form"
+                  onSubmit={handleLogin}
+                  noValidate
+                >
+                  <div className="account-register-field">
+                    <label htmlFor="login-email">E-mail</label>
 
-                  <label htmlFor="login-password">Senha</label>
-                  <input
-                    id="login-password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={loginForm.password}
-                    onChange={(event) =>
-                      setLoginForm((current) => ({
-                        ...current,
-                        password: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                    <input
+                      key={`login-email-${loginErrors.email ? loginShake : "ok"}`}
+                      id="login-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Digite seu e-mail"
+                      className={loginErrors.email ? "account-input-shake" : ""}
+                      aria-invalid={Boolean(loginErrors.email)}
+                      aria-describedby={
+                        loginErrors.email ? "login-email-error" : undefined
+                      }
+                      value={loginForm.email}
+                      onChange={(event) => {
+                        const value = event.target.value;
+
+                        setLoginForm((current) => ({
+                          ...current,
+                          email: value,
+                        }));
+
+                        setLoginErrors((current) => ({
+                          ...current,
+                          email: "",
+                        }));
+                      }}
+                    />
+
+                    {loginErrors.email && (
+                      <span
+                        id="login-email-error"
+                        className="account-field-error"
+                        role="alert"
+                      >
+                        <span aria-hidden="true">!</span>
+                        {loginErrors.email}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="account-register-field">
+                    <label htmlFor="login-password">Senha</label>
+
+                    <input
+                      key={`login-password-${loginErrors.password ? loginShake : "ok"}`}
+                      id="login-password"
+                      type="password"
+                      autoComplete="current-password"
+                      placeholder="Digite sua senha"
+                      className={
+                        loginErrors.password ? "account-input-shake" : ""
+                      }
+                      aria-invalid={Boolean(loginErrors.password)}
+                      aria-describedby={
+                        loginErrors.password
+                          ? "login-password-error"
+                          : undefined
+                      }
+                      value={loginForm.password}
+                      onChange={(event) => {
+                        const value = event.target.value;
+
+                        setLoginForm((current) => ({
+                          ...current,
+                          password: value,
+                        }));
+
+                        setLoginErrors((current) => ({
+                          ...current,
+                          password: "",
+                        }));
+                      }}
+                    />
+
+                    {loginErrors.password && (
+                      <span
+                        id="login-password-error"
+                        className="account-field-error"
+                        role="alert"
+                      >
+                        <span aria-hidden="true">!</span>
+                        {loginErrors.password}
+                      </span>
+                    )}
+                  </div>
+
+                  {accountMessage && (
+                    <div className="account-login-alert" role="alert">
+                      <span
+                        className="account-login-alert-icon"
+                        aria-hidden="true"
+                      >
+                        !
+                      </span>
+
+                      <span>{accountMessage}</span>
+                    </div>
+                  )}
 
                   <button type="submit" disabled={accountLoading}>
                     {accountLoading ? "Entrando..." : "Entrar"}
                   </button>
                 </form>
-
-                {accountMessage && (
-                  <p className="account-message" role="status">
-                    {accountMessage}
-                  </p>
-                )}
 
                 <button
                   type="button"
@@ -2229,97 +3249,115 @@ function App() {
 
             {!accountUser && accountView === "register" && (
               <>
-                <h2>Criar minha conta</h2>
+                <h2 className="account-register-title">Criar minha conta</h2>
                 <p>Preencha seus dados para fazer parte da Pé de Moça.</p>
 
-                <form className="account-form" onSubmit={handleRegister}>
-                  <label htmlFor="register-name">Nome completo</label>
-                  <input
-                    id="register-name"
-                    type="text"
-                    autoComplete="name"
-                    value={registerForm.name}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({
-                        ...current,
-                        name: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                <form
+                  className="account-form"
+                  onSubmit={handleRegister}
+                  noValidate
+                >
+                  {[
+                    {
+                      field: "name",
+                      label: "Nome completo",
+                      type: "text",
+                      auto: "name",
+                      placeholder: "Digite seu nome completo",
+                    },
+                    {
+                      field: "phone",
+                      label: "Telefone",
+                      type: "tel",
+                      auto: "tel",
+                      placeholder: "(11) 99999-9999",
+                    },
+                    {
+                      field: "email",
+                      label: "E-mail",
+                      type: "email",
+                      auto: "email",
+                      placeholder: "exemplo@email.com",
+                    },
+                    {
+                      field: "password",
+                      label: "Senha",
+                      type: "password",
+                      auto: "new-password",
+                      placeholder: "Mínimo de 6 caracteres",
+                    },
+                    {
+                      field: "confirmPassword",
+                      label: "Confirmar senha",
+                      type: "password",
+                      auto: "new-password",
+                      placeholder: "Digite sua senha novamente",
+                    },
+                  ].map(({ field, label, type, auto, placeholder }) => (
+                    <div className="account-register-field" key={field}>
+                      <label htmlFor={`register-${field}`}>{label}</label>
 
-                  <label htmlFor="register-phone">Telefone</label>
-                  <input
-                    id="register-phone"
-                    type="tel"
-                    autoComplete="tel"
-                    value={registerForm.phone}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({
-                        ...current,
-                        phone: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                      <input
+                        key={`${field}-${registerErrors[field] ? registerShake : "ok"}`}
+                        className={
+                          registerErrors[field] ? "account-input-shake" : ""
+                        }
+                        id={`register-${field}`}
+                        type={type}
+                        autoComplete={auto}
+                        placeholder={placeholder}
+                        inputMode={field === "phone" ? "numeric" : undefined}
+                        maxLength={field === "phone" ? 15 : undefined}
+                        value={registerForm[field]}
+                        onChange={(event) =>
+                          updateRegisterField(field, event.target.value)
+                        }
+                        aria-invalid={Boolean(registerErrors[field])}
+                        aria-describedby={
+                          registerErrors[field]
+                            ? `register-${field}-error`
+                            : undefined
+                        }
+                      />
 
-                  <label htmlFor="register-email">E-mail</label>
-                  <input
-                    id="register-email"
-                    type="email"
-                    autoComplete="email"
-                    value={registerForm.email}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({
-                        ...current,
-                        email: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                      {registerErrors[field] && (
+                        <span
+                          id={`register-${field}-error`}
+                          className="account-field-error"
+                          role="alert"
+                        >
+                          <span aria-hidden="true">!</span>
+                          {registerErrors[field]}
+                        </span>
+                      )}
+                    </div>
+                  ))}
 
-                  <label htmlFor="register-password">Senha</label>
-                  <input
-                    id="register-password"
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={6}
-                    value={registerForm.password}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({
-                        ...current,
-                        password: event.target.value,
-                      }))
-                    }
-                    required
-                  />
-
-                  <label htmlFor="register-confirm">Confirmar senha</label>
-                  <input
-                    id="register-confirm"
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={6}
-                    value={registerForm.confirmPassword}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({
-                        ...current,
-                        confirmPassword: event.target.value,
-                      }))
-                    }
-                    required
-                  />
+                  {accountMessage && (
+                    <div
+                      className={`account-login-alert ${
+                        accountMessage.startsWith("Cadastro solicitado!")
+                          ? "account-alert-success"
+                          : "account-alert-error"
+                      }`}
+                      role="status"
+                    >
+                      <span
+                        className="account-login-alert-icon"
+                        aria-hidden="true"
+                      >
+                        {accountMessage.startsWith("Cadastro solicitado!")
+                          ? "✓"
+                          : "!"}
+                      </span>
+                      <span>{accountMessage}</span>
+                    </div>
+                  )}
 
                   <button type="submit" disabled={accountLoading}>
                     {accountLoading ? "Criando conta..." : "Criar conta"}
                   </button>
                 </form>
-
-                {accountMessage && (
-                  <p className="account-message" role="status">
-                    {accountMessage}
-                  </p>
-                )}
 
                 <button
                   type="button"
@@ -2334,6 +3372,18 @@ function App() {
         </main>
 
         <CartDrawer />
+
+        <CheckoutModal
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          customer={checkoutCustomer}
+          onCustomerChange={setCheckoutCustomer}
+          savedAddresses={accountUser ? customerAddresses : []}
+          customerEmail={accountUser?.email || ""}
+          subtotal={totalPrice}
+          cart={cart}
+          onOrderSuccess={clearCart}
+        />
       </div>
     );
   }
@@ -2381,6 +3431,8 @@ function App() {
           onClose={() => setCheckoutOpen(false)}
           customer={checkoutCustomer}
           onCustomerChange={setCheckoutCustomer}
+          savedAddresses={accountUser ? customerAddresses : []}
+          customerEmail={accountUser?.email || ""}
           subtotal={totalPrice}
           cart={cart}
           onOrderSuccess={clearCart}
@@ -2454,6 +3506,8 @@ function App() {
           onClose={() => setCheckoutOpen(false)}
           customer={checkoutCustomer}
           onCustomerChange={setCheckoutCustomer}
+          savedAddresses={accountUser ? customerAddresses : []}
+          customerEmail={accountUser?.email || ""}
           subtotal={totalPrice}
           cart={cart}
           onOrderSuccess={clearCart}
@@ -2961,6 +4015,8 @@ function App() {
         onClose={() => setCheckoutOpen(false)}
         customer={checkoutCustomer}
         onCustomerChange={setCheckoutCustomer}
+        savedAddresses={accountUser ? customerAddresses : []}
+        customerEmail={accountUser?.email || ""}
         subtotal={totalPrice}
         cart={cart}
         onOrderSuccess={clearCart}
