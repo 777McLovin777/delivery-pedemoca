@@ -76,9 +76,7 @@ function buildMercadoPagoPixRequest(
 }
 
 async function sendMercadoPagoPixRequest(
-  orderId: string,
-  total: number,
-  payerEmail: string,
+  requestBody: Record<string, unknown>,
   idempotencyKey: string,
 ) {
   if (!PIX_CHARGES_ENABLED) {
@@ -91,31 +89,66 @@ async function sendMercadoPagoPixRequest(
     throw new Error("Credencial do Mercado Pago não configurada.");
   }
 
-  const request = buildMercadoPagoPixRequest(
-    orderId,
-    total,
-    payerEmail,
-    idempotencyKey,
-  );
-
-  const response = await fetch(request.url, {
-    method: "POST",
+  const request = {
+    url: "https://api.mercadopago.com/v1/orders",
     headers: {
-      ...request.headers,
-      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "X-Idempotency-Key": idempotencyKey,
     },
-    body: JSON.stringify(request.body),
-    signal: AbortSignal.timeout(15000),
-  });
+    body: requestBody,
+  };
 
-  const result = await response.json().catch(() => null);
+  let response: Response;
 
-  if (!response.ok) {
-    console.error("Erro na API do Mercado Pago:", {
+  try {
+    response = await fetch(request.url, {
+      method: "POST",
+      headers: {
+        ...request.headers,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(request.body),
+      signal: AbortSignal.timeout(15000),
+    });
+  } catch (error) {
+    console.error("Falha de comunicação com o Mercado Pago:", {
+      errorType: error instanceof Error ? error.name : "unknown",
+    });
+
+    throw new Error(
+      "Não foi possível confirmar a resposta do Mercado Pago. " +
+        "A tentativa PIX deve permanecer em processamento.",
+    );
+  }
+
+  let result: unknown;
+
+  try {
+    result = await response.json();
+  } catch {
+    console.error("Resposta JSON inválida do Mercado Pago:", {
       status: response.status,
     });
 
-    throw new Error("Não foi possível gerar o pagamento PIX.");
+    throw new Error(
+      "Não foi possível interpretar a resposta do Mercado Pago. " +
+        "O estado da cobrança precisa ser verificado.",
+    );
+  }
+
+  if (!response.ok) {
+    console.error("Erro HTTP na API do Mercado Pago:", {
+      status: response.status,
+    });
+
+    throw new Error("O Mercado Pago não confirmou a criação do pagamento PIX.");
+  }
+
+  if (!isRecord(result)) {
+    throw new Error(
+      "Resposta inesperada do Mercado Pago. " +
+        "O estado da cobrança precisa ser verificado.",
+    );
   }
 
   return result;
@@ -445,6 +478,21 @@ export default {
       // Uma cobrança pode já ter sido iniciada.
       // Nunca criar outra cobrança automaticamente neste estado.
       if (attempt.attempt_status === "processing") {
+        // A recuperação segura exige a requisição original.
+        if (
+          typeof attempt.payer_email !== "string" ||
+          !attempt.payer_email.trim() ||
+          !isRecord(attempt.request_payload)
+        ) {
+          return respond(req, 409, {
+            success: false,
+            readyForPix: false,
+            attemptStatus: "processing",
+            error:
+              "Tentativa PIX sem dados suficientes para recuperação automática.",
+          });
+        }
+
         return respond(req, 202, {
           success: true,
           readyForPix: false,
@@ -476,6 +524,107 @@ export default {
           total,
           attemptStatus: attempt.attempt_status,
           message: "Cobranças PIX temporariamente desativadas.",
+        });
+      }
+
+      // Recupera o snapshot imutável, quando já existir.
+      const hasSavedEmail = attempt.payer_email !== null;
+      const hasSavedPayload = attempt.request_payload !== null;
+
+      // Um snapshot parcialmente salvo não pode iniciar cobrança.
+      if (hasSavedEmail !== hasSavedPayload) {
+        return respond(req, 409, {
+          success: false,
+          readyForPix: false,
+          error: "A tentativa PIX possui dados incompletos.",
+        });
+      }
+
+      const snapshotExists = hasSavedEmail && hasSavedPayload;
+
+      if (
+        snapshotExists &&
+        (typeof attempt.payer_email !== "string" ||
+          !emailPattern.test(attempt.payer_email) ||
+          !isRecord(attempt.request_payload))
+      ) {
+        return respond(req, 409, {
+          success: false,
+          readyForPix: false,
+          error: "O snapshot PIX armazenado é inválido.",
+        });
+      }
+
+      // O e-mail original não pode ser substituído por outro.
+      const effectivePayerEmail = snapshotExists
+        ? (attempt.payer_email as string)
+        : payerEmail.trim();
+
+      // Reconstrói a requisição esperada a partir do pedido atual.
+      const pixRequest = buildMercadoPagoPixRequest(
+        orderId,
+        total,
+        effectivePayerEmail,
+        attempt.idempotency_key,
+      );
+
+      // Compara o snapshot salvo com a requisição esperada.
+      // A comparação considera o conteúdo, não a ordem das propriedades.
+      if (snapshotExists) {
+        const savedPayload = attempt.request_payload as Record<string, unknown>;
+
+        const normalize = (value: unknown): unknown => {
+          if (Array.isArray(value)) {
+            return value.map(normalize);
+          }
+
+          if (isRecord(value)) {
+            return Object.fromEntries(
+              Object.entries(value)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([key, item]) => [key, normalize(item)]),
+            );
+          }
+
+          return value;
+        };
+
+        if (
+          JSON.stringify(normalize(savedPayload)) !==
+          JSON.stringify(normalize(pixRequest.body))
+        ) {
+          return respond(req, 409, {
+            success: false,
+            readyForPix: false,
+            error: "O snapshot PIX não corresponde aos dados do pedido.",
+          });
+        }
+      }
+
+      // Preserva a requisição antes de iniciar qualquer cobrança.
+      const { data: prepared, error: prepareError } =
+        await ctx.supabaseAdmin.rpc("prepare_pix_request", {
+          p_attempt_id: attempt.attempt_id,
+          p_idempotency_key: attempt.idempotency_key,
+          p_payer_email: effectivePayerEmail,
+          p_request_payload: pixRequest.body,
+        });
+
+      if (prepareError) {
+        console.error("Erro ao preparar requisição PIX:", prepareError);
+
+        return respond(req, 500, {
+          success: false,
+          readyForPix: false,
+          error: "Não foi possível preparar a cobrança PIX.",
+        });
+      }
+
+      if (prepared !== true) {
+        return respond(req, 409, {
+          success: false,
+          readyForPix: false,
+          error: "Esta tentativa PIX não pôde ser preparada.",
         });
       }
 
@@ -535,17 +684,44 @@ export default {
         return pixData;
       };
 
-      void savePixResponse;
+      // Esta chamada permanece inacessível enquanto
+      // PIX_CHARGES_ENABLED estiver definido como false.
+      try {
+        const mercadoPagoResponse = await sendMercadoPagoPixRequest(
+          pixRequest.body,
+          attempt.idempotency_key,
+        );
 
-      // Ainda não chamar o Mercado Pago.
-      return respond(req, 202, {
-        success: true,
-        readyForPix: false,
-        orderNumber: order.order_number,
-        total,
-        attemptStatus: "processing",
-        message: "Tentativa PIX assumida. Cobrança ainda não ativada.",
-      });
+        const pixData = await savePixResponse(mercadoPagoResponse);
+
+        return respond(req, 200, {
+          success: true,
+          readyForPix: true,
+          orderNumber: order.order_number,
+          total,
+          attemptStatus: "pending",
+          pixCode: pixData.pixCode,
+          qrCodeBase64: pixData.qrCodeBase64,
+          message: "Código PIX gerado com sucesso.",
+        });
+      } catch (error) {
+        console.error("Falha ao processar tentativa PIX:", {
+          errorType: error instanceof Error ? error.name : "unknown",
+        });
+
+        // A cobrança pode existir no Mercado Pago.
+        // Não criar outra tentativa nem repetir o POST.
+        return respond(req, 202, {
+          success: false,
+          readyForPix: false,
+          orderNumber: order.order_number,
+          total,
+          attemptStatus: "processing",
+          message:
+            "Não foi possível confirmar a cobrança PIX. " +
+            "A tentativa permanece em processamento para verificação.",
+        });
+      }
     } catch (error) {
       console.error("Erro inesperado ao preparar PIX:", error);
 
