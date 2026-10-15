@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+﻿import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -11,10 +11,11 @@ describe("Pé de Moça - produtos", () => {
   });
 
   async function openMousseDeCafeModal(user) {
+    window.history.pushState({}, "", "/cardapio/cookies");
     render(<App />);
 
     const productTitle = screen.getByRole("heading", {
-      name: "Mousse de Café",
+      name: "Cookie Kinder Bueno",
     });
 
     const productCard = productTitle.closest(".product-card");
@@ -25,10 +26,10 @@ describe("Pé de Moça - produtos", () => {
       name: /adicionar ao pedido/i,
     });
 
-    await user.click(addButton);
+    fireEvent.click(addButton);
 
-    return screen.getByRole("heading", {
-      name: "Mousse de Café",
+    return screen.findByRole("heading", {
+      name: "Cookie Kinder Bueno",
       level: 2,
     });
   }
@@ -119,8 +120,13 @@ describe("Pé de Moça - produtos", () => {
     const savedCart = JSON.parse(localStorage.getItem("pedemoca-cart"));
 
     expect(savedCart).toHaveLength(1);
-    expect(savedCart[0].name).toBe("Mousse de Café");
+    expect(savedCart[0].name).toBe("Cookie Kinder Bueno");
     expect(savedCart[0].quantity).toBe(2);
     expect(savedCart[0].observation).toBe("Sem açúcar adicional");
   });
 });
+
+
+
+
+
