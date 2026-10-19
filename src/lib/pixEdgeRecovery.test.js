@@ -232,9 +232,20 @@ it("recupera cobrança encontrada na pesquisa sem criar outra", async () => {
     expect(options.method ?? "GET").toBe("GET");
 
     if (String(url).includes("/v1/orders?")) {
+      const searchUrl = new URL(String(url));
+
+      expect(searchUrl.pathname).toBe("/v1/orders");
+      expect(searchUrl.searchParams.get("external_reference")).toBe(orderId);
+      expect(searchUrl.searchParams.get("begin_date")).toBeTruthy();
+      expect(searchUrl.searchParams.get("end_date")).toBeTruthy();
+      expect(searchUrl.searchParams.get("offset")).toBe("0");
+      expect(searchUrl.searchParams.get("limit")).toBe("50");
+      expect(searchUrl.searchParams.has("page")).toBe(false);
+      expect(searchUrl.searchParams.has("page_size")).toBe(false);
+
       return Response.json({
         data: [{ id: providerOrderId, external_reference: orderId }],
-        paging: { total: 1, limit: 100, offset: 0 },
+        paging: { total: 1, limit: 50, offset: 0 },
       });
     }
 

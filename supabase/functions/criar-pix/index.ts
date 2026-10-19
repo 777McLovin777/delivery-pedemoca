@@ -208,8 +208,8 @@ async function searchMercadoPagoOrders(
   url.searchParams.set("external_reference", externalReference);
   url.searchParams.set("begin_date", beginDate);
   url.searchParams.set("end_date", endDate);
-  url.searchParams.set("page", "1");
-  url.searchParams.set("page_size", "100");
+  url.searchParams.set("offset", "0");
+  url.searchParams.set("limit", "50");
 
   const response = await fetch(url.toString(), {
     method: "GET",
