@@ -76,3 +76,38 @@ describe("Validação real da resposta PIX", () => {
 		expect(() => extractMercadoPagoPixData(response, 25.9, orderId)).toThrow();
 	});
 });
+
+it("rejeita uma cobrança com múltiplos pagamentos PIX", () => {
+    const response = createPixResponse();
+    response.transactions.payments.push({
+        ...response.transactions.payments[0],
+    });
+
+    expect(() =>
+        extractMercadoPagoPixData(response, 25.9, orderId),
+    ).toThrow();
+});
+
+it("rejeita valor PIX com fração de centavo", () => {
+    const response = createPixResponse();
+    response.transactions.payments[0].amount = "25.904";
+
+    expect(() =>
+        extractMercadoPagoPixData(response, 25.9, orderId),
+    ).toThrow();
+});
+
+it.each([
+    ["0.29", 0.29],
+    ["1.13", 1.13],
+])("aceita valor monetário legítimo de R$ %s", (amount, expectedTotal) => {
+    const response = createPixResponse();
+    response.transactions.payments[0].amount = amount;
+
+    expect(
+        extractMercadoPagoPixData(response, expectedTotal, orderId)
+    ).toMatchObject({
+        providerOrderId: "mp-order-123",
+        pixCode: "codigo-pix-teste",
+    });
+});

@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -32,3 +32,14 @@ test-results/
 *.njsproj
 *.sln
 *.sw?
+
+# Auditoria e backups locais PIX
+/auditoria-remota-pix/
+/auditoria-pix.zip
+/aplicar-recuperacao-pix.cjs
+/aplicar-recuperacao-pix.ps1
+/index-pix-recuperacao.ts
+/pix-diff-revisao.txt
+/supabase/functions/criar-pix/*.backup*
+
+/publicacao-torta/

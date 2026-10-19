@@ -164,4 +164,28 @@ describe("Recuperação PIX no backend", () => {
       external_reference: "pedido-1",
     });
   });
+
+  it("aceita o formato oficial de resposta da API Orders", () => {
+    const searchResponse = {
+      data: [
+        {
+          id: "ORD01K9SN1Q5959CGN8QGW00EH7V5",
+          type: "online",
+          external_reference: "pedido-1",
+          total_amount: "25.00",
+          status: "processed",
+        },
+      ],
+      paging: {
+        total: "1",
+        total_pages: "1",
+        offset: "0",
+        limit: "20",
+      },
+    };
+
+    expect(selectPixOrderFromSearch(searchResponse, "pedido-1")).toEqual(
+      searchResponse.data[0],
+    );
+  });
 });

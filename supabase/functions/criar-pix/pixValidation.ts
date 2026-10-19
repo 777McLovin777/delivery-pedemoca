@@ -44,7 +44,7 @@ function getFirstMercadoPagoPayment(
 
 	const payments = transactions.payments;
 
-	if (!Array.isArray(payments) || !isRecord(payments[0])) {
+	if (!Array.isArray(payments) || payments.length !== 1 || !isRecord(payments[0])) {
 		throw new Error("Pagamento não encontrado na resposta.");
 	}
 
@@ -96,7 +96,7 @@ export function extractMercadoPagoPixData(
 
 	if (
 		!Number.isFinite(paymentAmount) ||
-		Math.round(paymentAmount * 100) !== Math.round(expectedTotal * 100)
+		(!/^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(String(payment.amount)) || !Number.isFinite(expectedTotal) || !Number.isSafeInteger(Math.round(expectedTotal * 100)) || Math.round(paymentAmount * 100) !== Math.round(expectedTotal * 100))
 	) {
 		throw new Error(
 			"O valor retornado pelo Mercado Pago não corresponde ao pedido.",
