@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { isValidOrderResponse } from "../lib/orderResponse";
 import { neighborhoods } from "../data/neighborhoods";
 
 export default function CheckoutModal({
@@ -345,6 +346,10 @@ export default function CheckoutModal({
 
       if (error) {
         throw error;
+      }
+
+      if (!isValidOrderResponse(data)) {
+        throw new Error("Resposta inválida ao criar pedido.");
       }
 
       console.log("PEDIDO CRIADO:", data);
