@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = "pedemoca-pending-checkout";
+const STORAGE_KEY = "pedemoca-pending-checkout";
 const MAX_AGE_MS = 30 * 60 * 1000;
 
 function isValidPayload(payload) {
@@ -10,6 +10,27 @@ function isValidPayload(payload) {
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(payload.checkoutToken) &&
     Array.isArray(payload.items) &&
     payload.items.length > 0
+  );
+}
+
+function deepEqual(a, b) {
+  if (Object.is(a, b)) return true;
+
+  if (!a || !b || typeof a !== "object" || typeof b !== "object") {
+    return false;
+  }
+
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+
+  if (keysA.length !== keysB.length) return false;
+
+  return keysA.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(b, key) &&
+      deepEqual(a[key], b[key])
   );
 }
 
@@ -26,7 +47,7 @@ function samePurchase(saved, current) {
 
   return (
     (currentToken === undefined || savedToken === currentToken) &&
-    JSON.stringify(savedDetails) === JSON.stringify(currentDetails)
+    deepEqual(savedDetails, currentDetails)
   );
 }
 
@@ -48,6 +69,8 @@ export function savePendingCheckout(payload) {
 
     if (existing !== null) {
       const saved = JSON.parse(existing);
+
+      if (saved?.status === "sent") return false;
 
       if (isWithinExpiry(saved)) {
         return samePurchase(saved, payload);

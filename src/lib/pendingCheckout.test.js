@@ -128,3 +128,62 @@ it("permite salvar uma nova tentativa quando a anterior expirou", () => {
   expect(savePendingCheckout(newPayload)).toBe(true);
   expect(getPendingCheckout(newPayload)).toEqual(newPayload);
 });
+
+it("não recupera o token quando o cliente altera os dados da compra", () => {
+  expect(savePendingCheckout(originalPayload)).toBe(true);
+
+  const { checkoutToken, ...purchaseDetails } = originalPayload;
+
+  const changedPurchase = {
+    ...purchaseDetails,
+    customerPhone: "11888888888",
+  };
+
+  expect(getPendingCheckout(changedPurchase)).toBeNull();
+  expect(getPendingCheckout(purchaseDetails)?.checkoutToken).toBe(checkoutToken);
+});
+
+it("reconhece a mesma compra mesmo com propriedades em ordem diferente", () => {
+  expect(savePendingCheckout(originalPayload)).toBe(true);
+
+  const reorderedPayload = {
+    items: originalPayload.items,
+    pickupLocationId: originalPayload.pickupLocationId,
+    fulfillmentType: originalPayload.fulfillmentType,
+    paymentMethod: originalPayload.paymentMethod,
+    customerPhone: originalPayload.customerPhone,
+    customerName: originalPayload.customerName,
+  };
+
+  expect(getPendingCheckout(reorderedPayload)?.checkoutToken).toBe(
+    originalPayload.checkoutToken
+  );
+});
+
+it("não substitui uma tentativa enviada mesmo após 30 minutos", () => {
+  expect(savePendingCheckout(originalPayload)).toBe(true);
+
+  const key = "pedemoca-pending-checkout";
+  const saved = JSON.parse(localStorage.getItem(key));
+
+  localStorage.setItem(
+    key,
+    JSON.stringify({
+      ...saved,
+      status: "sent",
+      savedAt: Date.now() - 31 * 60 * 1000,
+    })
+  );
+
+  const newPayload = {
+    ...originalPayload,
+    checkoutToken: "223e4567-e89b-42d3-a456-426614174000",
+    items: [{ productId: 101, quantity: 3 }],
+  };
+
+  expect(savePendingCheckout(newPayload)).toBe(false);
+
+  const preserved = JSON.parse(localStorage.getItem(key));
+  expect(preserved.checkoutToken).toBe(originalPayload.checkoutToken);
+  expect(preserved.status).toBe("sent");
+});

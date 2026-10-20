@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { isValidOrderResponse } from "../lib/orderResponse";
+import { savePendingCheckout, getPendingCheckout } from "../lib/pendingCheckout";
 import { neighborhoods } from "../data/neighborhoods";
 
 export default function CheckoutModal({
@@ -97,6 +98,7 @@ export default function CheckoutModal({
   const [pickupLocationsLoading, setPickupLocationsLoading] = useState(false);
   const [checkoutToken, setCheckoutToken] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [createdOrder, setCreatedOrder] = useState(null);
 
   // APENAS PARA TESTE VISUAL LOCAL — remover antes de publicar.
@@ -332,10 +334,11 @@ export default function CheckoutModal({
       items: orderItems,
     };
 
-    if (submitting) {
+    if (submittingRef.current || submitting) {
       return;
     }
 
+    submittingRef.current = true;
     setSubmitError("");
     setSubmitting(true);
 
@@ -366,6 +369,7 @@ export default function CheckoutModal({
         "Não foi possível confirmar seu pedido agora. Tente novamente.",
       );
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
