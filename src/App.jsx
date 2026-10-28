@@ -66,20 +66,20 @@ import mcafe3 from "./assets/mcafe3-optimized.webp";
 import moreo from "./assets/moreo-optimized.webp";
 
 // Cookies — Nutella
-import cnutella from "./assets/cnutella.png";
-import cnutella2 from "./assets/cnutella2.png";
-import cnutella3 from "./assets/cnutella3.png";
-import cnutella4 from "./assets/cnutella4.png";
+import cnutella from "./assets/cnutella.webp";
+import cnutella2 from "./assets/cnutella2.webp";
+import cnutella3 from "./assets/cnutella3.webp";
+import cnutella4 from "./assets/cnutella4.webp";
 
 // Cookies — Kinder Bueno
-import ckinder from "./assets/ckinder.png";
-import ckinder2 from "./assets/ckinder2.png";
-import ckinder3 from "./assets/ckinder3.png";
+import ckinder from "./assets/ckinder.webp";
+import ckinder2 from "./assets/ckinder2.webp";
+import ckinder3 from "./assets/ckinder3.webp";
 
 // Torta de Mateiga Escocesa
-import TMEembalda from "./assets/TMEembalda.png";
-import TMEmetade from "./assets/TMEmetade.png";
-import TMElado from "./assets/TMElado.png";
+import TMEembalda from "./assets/TMEembalda.webp";
+import TMEmetade from "./assets/TMEmetade.webp";
+import TMElado from "./assets/TMElado.webp";
 
 /* =======================================================
    IMAGENS PADRONIZADAS DOS CARROSSÉIS
