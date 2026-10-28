@@ -16,6 +16,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4173",
     trace: "on-first-retry",
+    serviceWorkers: "block",
   },
 
   projects: [
@@ -28,15 +29,13 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev -- --host 127.0.0.1 --port 4173",
+    command: "npm run dev -- --host 127.0.0.1 --port 4173 --strictPort --mode test",
     url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     env: {
-      ...process.env,
-      VITE_SUPABASE_URL:
-        process.env.VITE_SUPABASE_URL || "https://example.supabase.co",
-      VITE_SUPABASE_PUBLISHABLE_KEY:
-        process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "test-publishable-key",
+      ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("VITE_"))),
+      VITE_SUPABASE_URL: "https://supabase.invalid",
+      VITE_SUPABASE_PUBLISHABLE_KEY: "test-publishable-key",
     },
   },
 });
