@@ -1,20 +1,42 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App";
+
+vi.mock("../lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getUser: vi.fn(async () => ({ data: { user: null }, error: null })),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      })),
+    },
+  },
+}));
 
 describe("Pé de Moça - produtos", () => {
   beforeEach(() => {
     localStorage.clear();
-    window.history.pushState({}, "", "/");
+    window.history.pushState({}, "", "/cardapio/cookies");
+    vi.stubGlobal("fetch", vi.fn(() => { throw new Error("Unexpected network request in product tests"); }));
   });
 
-  async function openMousseDeCafeModal(user) {
-    render(<App />);
+  afterEach(() => {
+    try {
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 
-    const productTitle = screen.getByRole("heading", {
-      name: "Mousse de Café",
+  async function openCookieModal(user) {
+    await act(async () => {
+      render(<App />);
+    });
+
+    const productTitle = await screen.findByRole("heading", {
+      name: "Cookie Kinder Bueno",
     });
 
     const productCard = productTitle.closest(".product-card");
@@ -27,8 +49,8 @@ describe("Pé de Moça - produtos", () => {
 
     await user.click(addButton);
 
-    return screen.getByRole("heading", {
-      name: "Mousse de Café",
+    return screen.findByRole("heading", {
+      name: "Cookie Kinder Bueno",
       level: 2,
     });
   }
@@ -36,7 +58,7 @@ describe("Pé de Moça - produtos", () => {
   it("abre o modal do produto ao clicar em Adicionar ao pedido", async () => {
     const user = userEvent.setup();
 
-    const modalTitle = await openMousseDeCafeModal(user);
+    const modalTitle = await openCookieModal(user);
 
     expect(modalTitle).toBeInTheDocument();
 
@@ -54,7 +76,7 @@ describe("Pé de Moça - produtos", () => {
   it("permite alterar a quantidade e preencher uma observação", async () => {
     const user = userEvent.setup();
 
-    await openMousseDeCafeModal(user);
+    await openCookieModal(user);
 
     const observation = screen.getByPlaceholderText(
       "Alguma observação sobre este produto?",
@@ -79,7 +101,7 @@ describe("Pé de Moça - produtos", () => {
   it("limita a observação a 150 caracteres", async () => {
     const user = userEvent.setup();
 
-    await openMousseDeCafeModal(user);
+    await openCookieModal(user);
 
     const observation = screen.getByPlaceholderText(
       "Alguma observação sobre este produto?",
@@ -96,7 +118,7 @@ describe("Pé de Moça - produtos", () => {
   it("adiciona o produto ao carrinho preservando quantidade e observação", async () => {
     const user = userEvent.setup();
 
-    await openMousseDeCafeModal(user);
+    await openCookieModal(user);
 
     const observation = screen.getByPlaceholderText(
       "Alguma observação sobre este produto?",
@@ -119,7 +141,7 @@ describe("Pé de Moça - produtos", () => {
     const savedCart = JSON.parse(localStorage.getItem("pedemoca-cart"));
 
     expect(savedCart).toHaveLength(1);
-    expect(savedCart[0].name).toBe("Mousse de Café");
+    expect(savedCart[0].name).toBe("Cookie Kinder Bueno");
     expect(savedCart[0].quantity).toBe(2);
     expect(savedCart[0].observation).toBe("Sem açúcar adicional");
   });
