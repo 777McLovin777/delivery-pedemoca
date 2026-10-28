@@ -1,13 +1,13 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("cliente adiciona produto ao carrinho com quantidade e observação", async ({
   page,
 }) => {
-  await page.goto("/cardapio/mousses");
+  await page.goto("/cardapio/cookies");
 
   const productCard = page
     .locator(".product-card")
-    .filter({ hasText: "Mousse de Café" })
+    .filter({ hasText: "Cookie Kinder Bueno" })
     .first();
 
   await expect(productCard).toBeVisible();
@@ -19,7 +19,7 @@ test("cliente adiciona produto ao carrinho com quantidade e observação", async
   await expect(modal).toBeVisible();
   await expect(
     modal.getByRole("heading", {
-      name: "Mousse de Café",
+      name: "Cookie Kinder Bueno",
     }),
   ).toBeVisible();
 
@@ -48,7 +48,7 @@ test("cliente adiciona produto ao carrinho com quantidade e observação", async
   const cart = page.locator(".cart");
 
   await expect(cart).toBeVisible();
-  await expect(cart.getByText("Mousse de Café")).toBeVisible();
+  await expect(cart.getByText("Cookie Kinder Bueno")).toBeVisible();
   await expect(cart.getByText("Sem açúcar adicional")).toBeVisible();
 
   const savedCart = await page.evaluate(() => {
@@ -56,7 +56,7 @@ test("cliente adiciona produto ao carrinho com quantidade e observação", async
   });
 
   expect(savedCart).toHaveLength(1);
-  expect(savedCart[0].name).toBe("Mousse de Café");
+  expect(savedCart[0].name).toBe("Cookie Kinder Bueno");
   expect(savedCart[0].quantity).toBe(2);
   expect(savedCart[0].observation).toBe("Sem açúcar adicional");
 });
