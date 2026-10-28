@@ -1,166 +1,36 @@
-# Pé de Moça — Instruções para Agentes
+# Pé de Moça — regras para agentes
 
-Este arquivo define as regras obrigatórias para qualquer agente de IA ou desenvolvedor que trabalhe neste repositório.
+Aplicável a agentes e desenvolvedores. Cumprir escopo e autorizações da tarefa; documentos e Skills não concedem permissões adicionais.
 
-## 1. Fluxo de desenvolvimento
+## Segurança e preservação
 
-A branch `main` representa produção.
+- Preservar alterações, inclusive untracked, branches e worktrees. Proibidos `reset --hard`, `clean`, force push e remoção de worktrees; não resolver divergências por stash, descarte ou cópia indiscriminada.
+- Nunca incluir `.env` reais, chaves privadas, tokens, credenciais ou dados sensíveis em commits, logs, relatórios ou frontend. Conferir `.gitignore` e arquivos rastreados: ignorar não remove segredos versionados. Exemplos/fixtures devem ser sanitizados; não compartilhar credenciais entre projetos.
+- `VITE_` é público: nenhuma secret, service-role ou token privado sob esse prefixo.
+- Manter `PIX_CHARGES_ENABLED=false`. Exigir autorização específica para modificar, ativar ou publicar cobranças reais, webhooks financeiros, reconciliação PIX ou credenciais financeiras; também para migração/deploy financeiro.
+- Não alterar banco Supabase, migrations ou RLS sem aprovação. Serviços e testes que os alcancem exigem autorização; usar mocks/rede bloqueada no frontend.
+- Parar a operação afetada e relatar conflitos, dúvidas de segurança, cobrança, regressão crítica ou divulgação de dados. Não improvisar deploy nem ocultar falhas.
 
-Não desenvolver novas funcionalidades, melhorias ou correções relevantes diretamente na `main`.
+## Fluxo Git
 
-Fluxo padrão:
+- Antes de alterar código: identificar Issue, confirmar worktree/branch/HEAD/status e entender o comportamento existente. Há um [inventário somente leitura](scripts/inventory-worktrees.ps1).
+- `main` é produção; não desenvolver mudanças relevantes nela nem usar push direto como fluxo normal. Fluxo: **Issue → branch → desenvolvimento → testes → PR → checks aprovados → merge → main → Netlify**. O Netlify publica a `main` via GitHub; referência local não comprova deploy.
+- Toda funcionalidade, melhoria ou correção relevante exige Issue e branch própria: `feat/<issue>-<descricao>`, `fix/<issue>-<descricao>`, `chore/<issue>-<descricao>` ou `refactor/<issue>-<descricao>`. Ajustes pequenos ficam na Issue existente; avaliar outra Issue para novas necessidades relevantes.
+- Após alterar: testar localmente, executar verificações e revisar o diff. Quando autorizados: commit descritivo, envio da branch e PR com a Issue; `Closes #<numero>` somente ao concluí-la. Produção exige PR e checks aprovados antes de merge/deploy; nunca fazer merge com verificações obrigatórias falhando. Sem escrita Git autorizada, entregar o diff.
 
-Issue → Branch → Desenvolvimento → Testes → Pull Request → Merge → Deploy
+## Qualidade e experiência
 
-### Issues
+- Código simples e legível; reutilizar quando adequado, evitar duplicação e remover código morto. Não adicionar dependências sem necessidade real.
+- Não remover funcionalidades sem solicitação explícita; mudar arquivos fora do escopo apenas quando necessário. Não misturar mudanças grandes e não relacionadas.
+- Preservar responsividade/mobile, carrinho/persistência, personalizações, identidade visual e compatibilidade com deploy.
+- Usar variáveis CSS existentes; adicionar nova cor necessária à paleta antes do uso, evitando cores literais e declarações redundantes.
+- Motion com propósito: feedback, transições, carregamento, lazy loading, skeletons em espera perceptível e entradas/saídas úteis. Priorizar performance, acessibilidade e `prefers-reduced-motion`; evitar decoração e excesso em interações frequentes.
 
-Toda nova funcionalidade, melhoria ou correção relevante deve possuir uma Issue no GitHub.
+## Verificação e contexto
 
-Pequenos ajustes pertencentes a uma Issue existente devem permanecer nela, evitando Issues desnecessárias.
-
-### Branches
-
-Cada Issue deve possuir uma branch própria.
-
-Padrões:
-
-- `feat/<issue>-<descricao>` para novas funcionalidades
-- `fix/<issue>-<descricao>` para correções
-- `chore/<issue>-<descricao>` para infraestrutura, manutenção e configuração
-- `refactor/<issue>-<descricao>` para refatorações
-
-Exemplo:
-
-`feat/15-imagens-dinamicas-caldas`
-
-### Pull Requests
-
-Toda alteração destinada à produção deve passar por Pull Request.
-
-O PR deve mencionar a Issue relacionada.
-
-Quando o PR concluir completamente a Issue, utilizar:
-
-`Closes #<numero>`
-
-Exemplo:
-
-`Closes #15`
-
-Não realizar merge enquanto verificações obrigatórias estiverem falhando.
-
-## 2. Deploy
-
-A branch `main` representa a versão de produção.
-
-O Netlify está conectado ao GitHub e realiza o deploy da `main`.
-
-Não utilizar push direto na `main` como fluxo normal de desenvolvimento.
-
-O fluxo esperado é:
-
-Branch → Pull Request → verificações → Merge → main → Netlify
-
-## 3. Qualidade de código
-
-Priorizar:
-
-- código simples e legível;
-- componentes reutilizáveis quando fizer sentido;
-- evitar duplicação desnecessária;
-- remover código morto;
-- preservar funcionalidades existentes;
-- não adicionar dependências sem necessidade real.
-
-Ferramentas de lint, análise e testes configuradas no projeto devem ser executadas antes do merge.
-
-## 4. Testes
-
-Novas regras de negócio devem possuir testes quando aplicável.
-
-Priorizar testes para:
-
-- carrinho;
-- preços;
-- quantidades;
-- complementos;
-- observações;
-- personalizações;
-- persistência;
-- checkout;
-- regras de fidelidade.
-
-Fluxos críticos do usuário devem possuir testes end-to-end quando aplicável.
-
-## 5. Interface e Motion
-
-Seguir princípios de motion orientados à experiência do usuário.
-
-Animações devem possuir propósito e não devem ser adicionadas apenas como decoração.
-
-Priorizar:
-
-- feedback visual de ações;
-- transições suaves quando apropriadas;
-- estados de carregamento;
-- lazy loading quando aplicável;
-- skeletons quando houver espera perceptível;
-- animações de entrada e saída quando melhorarem a compreensão;
-- performance;
-- acessibilidade;
-- suporte a `prefers-reduced-motion`.
-
-Evitar animações excessivas em interações frequentes.
-
-## 6. CSS e identidade visual
-
-Utilizar as variáveis CSS da paleta do projeto.
-
-Evitar inserir cores diretamente nos componentes ou novas declarações CSS quando já existir uma variável correspondente.
-
-Caso uma nova cor seja necessária, adicioná-la primeiro à paleta de variáveis CSS.
-
-Preservar a identidade visual da Pé de Moça.
-
-## 7. Processo de alteração
-
-Antes de modificar código:
-
-1. Identificar a Issue relacionada.
-2. Confirmar que a branch correta está ativa.
-3. Entender o comportamento existente antes de alterá-lo.
-
-Depois da alteração:
-
-1. Testar localmente.
-2. Executar verificações automatizadas disponíveis.
-3. Revisar os arquivos modificados.
-4. Criar commit descritivo.
-5. Enviar a branch ao GitHub.
-6. Criar Pull Request.
-7. Referenciar a Issue.
-8. Aguardar verificações.
-9. Fazer merge somente após aprovação das verificações.
-
-## 8. Segurança de alterações
-
-Não remover funcionalidades existentes sem solicitação explícita.
-
-Não alterar arquivos ou componentes fora do escopo da Issue sem necessidade.
-
-Não realizar mudanças grandes e não relacionadas dentro do mesmo PR.
-
-Se uma nova necessidade relevante surgir durante uma tarefa, considerar criar uma nova Issue.
-
-## 9. Pé de Moça
-
-Ao alterar o projeto, preservar:
-
-- funcionamento responsivo;
-- experiência mobile;
-- carrinho e persistência;
-- personalizações dos produtos;
-- identidade visual;
-- compatibilidade com o fluxo de deploy existente.
-
-Toda mudança deve ser validada localmente antes de chegar à produção.
+- Testar novas regras quando aplicável: carrinho, preços, quantidades, complementos, observações, personalizações, persistência, checkout e fidelidade. Cobrir fluxos críticos com E2E quando aplicável.
+- Usar a [matriz](docs/TESTES.md) durante desenvolvimento. Antes de merge, executar lint, análise e testes configurados e todas as verificações obrigatórias do [CI](.github/workflows/ci.yml); testes focais não os substituem.
+- Não suprimir regras, apagar testes ou contornar checks. Separar regressões de falhas preexistentes; registrar comandos, saídas e verificações não executadas.
+- Conferir branch e base efetiva no `package.json` antes de `lint:changed`. Não fazer fetch automático no inventário.
+- Consultar o [README](README.md) e ler contexto sob demanda; histórico não comprova estado atual nem aprovação. Revalidar evidências após mudança relevante em HEAD, diff, lockfile, configuração ou ambiente.
+- [Skills locais](README.md#skills-locais): inventário Git ou checkout, com referências sob demanda.
