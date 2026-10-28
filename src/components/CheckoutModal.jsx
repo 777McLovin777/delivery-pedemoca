@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import CheckoutPageCurl from "./CheckoutPageCurl";
 import { neighborhoods } from "../data/neighborhoods";
 
 export default function CheckoutModal({
@@ -19,11 +20,19 @@ export default function CheckoutModal({
 }) {
   const dialog = useRef(null);
   const viewportFrame = useRef(null);
-  const pageTimer = useRef(null);
+  const curl = useRef(null);
+  const page = useRef(null);
+  const navigationLock = useRef(false);
+  const transition = useRef(null);
+  const session = useRef(0);
+  const freightRequest = useRef(0);
+  const addressVersion = useRef(0);
+  const currentAddress = useRef("");
+  const freightPending = useRef(false);
+  const focusAfterNavigation = useRef(false);
+  const [navigationBusy, setNavigationBusy] = useState(false);
 
   const [step, setStep] = useState(1);
-  const [pageAnimation, setPageAnimation] = useState("");
-  const [pageDirection, setPageDirection] = useState("forward");
   const [errors, setErrors] = useState({});
   const [deliveryMethod, setDeliveryMethod] = useState("");
   const [pickupLocation, setPickupLocation] = useState(null);
@@ -179,6 +188,7 @@ export default function CheckoutModal({
 
   useEffect(() => {
     if (!open) {
+      setNavigationBusy(false);
       setStep(1);
       setErrors({});
       setDeliveryMethod("");
@@ -249,8 +259,8 @@ export default function CheckoutModal({
               })),
           );
         }
-      } catch (error) {
-        console.error("Erro ao carregar pontos de retirada:", error);
+      } catch {
+        console.error("Erro ao carregar pontos de retirada.");
 
         if (!cancelled) {
           setPickupLocations([]);
@@ -269,15 +279,85 @@ export default function CheckoutModal({
     };
   }, [open]);
 
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      const currentContent = dialog.current?.querySelector(".checkout-content");
+  const invalidateFreight = useCallback(() => {
+    freightRequest.current += 1;
+    freightPending.current = false;
+    setDeliveryLoading(false);
+  }, []);
 
-      if (currentContent) {
-        currentContent.scrollTop = 0;
+  useLayoutEffect(() => {
+    const snapshot = JSON.stringify(address);
+    if (currentAddress.current !== snapshot) {
+      currentAddress.current = snapshot;
+      addressVersion.current += 1;
+      if (freightPending.current) invalidateFreight();
+    }
+  }, [address, invalidateFreight]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    session.current += 1;
+    return () => {
+      session.current += 1;
+      freightRequest.current += 1;
+      freightPending.current = false;
+      transition.current = null;
+      navigationLock.current = false;
+      focusAfterNavigation.current = false;
+      curl.current?.cancel();
+    };
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    if (transition.current?.committed && transition.current.target === step) {
+      curl.current?.reveal();
+    }
+    if (!navigationBusy && focusAfterNavigation.current) {
+      focusAfterNavigation.current = false;
+      const content = page.current?.querySelector(".checkout-content");
+      if (content) content.scrollTop = 0;
+      const title = content?.querySelector("h3") || page.current?.querySelector("h2");
+      title?.setAttribute("tabindex", "-1");
+      title?.focus({ preventScroll: true });
+    }
+  }, [step, navigationBusy, open]);
+
+
+
+  function closeCheckout() {
+    session.current += 1;
+    invalidateFreight();
+    transition.current = null;
+    navigationLock.current = false;
+    focusAfterNavigation.current = false;
+    curl.current?.cancel();
+    setNavigationBusy(false);
+    onClose();
+  }
+
+  // Acquire before validation/normalization, including inline navigation handlers.
+  function guardNavigation(action, holdUntilSettled = false) {
+    return (...args) => {
+      args[0]?.preventDefault?.();
+      if (navigationLock.current || submitting) return;
+      navigationLock.current = true;
+      const actionSession = session.current;
+      let awaiting = false;
+      try {
+        const result = action(...args);
+        if (holdUntilSettled) {
+          awaiting = true;
+          return Promise.resolve(result).finally(() => {
+            if (session.current === actionSession && !transition.current) navigationLock.current = false;
+          });
+        }
+        return result;
+      } finally {
+        if (!transition.current && !awaiting) navigationLock.current = false;
       }
-    });
-  }, [step]);
+    };
+  }
 
   function buildOrderItems() {
     return cart.map((item) => ({
@@ -347,15 +427,14 @@ export default function CheckoutModal({
         throw error;
       }
 
-      console.log("PEDIDO CRIADO:", data);
 
       setCreatedOrder(data);
 
       if (paymentMethod === "cash") {
         onOrderSuccess?.();
       }
-    } catch (error) {
-      console.error("ERRO AO CRIAR PEDIDO:", error);
+    } catch {
+      console.error("Erro ao criar pedido.");
 
       setSubmitError(
         "Não foi possível confirmar seu pedido agora. Tente novamente.",
@@ -452,39 +531,30 @@ export default function CheckoutModal({
     return nextErrors;
   }
 
-  function changeCheckoutStep(nextStep, direction = "forward") {
-    if (pageAnimation) return;
-
-    setPageDirection(direction);
-
-    const exitAnimation =
-      direction === "forward"
-        ? "checkout-step-exit-left"
-        : "checkout-step-exit-right";
-
-    const enterAnimation =
-      direction === "forward"
-        ? "checkout-step-enter-right"
-        : "checkout-step-enter-left";
-
-    setPageAnimation(exitAnimation);
-
-    clearTimeout(pageTimer.current);
-
-    pageTimer.current = setTimeout(
-      () => {
+  function changeCheckoutStep(nextStep) {
+    if (transition.current || nextStep === step) return;
+    const operation = { session: session.current, target: nextStep, committed: false };
+    transition.current = operation;
+    navigationLock.current = true;
+    setNavigationBusy(true);
+    setNeighborhoodOpen(false);
+    dialog.current?.focus({ preventScroll: true });
+    curl.current.start({
+      from: step,
+      to: nextStep,
+      commit() {
+        if (transition.current !== operation || session.current !== operation.session || operation.committed) return;
+        operation.committed = true;
         setStep(nextStep);
-        setPageAnimation(enterAnimation);
-
-        pageTimer.current = setTimeout(
-          () => {
-            setPageAnimation("");
-          },
-          direction === "backward" ? 650 : 500,
-        );
       },
-      direction === "backward" ? 500 : 650,
-    );
+      complete() {
+        if (transition.current !== operation || session.current !== operation.session) return;
+        transition.current = null;
+        navigationLock.current = false;
+        focusAfterNavigation.current = true;
+        setNavigationBusy(false);
+      },
+    });
   }
 
   function handleCustomerSubmit(event) {
@@ -509,7 +579,7 @@ export default function CheckoutModal({
       whatsapp: formatWhatsapp(customer.whatsapp),
     });
 
-    changeCheckoutStep(2, "forward");
+    changeCheckoutStep(2);
   }
 
   function handleDeliveryContinue() {
@@ -526,20 +596,22 @@ export default function CheckoutModal({
     setErrors({});
 
     if (deliveryMethod === "delivery") {
-      changeCheckoutStep(3, "forward");
+      changeCheckoutStep(3);
 
       return;
     }
 
     if (deliveryMethod === "pickup") {
       setDeliveryFee(0);
-      changeCheckoutStep(3, "forward");
+      changeCheckoutStep(3);
 
       return;
     }
   }
 
   function handleSelectSavedAddress(addressId) {
+    invalidateFreight();
+    addressVersion.current += 1;
     if (addressId === "manual") {
       setAddress({
         neighborhood: "",
@@ -576,6 +648,8 @@ export default function CheckoutModal({
   }
 
   function updateAddress(field, value) {
+    invalidateFreight();
+    addressVersion.current += 1;
     setAddress((current) => ({
       ...current,
       [field]: value,
@@ -588,6 +662,7 @@ export default function CheckoutModal({
   }
 
   async function handleCalculateDelivery() {
+    if (freightPending.current) return;
     const neighborhood = address.neighborhood.trim();
     const street = address.street.trim();
     const number = address.number.trim();
@@ -622,6 +697,14 @@ export default function CheckoutModal({
 
     setErrors({});
     setDeliveryLoading(true);
+    freightPending.current = true;
+    const request = ++freightRequest.current;
+    const requestSession = session.current;
+    const version = addressVersion.current;
+    const snapshot = JSON.stringify(address);
+    const isCurrent = () => request === freightRequest.current &&
+      requestSession === session.current && version === addressVersion.current &&
+      snapshot === currentAddress.current;
 
     try {
       const { data, error } = await supabase
@@ -631,6 +714,7 @@ export default function CheckoutModal({
         .eq("is_active", true)
         .maybeSingle();
 
+      if (!isCurrent()) return;
       if (error) {
         throw error;
       }
@@ -646,28 +730,32 @@ export default function CheckoutModal({
       setDeliveryNeighborhoodId(data.id);
       setDeliveryFee(Number(data.delivery_fee));
 
-      console.log("Entrega calculada:", data);
 
-      changeCheckoutStep(4, "forward");
-    } catch (error) {
-      console.error("Erro ao calcular entrega:", error);
+      changeCheckoutStep(4);
+    } catch {
+      if (!isCurrent()) return;
+      console.error("Erro ao calcular entrega.");
 
       setErrors({
         delivery: "Não foi possível calcular a entrega agora. Tente novamente.",
       });
     } finally {
-      setDeliveryLoading(false);
+      if (isCurrent()) {
+        freightPending.current = false;
+        setDeliveryLoading(false);
+      }
     }
   }
 
   function handleBack() {
+    invalidateFreight();
     if (step === 1) {
-      onClose();
+      closeCheckout();
       return;
     }
 
     setErrors({});
-    changeCheckoutStep(step - 1, "backward");
+    changeCheckoutStep(step - 1);
   }
 
   if (!open) return null;
@@ -677,12 +765,21 @@ export default function CheckoutModal({
       ref={dialog}
       className={`checkout-modal checkout-customer-dialog ${
         step === 3 ? "checkout-address-dialog" : ""
-      } ${pageAnimation}`}
+      }`}
+      tabIndex={-1}
+      aria-busy={navigationBusy}
+      onClickCapture={(event) => {
+        if (navigationLock.current && page.current?.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
       aria-labelledby="checkout-title"
-      onCancel={onClose}
+      onCancel={(event) => { event.preventDefault(); closeCheckout(); }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
-          onClose();
+          event.preventDefault();
+          closeCheckout();
         }
       }}
       onClick={(event) => {
@@ -695,7 +792,7 @@ export default function CheckoutModal({
             event.clientY < bounds.top ||
             event.clientY > bounds.bottom)
         ) {
-          onClose();
+          closeCheckout();
         }
       }}
     >
@@ -712,34 +809,7 @@ export default function CheckoutModal({
         })}
       </div>
 
-      {/* Folha de fundo durante a virada */}
-      {pageAnimation === "checkout-step-exit-left" && (
-        <div
-          className={`checkout-next-sheet checkout-next-sheet-${
-            (step % 3) + 1
-          }`}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Folha decorativa que vira sobre a próxima página */}
-      {/* Folha decorativa — avançar e voltar */}
-      {(pageAnimation === "checkout-step-exit-left" ||
-        pageAnimation === "checkout-step-exit-right") && (
-        <div
-          className={`checkout-flip-sheet checkout-flip-sheet-${
-            ((step - 1) % 3) + 1
-          } ${
-            pageAnimation === "checkout-step-exit-right"
-              ? "checkout-flip-sheet-backward"
-              : ""
-          }`}
-          aria-hidden="true"
-        >
-          <div className="checkout-flip-sheet-front" />
-          <div className="checkout-flip-sheet-back" />
-        </div>
-      )}
+      <CheckoutPageCurl ref={curl} pageRef={page} />
 
       {/* Diagonais posicionadas atrás do caderninho */}
       <div className="checkout-spiral-rear">
@@ -870,15 +940,16 @@ export default function CheckoutModal({
         <button
           type="button"
           className="checkout-close"
-          onClick={onClose}
+          onClick={closeCheckout}
           aria-label="Fechar checkout"
         >
           ×
         </button>
       </div>
 
-      {/* Folha que participa da virada */}
+      {/* ?rvore ?nica: o HTML desvanece; apenas o SVG representa a dobra. */}
       <div
+        ref={page}
         className={`checkout-page checkout-page-test-${((step - 1) % 3) + 1}`}
       >
         <div className="checkout-header">
@@ -922,7 +993,7 @@ export default function CheckoutModal({
         {!previewPix && !createdOrder && step === 1 && (
           <form
             className="checkout-content checkout-customer-form"
-            onSubmit={handleCustomerSubmit}
+            onSubmit={guardNavigation(handleCustomerSubmit)}
             noValidate
           >
             <div>
@@ -1011,7 +1082,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={onClose}
+                onClick={closeCheckout}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1093,7 +1164,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1102,7 +1173,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={handleDeliveryContinue}
+                onClick={guardNavigation(handleDeliveryContinue)}
               >
                 <span>Continuar</span>
                 <span>→</span>
@@ -1256,6 +1327,8 @@ export default function CheckoutModal({
                     onChange={(event) => {
                       const checked = event.target.checked;
 
+                      invalidateFreight();
+                      addressVersion.current += 1;
                       setAddress((current) => ({
                         ...current,
                         noNumber: checked,
@@ -1305,7 +1378,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1314,7 +1387,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={handleCalculateDelivery}
+                onClick={guardNavigation(handleCalculateDelivery)}
                 disabled={deliveryLoading}
               >
                 <span>
@@ -1389,7 +1462,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1398,7 +1471,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={() => {
+                onClick={guardNavigation(() => {
                   if (!pickupLocation) {
                     setErrors({
                       pickupLocation: "Escolha um local para retirada.",
@@ -1410,8 +1483,8 @@ export default function CheckoutModal({
                   }
 
                   setErrors({});
-                  changeCheckoutStep(4, "forward");
-                }}
+                  changeCheckoutStep(4);
+                })}
               >
                 <span>Continuar</span>
                 <span>→</span>
@@ -1485,7 +1558,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1494,10 +1567,10 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={() => {
+                onClick={guardNavigation(() => {
                   setErrors({});
-                  changeCheckoutStep(5, "forward");
-                }}
+                  changeCheckoutStep(5);
+                })}
               >
                 <span>Continuar</span>
                 <span>→</span>
@@ -1553,7 +1626,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1562,10 +1635,10 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={() => {
+                onClick={guardNavigation(() => {
                   setErrors({});
-                  changeCheckoutStep(5, "forward");
-                }}
+                  changeCheckoutStep(5);
+                })}
               >
                 <span>Continuar</span>
                 <span>→</span>
@@ -1778,7 +1851,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -1787,7 +1860,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={() => {
+                onClick={guardNavigation(() => {
                   if (!paymentMethod) {
                     setErrors({
                       paymentMethod: "Escolha uma forma de pagamento.",
@@ -1856,8 +1929,8 @@ export default function CheckoutModal({
                   }
 
                   setErrors({});
-                  changeCheckoutStep(6, "forward");
-                }}
+                  changeCheckoutStep(6);
+                })}
               >
                 <span>Continuar</span>
                 <span>→</span>
@@ -1999,7 +2072,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-back-button"
-                onClick={handleBack}
+                onClick={guardNavigation(handleBack)}
               >
                 <span>←</span>
                 <span>Voltar</span>
@@ -2008,7 +2081,7 @@ export default function CheckoutModal({
               <button
                 type="button"
                 className="checkout-button"
-                onClick={handleConfirmOrder}
+                onClick={guardNavigation(handleConfirmOrder, true)}
                 disabled={submitting}
               >
                 <span>
